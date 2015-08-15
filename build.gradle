@@ -1,0 +1,156 @@
+import groovy.xml.MarkupBuilder
+import javax.xml.bind.JAXB
+import org.jooq.util.GenerationTool
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url = "http://files.minecraftforge.net/maven" }
+        maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'org.jooq:jooq-codegen:3.6.2'
+        classpath 'mysql:mysql-connector-java:5.1.36'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'forge'
+
+version = "1.0.0"
+group = "com.skcraft.plume"
+archivesBaseName = "Plume"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven { url "http://repo.maven.apache.org/maven2" }
+    maven { url "http://maven.sk89q.com/repo/" }
+    maven { url "http://maven.cil.li/" }
+}
+
+dependencies {
+    compile 'com.google.guava:guava:18.0'
+    compile 'com.google.code.findbugs:jsr305:3.0.0'
+    compile 'com.google.inject:guice:3.0'
+    compile 'org.projectlombok:lombok:1.12.2'
+    compile 'com.github.rholder:guava-retrying:2.0.0'
+    compile 'org.mapdb:mapdb:2.0-beta5'
+    compile 'net.sf.trove4j:trove4j:3.0.3'
+    compile 'org.jooq:jooq:3.6.2'
+    compile 'org.modelmapper:modelmapper:0.7.4'
+    compile 'org.modelmapper.extensions:modelmapper-jooq:0.7.4'
+    compile 'com.zaxxer:HikariCP:2.4.0'
+    compile 'com.sk89q.worldedit:worldedit-core:6.1.1-SNAPSHOT'
+    compile 'ninja.leaping.configurate:configurate-hocon:2.0'
+    compile 'li.cil.oc:OpenComputers:MC1.7.10-1.5.15.720-dev:api'
+    runtime 'mysql:mysql-connector-java:5.1.36'
+
+    testCompile 'junit:junit:4.11'
+    testCompile 'org.hamcrest:hamcrest-all:1.3'
+    testCompile 'org.dbunit:dbunit:2.5.1'
+    testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
+}
+
+minecraft {
+    ext.forgeVersion = "10.13.4.1492-1.7.10"
+    version = "1.7.10-$forgeVersion"
+
+    replaceIn "com/skcraft/plume/Plume.java"
+    replace "%VERSION%", project.version
+}
+
+processResources {
+    from (sourceSets.main.resources.srcDirs) {
+        expand 'version': project.version, 'mcversion': project.minecraft.version, 'forgeVersion': project.minecraft.forgeVersion
+        include 'mcmod.info'
+    }
+
+    from (sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    // Java 8 turns on doclint which we fail
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives javadocJar
+}
+
+processResources {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+task('generateSchema') << {
+    def writer = new StringWriter()
+
+    new MarkupBuilder(writer).configuration('xmlns': 'http://www.jooq.org/xsd/jooq-codegen-3.6.0.xsd') {
+        jdbc() {
+            driver('com.mysql.jdbc.Driver')
+            url('jdbc:mysql://localhost:3306')
+            user('plume_dev')
+            password('plume_dev')
+        }
+        generator() {
+            database() {
+                name('org.jooq.util.mysql.MySQLDatabase')
+                unsignedTypes("false")
+                schemata {
+                    schema {
+                        inputSchema("plume_data")
+                        outputSchema("data")
+                    }
+
+                    schema {
+                        inputSchema("plume_log")
+                        outputSchema("log")
+                    }
+                }
+            }
+            target() {
+                packageName('com.skcraft.plume.common.sql.model')
+                directory('src/main/java')
+            }
+        }
+    }
+
+    GenerationTool.generate(JAXB.unmarshal(new StringReader(writer.toString()), org.jooq.util.jaxb.Configuration.class))
+}
