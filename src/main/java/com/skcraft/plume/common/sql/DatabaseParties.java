@@ -69,7 +69,7 @@ public class DatabaseParties implements PartyManager {
 
     @Nullable
     @Override
-    public Party findPartiesByName(String name) {
+    public Party findPartyByName(String name) {
         checkNotNull(name, "name");
         return findPartiesByName(Lists.newArrayList(name)).get(name);
     }
@@ -118,7 +118,7 @@ public class DatabaseParties implements PartyManager {
     @Override
     public void refreshParty(Party party) {
         checkNotNull(party, "party");
-        Party loaded = findPartiesByName(party.getName());
+        Party loaded = findPartyByName(party.getName());
         if (loaded != null) {
             party.setName(loaded.getName());
             party.setMembers(loaded.getMembers());

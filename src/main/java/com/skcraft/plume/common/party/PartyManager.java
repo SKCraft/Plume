@@ -21,7 +21,7 @@ public interface PartyManager {
      * @throws DataAccessException Thrown if data can't be accessed
      */
     @Nullable
-    Party findPartiesByName(String name);
+    Party findPartyByName(String name);
 
     /**
      * Get a list of parties with the given IDs.
