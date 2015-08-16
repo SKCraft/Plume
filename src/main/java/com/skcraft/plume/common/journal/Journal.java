@@ -1,7 +1,7 @@
 package com.skcraft.plume.common.journal;
 
 import com.skcraft.plume.common.util.Cursor;
-import com.skcraft.plume.util.Order;
+import com.skcraft.plume.common.util.Order;
 
 import java.util.Collection;
 

@@ -1,4 +1,4 @@
-package com.skcraft.plume.util;
+package com.skcraft.plume.common.util;
 
 /**
  * Order of entries.
