@@ -88,6 +88,7 @@ if (JavaVersion.current().isJava8Compatible()) {
 jar {
     manifest {
         attributes 'FMLCorePlugin': 'com.skcraft.plume.asm.PlumePlugin'
+        attributes 'FMLCorePluginContainsFMLMod': 'true'
     }
 }
 
