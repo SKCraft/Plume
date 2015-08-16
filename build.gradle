@@ -1,6 +1,7 @@
 import groovy.xml.MarkupBuilder
-import javax.xml.bind.JAXB
 import org.jooq.util.GenerationTool
+
+import javax.xml.bind.JAXB
 
 buildscript {
     repositories {
@@ -81,6 +82,12 @@ if (JavaVersion.current().isJava8Compatible()) {
     // Java 8 turns on doclint which we fail
     tasks.withType(Javadoc) {
         options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+
+jar {
+    manifest {
+        attributes 'FMLCorePlugin': 'com.skcraft.plume.asm.PlumePlugin'
     }
 }
 
