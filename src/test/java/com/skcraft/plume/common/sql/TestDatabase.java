@@ -24,8 +24,9 @@ import java.util.UUID;
 
 public class TestDatabase {
 
-    public static final UserId SK_USER = new UserId(UUID.fromString("0ea8eca3-dbf6-47cc-9d1a-c64551ca975c"));
-    public static final UserId VINCENT_USER = new UserId(UUID.fromString("a31a3813-4b01-4022-ba46-29415975c4c5"));
+    public static final UserId SK_USER = new UserId(UUID.fromString("0ea8eca3-dbf6-47cc-9d1a-c64551ca975c"), "sk89q");
+    public static final UserId VINCENT_USER = new UserId(UUID.fromString("a31a3813-4b01-4022-ba46-29415975c4c5"), "vincent");
+    public static final String MOCK_SERVER = "creative";
 
     private static final String DATA_DATABASE = "plume_data";
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");

@@ -79,6 +79,8 @@ public interface ClaimMap {
      * given parameters if changes were made to the database during the
      * operation.</p>
      *
+     * <p>Multiple threads must not call this method at the same time.</p>
+     *
      * @param positions A list of chunk coordinates
      * @param owner The new owner of the claims
      * @param party An optional party to associate with the claim

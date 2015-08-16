@@ -1,6 +1,7 @@
 package com.skcraft.plume.common.claim;
 
 import com.skcraft.plume.common.UserId;
+import com.skcraft.plume.common.util.WorldVector3i;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -20,5 +21,23 @@ public class Claim {
     private UserId owner;
     private String party;
     private Date issueTime;
+
+    public Claim() {
+    }
+
+    public Claim(String server, String world, int x, int z) {
+        this.server = server;
+        this.world = world;
+        this.x = x;
+        this.z = z;
+    }
+
+    public Claim(String server, WorldVector3i position) {
+        this.server = server;
+        this.world = position.getWorldName();
+        this.x = position.getX();
+        this.z = position.getZ();
+    }
+
 
 }
