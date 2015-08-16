@@ -12,6 +12,15 @@ import java.util.Set;
  * Manages groups of players called "parties."
  */
 public interface PartyManager {
+    
+    /**
+     * Load data necessary to use the object. Calling this again refreshes
+     * the data.
+     *
+     * @throws DataAccessException Thrown if data can't be accessed
+     */
+    default void load() {
+    }
 
     /**
      * Get a party with the given ID.
