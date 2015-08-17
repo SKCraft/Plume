@@ -29,7 +29,7 @@ public class TestDatabase {
     public static final String MOCK_SERVER = "creative";
 
     private static final String DATA_DATABASE = "plume_data";
-    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private static final DatabaseOperation SETUP_OPERATION = new CompositeOperation(new DatabaseOperation[] {
             new SetupConnection(),
