@@ -67,13 +67,6 @@ minecraft {
     replace "%VERSION%", project.version
 }
 
-jar {
-
-    manifest {
-        attributes 'FMLAT': 'plume_at.cfg'
-    }
-}
-
 processResources {
     from (sourceSets.main.resources.srcDirs) {
         expand 'version': project.version, 'mcversion': project.minecraft.version, 'forgeVersion': project.minecraft.forgeVersion
@@ -94,6 +87,7 @@ if (JavaVersion.current().isJava8Compatible()) {
 
 jar {
     manifest {
+        attributes 'FMLAT': 'plume_at.cfg'
         attributes 'FMLCorePlugin': 'com.skcraft.plume.asm.PlumePlugin'
         attributes 'FMLCorePluginContainsFMLMod': 'true'
     }
