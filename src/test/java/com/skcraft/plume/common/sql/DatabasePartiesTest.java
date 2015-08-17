@@ -56,9 +56,6 @@ public class DatabasePartiesTest {
         party.setMembers(Sets.newHashSet(new Member(TestDatabase.VINCENT_USER, Rank.OWNER), new Member(TestDatabase.SK_USER, Rank.MEMBER)));
         party.setCreateTime(TestDatabase.parseDate("2015-03-05 10:20:30"));
 
-        assertThat(party.getMembers().size(), is(2));
-        assertThat(party.getCreateTime(), equalTo(TestDatabase.parseDate("2015-03-05 10:20:30")));
-
         partyManager.addParty(party);
     }
 
