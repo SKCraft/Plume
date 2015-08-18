@@ -4,13 +4,14 @@ import com.google.common.collect.Lists;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.auth.Group;
 import com.skcraft.plume.common.auth.User;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
 import java.util.UUID;
 
-import static com.skcraft.plume.common.sql.TestDatabase.SK_USER;
-import static com.skcraft.plume.common.sql.TestDatabase.VINCENT_USER;
+import static com.skcraft.plume.common.sql.MockDatabase.SK_USER;
+import static com.skcraft.plume.common.sql.MockDatabase.VINCENT_USER;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -19,11 +20,17 @@ import static org.junit.Assert.assertThat;
 public class DatabaseHiveTest {
 
     private static final UserId NEW_USER = new UserId(UUID.fromString("570fba58-2ca2-47dd-a5a1-ffb606363c84"), "new_user");
-    private final TestDatabase db = TestDatabase.getPrimary();
+
+    private MockDatabase db;
+
+    @Before
+    public void setUp() throws Exception {
+        db = MockDatabase.getInstance();
+    }
 
     private DatabaseHive createHive() {
-        db.setupDatabase();
-        DatabaseManager manager = new DatabaseManager(db.getDataSource(), db.getDatabase());
+        db.loadData();
+        DatabaseManager manager = db.createDatabaseManager();
         DatabaseHive hive = new DatabaseHive(manager);
         hive.load();
         return hive;

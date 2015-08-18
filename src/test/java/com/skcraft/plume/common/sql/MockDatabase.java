@@ -3,7 +3,6 @@ package com.skcraft.plume.common.sql;
 import com.skcraft.plume.common.UserId;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import lombok.Getter;
 import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.JdbcDatabaseTester;
@@ -22,46 +21,52 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
-public class TestDatabase {
+public class MockDatabase {
 
     public static final UserId SK_USER = new UserId(UUID.fromString("0ea8eca3-dbf6-47cc-9d1a-c64551ca975c"), "sk89q");
     public static final UserId VINCENT_USER = new UserId(UUID.fromString("a31a3813-4b01-4022-ba46-29415975c4c5"), "vincent");
     public static final String MOCK_SERVER = "creative";
 
-    private static final String DATA_DATABASE = "plume_data";
-    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final Object instanceLock = new Object();
+    private static MockDatabase instance;
 
+    private static final String DRIVER = "com.mysql.jdbc.Driver";
+    private static final String BASE_URL =  "jdbc:mysql://localhost:3306/";
+    private static final String USERNAME = "plume_dev";
+    private static final String PASSWORD = "plume_dev";
+    private static final String DATA_SCHEMA = "plume_data";
+    private static final String LOG_SCHEMA = "plume_log";
+
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final DatabaseOperation SETUP_OPERATION = new CompositeOperation(new DatabaseOperation[] {
             new SetupConnection(),
             DatabaseOperation.TRUNCATE_TABLE,
             new ResetConnection(),
             DatabaseOperation.INSERT});
 
-    private final String driver = "com.mysql.jdbc.Driver";
-    private final String url;
-    private final String username = "plume_dev";
-    private final String password = "plume_dev";
-    @Getter private final String database;
     private final DataSource dataSource;
 
-    public TestDatabase(String database) {
-        this.url = "jdbc:mysql://localhost:3306/" + database;
-        this.database = database;
-
+    private MockDatabase() {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(url);
-        config.setUsername(username);
-        config.setPassword(password);
+        config.setJdbcUrl(BASE_URL);
+        config.setUsername(USERNAME);
+        config.setPassword(PASSWORD);
         this.dataSource = new HikariDataSource(config);
     }
 
-    protected void setupDatabase() {
+    public void loadData() {
+        importData("test_data.xml", DATA_SCHEMA);
+        importData("test_log.xml", LOG_SCHEMA);
+    }
+
+    private void importData(String filename, String schema) {
         try {
-            IDataSet dataSet = new FlatXmlDataSetBuilder().build(TestDatabase.class.getResource("test_data.xml"));
-            IDatabaseTester databaseTester = new JdbcDatabaseTester(driver, url, username, password);
+            IDataSet dataSet = new FlatXmlDataSetBuilder().build(MockDatabase.class.getResource(filename));
+            IDatabaseTester databaseTester = new JdbcDatabaseTester(DRIVER, BASE_URL + schema, USERNAME, PASSWORD);
             databaseTester.setSetUpOperation(SETUP_OPERATION);
             databaseTester.setDataSet(dataSet);
             databaseTester.onSetup();
+            databaseTester.getConnection().close();
         } catch (Exception e) {
             throw new RuntimeException("Failed to setup database for test", e);
         }
@@ -71,16 +76,28 @@ public class TestDatabase {
         return dataSource;
     }
 
+    public static MockDatabase getInstance() {
+        synchronized (instanceLock) {
+            if (instance == null) {
+                instance = new MockDatabase();
+            }
+            return instance;
+        }
+    }
+
+    public DatabaseManager createDatabaseManager() {
+        DatabaseManager manager = new DatabaseManager(getDataSource());
+        manager.setDataSchema(DATA_SCHEMA);
+        manager.setLogSchema(LOG_SCHEMA);
+        return manager;
+    }
+
     public static Date parseDate(String text) {
         try {
             return simpleDateFormat.parse(text);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static TestDatabase getPrimary() {
-        return new TestDatabase(DATA_DATABASE);
     }
 
     private static class SetupConnection extends DatabaseOperation {

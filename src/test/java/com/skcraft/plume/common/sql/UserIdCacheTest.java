@@ -2,6 +2,7 @@ package com.skcraft.plume.common.sql;
 
 import com.skcraft.plume.common.UserId;
 import org.jooq.DSLContext;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.UUID;
@@ -11,12 +12,17 @@ import static org.junit.Assert.assertThat;
 
 public class UserIdCacheTest {
 
-    private final TestDatabase db = TestDatabase.getPrimary();
+    private MockDatabase db;
+
+    @Before
+    public void setUp() throws Exception {
+        db = MockDatabase.getInstance();
+    }
 
     @Test
     public void testGetOrCreateUserId() throws Exception {
-        db.setupDatabase();
-        DatabaseManager manager = new DatabaseManager(db.getDataSource(), db.getDatabase());
+        db.loadData();
+        DatabaseManager manager = db.createDatabaseManager();
         UserIdCache cache = new UserIdCache();
         DSLContext create = manager.create();
         assertThat(cache.getOrCreateUserId(create, new UserId(UUID.fromString("4da29664-a697-48ff-b702-19f8d304e461"), "test")), is(3));

@@ -1,6 +1,7 @@
 package com.skcraft.plume.common.sql;
 
 import com.skcraft.plume.common.ban.Ban;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -10,11 +11,16 @@ import static org.junit.Assert.assertThat;
 
 public class DatabaseBansTest {
 
-    private final TestDatabase db = TestDatabase.getPrimary();
+    private MockDatabase db;
+
+    @Before
+    public void setUp() throws Exception {
+        db = MockDatabase.getInstance();
+    }
 
     private DatabaseBans createBans() {
-        db.setupDatabase();
-        DatabaseManager manager = new DatabaseManager(db.getDataSource(), db.getDatabase());
+        db.loadData();
+        DatabaseManager manager = db.createDatabaseManager();
         DatabaseBans bans = new DatabaseBans(manager);
         bans.load();
         return bans;
@@ -26,10 +32,10 @@ public class DatabaseBansTest {
 
         List<Ban> bans;
 
-        bans = banManager.findActiveBans(TestDatabase.SK_USER);
+        bans = banManager.findActiveBans(MockDatabase.SK_USER);
         assertThat(bans.size(), is(0));
 
-        bans = banManager.findActiveBans(TestDatabase.VINCENT_USER);
+        bans = banManager.findActiveBans(MockDatabase.VINCENT_USER);
         assertThat(bans.size(), is(2));
     }
 
