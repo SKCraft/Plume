@@ -8,7 +8,7 @@ import com.skcraft.plume.common.sql.model.data.Data;
 import com.skcraft.plume.common.sql.model.data.Keys;
 import com.skcraft.plume.common.sql.model.data.tables.records.ClaimRecord;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,7 +35,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Claim extends TableImpl<ClaimRecord> {
 
-	private static final long serialVersionUID = 23058951;
+	private static final long serialVersionUID = 26100207;
 
 	/**
 	 * The reference instance of <code>data.claim</code>
@@ -83,7 +83,7 @@ public class Claim extends TableImpl<ClaimRecord> {
 	/**
 	 * The column <code>data.claim.issue_time</code>.
 	 */
-	public final TableField<ClaimRecord, Date> ISSUE_TIME = createField("issue_time", org.jooq.impl.SQLDataType.DATE.nullable(false), this, "");
+	public final TableField<ClaimRecord, Timestamp> ISSUE_TIME = createField("issue_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false), this, "");
 
 	/**
 	 * Create a <code>data.claim</code> table reference

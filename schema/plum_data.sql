@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `claim` (
   `z` int(11) NOT NULL,
   `owner_id` int(11) unsigned NOT NULL,
   `party_name` varchar(50) DEFAULT NULL,
-  `issue_time` date NOT NULL,
+  `issue_time` datetime NOT NULL,
   PRIMARY KEY (`server`,`world`,`x`,`z`),
   KEY `owner` (`owner_id`) USING HASH,
   KEY `server_world_owner` (`server`,`world`,`owner_id`) USING HASH,
