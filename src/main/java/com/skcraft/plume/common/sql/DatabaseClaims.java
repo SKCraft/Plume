@@ -142,6 +142,7 @@ public class DatabaseClaims implements ClaimMap {
 
         context.transaction(configuration -> {
             DSLContext create = DSL.using(configuration);
+            RenderContext ctx = create.renderContext().qualify(false);
 
             int ownerId = database.getUserIdCache().getOrCreateUserId(create, owner);
             java.sql.Date now = new java.sql.Date(new Date().getTime());
@@ -149,8 +150,6 @@ public class DatabaseClaims implements ClaimMap {
             UnmodifiableIterator<List<WorldVector3i>> it = Iterators.partition(positions.iterator(), UPDATE_BATCH_SIZE);
             while (it.hasNext()) {
                 List<Object> values = Lists.newArrayList();
-
-                RenderContext ctx = create.renderContext().qualify(false);
 
                 StringBuilder builder = new StringBuilder();
                 builder.append("REPLACE INTO ");
