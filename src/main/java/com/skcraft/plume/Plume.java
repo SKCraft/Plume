@@ -55,15 +55,15 @@ public class Plume {
         config.setJdbcUrl("jdbc:mysql://localhost:3306/");
         config.setUsername("plume_dev");
         config.setPassword("plume_dev");
-        DataSource dataSource = new HikariDataSource(config);;
+        DataSource dataSource = new HikariDataSource(config);
 
         databaseManager = new DatabaseManager(dataSource);
         databaseManager.setDataSchema("plume_data");
         databaseManager.setLogSchema("plume_log");
 
-        banManager = new DatabaseBans(databaseManager);
-        hive = new DatabaseHive(databaseManager);
-        partyManager = new DatabaseParties(databaseManager);
+        (banManager = new DatabaseBans(databaseManager)).load();
+        (hive = new DatabaseHive(databaseManager)).load();
+        (partyManager = new DatabaseParties(databaseManager)).load();
 
         PROXY.preInit(event);
     }
