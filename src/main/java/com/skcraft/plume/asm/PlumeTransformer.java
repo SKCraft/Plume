@@ -2,7 +2,10 @@ package com.skcraft.plume.asm;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
-import org.objectweb.asm.*;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.commons.AdviceAdapter;
 
 import java.util.HashMap;
@@ -45,16 +48,8 @@ public class PlumeTransformer implements IClassTransformer {
         }
 
         @Override
-        public void onMethodExit(int opcode) {
-            if(opcode != ATHROW) {
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer$1"), "this$0", "L" + ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer") + ";");
-                mv.visitFieldInsn(GETFIELD, ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer"), "field_147328_g", "L" + ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer$LoginState") + ";");
-                mv.visitFieldInsn(GETSTATIC, ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer$LoginState"), "READY_TO_ACCEPT", "L" + ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer$LoginState") + ";");
-                Label l21 = new Label();
-                mv.visitJumpInsn(IF_ACMPNE, l21);
-                Label l22 = new Label();
-                mv.visitLabel(l22);
+        public void visitFieldInsn(final int opcode, final String owner, final String name, final String desc) {
+            if(opcode == PUTFIELD && owner.equals(ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer")) && name.equals("field_147328_g")) {
                 mv.visitFieldInsn(GETSTATIC, "net/minecraftforge/common/MinecraftForge", "EVENT_BUS", "Lcpw/mods/fml/common/eventhandler/EventBus;");
                 mv.visitTypeInsn(NEW, "com/skcraft/plume/event/network/PlayerAuthenticateEvent");
                 mv.visitInsn(DUP);
@@ -66,14 +61,14 @@ public class PlumeTransformer implements IClassTransformer {
                 mv.visitMethodInsn(INVOKESPECIAL, "com/skcraft/plume/event/network/PlayerAuthenticateEvent", "<init>", "(Lcom/mojang/authlib/GameProfile;L" + ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer") + ";)V", false);
                 mv.visitMethodInsn(INVOKEVIRTUAL, "cpw/mods/fml/common/eventhandler/EventBus", "post", "(Lcpw/mods/fml/common/eventhandler/Event;)Z", false);
                 mv.visitInsn(POP);
-                mv.visitLabel(l21);
             }
+            super.visitFieldInsn(opcode, owner, name, desc);
         }
     }
 
     private static final class ObfMappings {
 
-        public static final Map<String, String> mappings = new HashMap<>();
+        private static final Map<String, String> mappings = new HashMap<>();
         private static final boolean devEnvironment = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
 
         public static String get(String key) {
@@ -83,7 +78,6 @@ public class PlumeTransformer implements IClassTransformer {
         static {
             mappings.put("net/minecraft/server/network/NetHandlerLoginServer", "nn");
             mappings.put("net/minecraft/server/network/NetHandlerLoginServer$1", "no");
-            mappings.put("net/minecraft/server/network/NetHandlerLoginServer$LoginState", "np");
         }
     }
 }
