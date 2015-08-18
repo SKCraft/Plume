@@ -27,6 +27,16 @@ public class ActionMap {
     }
 
     /**
+     * Get the corresponding action ID for the given action.
+     *
+     * @param action The action
+     * @return The action ID
+     */
+    public Short getId(Action action) {
+        return actions.get(action.getClass());
+    }
+
+    /**
      * Parse the given data and return an action.
      *
      * @param code The action ID
@@ -42,7 +52,7 @@ public class ActionMap {
                 action.readData(data);
                 return action;
             } catch (InstantiationException | IllegalAccessException e) {
-                throw new ActionPersistenceException("Could not create Action object for rollback", e);
+                throw new ActionPersistenceException("Could not create " + type.getName() + " object for rollback", e);
             }
         } else {
             return null;

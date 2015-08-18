@@ -1,9 +1,10 @@
 package com.skcraft.plume.common.journal;
 
-import com.skcraft.plume.common.util.Cursor;
+import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.util.Order;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Manages a list of changes, some of which may be reversible.
@@ -11,15 +12,22 @@ import java.util.Collection;
 public interface Journal {
 
     /**
-     * Fetch a list of records matching the given criteria.
+     * Load data necessary to use the object. Calling this again refreshes
+     * the data.
      *
-     * <p>The returned cursor must be closed.</p>
+     * @throws DataAccessException Thrown if data can't be accessed
+     */
+    default void load() {}
+
+    /**
+     * Fetch a list of records matching the given criteria.
      *
      * @param criteria The criteria to match
      * @param order The order by which the records should be sorted in regards to time
-     * @return A cursor that provides access to the data
+     * @param limit The maximum number of entries to return
+     * @return A list of records
      */
-    Cursor<Record> queryRecords(Criteria criteria, Order order);
+    List<Record> queryRecords(Criteria criteria, Order order, int limit);
 
     /**
      * Add the given records to the journal.

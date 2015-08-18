@@ -1,2 +1,10 @@
 <dataset>
+  <log_world id="1" name="world"/>
+  <log_world id="2" name="nether"/>
+  <log_world id="3" name="end"/>
+  <log id="1" time="2014-05-01 00:01:00" user_id="1" world_id="1" x="-20" y="150" z="30" action="1" data="eduardo"/>
+  <log id="2" time="2014-05-01 00:02:00" user_id="1" world_id="1" x="50" y="50" z="30" action="1" data="jimbo"/>
+  <log id="3" time="2014-05-01 00:03:00" user_id="2" world_id="1" x="-20" y="70" z="30" action="2" data="vincent"/>
+  <log id="4" time="2014-05-01 00:04:00" user_id="1" world_id="2" x="50" y="50" z="50" action="2" data="alice"/>
+  <log id="5" time="2014-05-01 00:05:00" user_id="2" world_id="3" x="-20" y="40" z="70" action="1" data="james"/>
 </dataset>

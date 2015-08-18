@@ -4,8 +4,15 @@
 package com.skcraft.plume.common.sql.model.log;
 
 
+import com.skcraft.plume.common.sql.model.log.tables.LogWorld;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import javax.annotation.Generated;
 
+import org.jooq.Table;
 import org.jooq.impl.SchemaImpl;
 
 
@@ -22,7 +29,7 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Log extends SchemaImpl {
 
-	private static final long serialVersionUID = -132632840;
+	private static final long serialVersionUID = 307769737;
 
 	/**
 	 * The reference instance of <code>log</code>
@@ -34,5 +41,18 @@ public class Log extends SchemaImpl {
 	 */
 	private Log() {
 		super("log");
+	}
+
+	@Override
+	public final List<Table<?>> getTables() {
+		List result = new ArrayList();
+		result.addAll(getTables0());
+		return result;
+	}
+
+	private final List<Table<?>> getTables0() {
+		return Arrays.<Table<?>>asList(
+			com.skcraft.plume.common.sql.model.log.tables.Log.LOG,
+			LogWorld.LOG_WORLD);
 	}
 }
