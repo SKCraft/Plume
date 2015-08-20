@@ -4,38 +4,34 @@ import com.google.inject.Injector;
 import com.sk89q.worldedit.util.eventbus.EventBus;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
 import com.skcraft.plume.common.event.lifecycle.PostInitializationEvent;
-import com.skcraft.plume.common.util.module.PlumeLoader;
 import com.skcraft.plume.common.util.FatalError;
+import com.skcraft.plume.common.util.logging.Log4jRedirect;
+import com.skcraft.plume.common.util.module.PlumeLoader;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.*;
 import lombok.extern.java.Log;
-import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Mod(modid = Plume.MODID, name = "Plume", dependencies = "required-after:worldedit", acceptableRemoteVersions = "*")
 @Log
 public class Plume {
-    
+
     public static final String MODID = "plume";
 
     @Instance(MODID)
     public static Plume INSTANCE;
 
     private Injector injector;
-    private Logger logger;
 
     public EventBus getEventBus() {
         return injector.getInstance(EventBus.class);
-    }
-
-    public Logger getLogger() {
-        return logger;
     }
 
     private void handleFatalErrors(List<FatalError> errors) {
@@ -50,7 +46,10 @@ public class Plume {
 
     @EventHandler
     public void onPreInitialization(FMLPreInitializationEvent event) {
-        logger = event.getModLog();
+        // Hack to redirect log messages
+        Logger logger = Logger.getLogger("com.skcraft.plume");
+        logger.setUseParentHandlers(false);
+        logger.addHandler(new Log4jRedirect(event.getModLog(), "Plume"));
 
         injector = new PlumeLoader()
                 .setDataDir(new File(event.getModConfigurationDirectory(), "plume"))
