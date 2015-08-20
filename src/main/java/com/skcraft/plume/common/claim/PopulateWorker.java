@@ -7,12 +7,13 @@ import com.skcraft.plume.common.party.Party;
 import com.skcraft.plume.common.party.PartyCache;
 import com.skcraft.plume.common.util.WorldVector3i;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.java.Log;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -24,7 +25,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * the queue of chunk positions to load and then eventually update the cache
  * with the new claim data.</p>
  */
-@Slf4j
+@Log
 class PopulateWorker implements Runnable {
 
     private final ClaimMap claims;
@@ -76,12 +77,12 @@ class PopulateWorker implements Runnable {
                     } catch (DataAccessException e) {
                         // Should perhaps add a back off option, but it needs to also
                         // not result in a huge queue due to database unavailability
-                        log.warn("Failed to read claim information for " + state.getPosition());
+                        log.warning("Failed to read claim information for " + state.getPosition());
                     }
                 }
                 batch.clear();
             } catch (Exception e) {
-                log.warn("An error occurred in the chunk claim population thread", e);
+                log.log(Level.WARNING, "An error occurred in the chunk claim population thread", e);
             }
         } while (true);
     }

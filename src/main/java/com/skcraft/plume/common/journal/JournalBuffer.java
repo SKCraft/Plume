@@ -1,7 +1,7 @@
 package com.skcraft.plume.common.journal;
 
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.java.Log;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * if sufficient time passes or a threshold on the number of queue size
  * is reached.
  */
-@Slf4j
+@Log
 public class JournalBuffer {
 
     @Getter

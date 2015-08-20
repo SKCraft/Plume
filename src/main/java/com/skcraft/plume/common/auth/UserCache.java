@@ -7,7 +7,7 @@ import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.util.cache.ManagedCache;
 import com.skcraft.plume.common.util.cache.ManagedCacheBuilder;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.java.Log;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.ExecutionException;
@@ -30,7 +30,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * is queried, but the value will be cached so the database will not be
  * hit again.</p>
  */
-@Slf4j
 public class UserCache {
 
     @Getter

@@ -11,7 +11,7 @@ import com.skcraft.plume.common.sql.model.log.tables.records.LogWorldRecord;
 import com.skcraft.plume.common.util.Order;
 import com.skcraft.plume.common.util.WorldVector3i;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.java.Log;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
@@ -26,7 +26,7 @@ import static com.skcraft.plume.common.sql.model.data.tables.UserId.USER_ID;
 import static com.skcraft.plume.common.sql.model.log.tables.Log.LOG;
 import static com.skcraft.plume.common.sql.model.log.tables.LogWorld.LOG_WORLD;
 
-@Slf4j
+@Log
 public class DatabaseJournal implements Journal {
 
     private static final int UPDATE_BATCH_SIZE = 100;
@@ -267,7 +267,7 @@ public class DatabaseJournal implements Journal {
                             values.add(actionId);
                             values.add(action.writeData());
                         } else {
-                            log.warn("Don't know how to store the action " + action.getClass().getName());
+                            log.warning("Don't know how to store the action " + action.getClass().getName());
                         }
                     }
 

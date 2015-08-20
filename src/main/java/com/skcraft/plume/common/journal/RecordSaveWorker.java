@@ -7,13 +7,14 @@ import com.github.rholder.retry.WaitStrategies;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.java.Log;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -21,7 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A worker that saves records to an underlying journal in the
  * background.
  */
-@Slf4j
+@Log
 class RecordSaveWorker implements Runnable {
 
     private final Journal journal;
@@ -43,7 +44,7 @@ class RecordSaveWorker implements Runnable {
 
     public void shutdown() {
         if (!run.compareAndSet(true, false)) {
-            log.warn("Tried to stop RecordSaveWorker more than once");
+            log.warning("Tried to stop RecordSaveWorker more than once");
         }
     }
 
@@ -64,7 +65,7 @@ class RecordSaveWorker implements Runnable {
             try {
                 retryer.call(() -> { journal.addRecords(pending); return true; });
             } catch (ExecutionException | RetryException e) {
-                log.warn("Failed to retry adding records to the journal, which should because retries should continue forever", e);
+                log.log(Level.WARNING, "Failed to retry adding records to the journal, which should because retries should continue forever", e);
             }
 
             pending.clear();
