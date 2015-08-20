@@ -17,7 +17,6 @@ public class CommonProxy {
         eventBus.register(new DebuggingListener(Plume.INSTANCE.getLogger()));
         MinecraftForge.EVENT_BUS.register(new EventAbstractionListener(eventBus));
         MinecraftForge.EVENT_BUS.register(new RobotAbstractionListener(eventBus));
-        MinecraftForge.EVENT_BUS.register(new BanChecker());
     }
 
 }
