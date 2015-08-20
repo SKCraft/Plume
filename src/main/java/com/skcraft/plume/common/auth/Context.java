@@ -20,7 +20,7 @@ public final class Context {
         return values.get(key);
     }
 
-    private static class Builder {
+    public static class Builder {
         private final Map<String, String> values = Maps.newHashMap();
 
         public String get(String key) {
