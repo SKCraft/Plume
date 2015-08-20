@@ -51,6 +51,7 @@ dependencies {
     compile 'com.zaxxer:HikariCP:2.4.0'
     compile 'com.sk89q.worldedit:worldedit-core:6.1.1-SNAPSHOT'
     compile 'ninja.leaping.configurate:configurate-hocon:2.0'
+    compile 'com.sk89q.intake:intake:4.0-SNAPSHOT'
     compile 'li.cil.oc:OpenComputers:MC1.7.10-1.5.15.720-dev:api'
     runtime 'mysql:mysql-connector-java:5.1.36'
 
