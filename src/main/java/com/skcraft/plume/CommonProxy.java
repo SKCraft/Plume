@@ -1,10 +1,8 @@
 package com.skcraft.plume;
 
 import com.sk89q.worldedit.util.eventbus.EventBus;
-import com.skcraft.plume.listener.DebuggingListener;
-import com.skcraft.plume.listener.EventAbstractionListener;
-import com.skcraft.plume.listener.RobotAbstractionListener;
-import com.skcraft.plume.listener.UserManagementListener;
+import com.skcraft.plume.listener.*;
+import com.skcraft.plume.module.BanChecker;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -19,7 +17,7 @@ public class CommonProxy {
         eventBus.register(new DebuggingListener(Plume.INSTANCE.getLogger()));
         MinecraftForge.EVENT_BUS.register(new EventAbstractionListener(eventBus));
         MinecraftForge.EVENT_BUS.register(new RobotAbstractionListener(eventBus));
-        MinecraftForge.EVENT_BUS.register(new UserManagementListener());
+        MinecraftForge.EVENT_BUS.register(new BanChecker());
     }
 
 }
