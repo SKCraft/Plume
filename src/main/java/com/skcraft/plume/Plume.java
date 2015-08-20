@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 
-@Mod(modid = Plume.MODID, name = "Plume", dependencies = "required-after:worldedit")
+@Mod(modid = Plume.MODID, name = "Plume", dependencies = "required-after:worldedit", acceptableRemoteVersions = "*")
 public class Plume {
     
     public static final String MODID = "plume";
