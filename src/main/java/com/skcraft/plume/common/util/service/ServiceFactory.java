@@ -33,10 +33,12 @@ public class ServiceFactory {
     @SuppressWarnings("unchecked")
     public <T> Service<T> create(Class<?> service, Class<?> requester) {
         synchronized (this) {
-            if (!loaded) {
-                required.put(service, requester);
-            } else {
-                throw new NoProviderExistsException(createMissingProviderMessage(service, Lists.newArrayList(requester)));
+            if (!locator.get(service).isPresent()) {
+                if (!loaded) {
+                    required.put(service, requester);
+                } else {
+                    throw new NoProviderExistsException(createMissingProviderMessage(service, Lists.newArrayList(requester)));
+                }
             }
         }
         return new Service<>(locator, (Class<T>) service);
@@ -48,7 +50,9 @@ public class ServiceFactory {
             if (!loaded) {
                 loaded = true;
                 for (Map.Entry<Class<?>, Collection<Class<?>>> entry : required.asMap().entrySet()) {
-                    event.getFatalErrors().add(new FatalError(createMissingProviderMessage(entry.getKey(), entry.getValue())));
+                    if (!locator.get(entry.getKey()).isPresent()) {
+                        event.getFatalErrors().add(new FatalError(createMissingProviderMessage(entry.getKey(), entry.getValue())));
+                    }
                 }
                 required.clear();
             }
