@@ -8,7 +8,6 @@ import com.skcraft.plume.common.extension.module.PlumeLoader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 import org.apache.logging.log4j.Logger;
 
@@ -21,8 +20,6 @@ public class Plume {
 
     @Instance(MODID)
     public static Plume INSTANCE;
-    @SidedProxy(serverSide = "com.skcraft.plume.CommonProxy", clientSide = "com.skcraft.plume.ClientProxy")
-    public static CommonProxy PROXY;
 
     private Injector injector;
     private Logger logger;
@@ -47,13 +44,11 @@ public class Plume {
         getEventBus().post(new InitializationEvent());
         getEventBus().post(new PostInitializationEvent());
         getEventBus().post(event);
-        PROXY.preInit(event);
     }
 
     @EventHandler
     public void onServerStarting(FMLServerStartingEvent event) {
         getEventBus().post(event);
-        PROXY.serverStarting(event);
     }
 
     @EventHandler

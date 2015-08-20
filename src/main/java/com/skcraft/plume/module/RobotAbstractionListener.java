@@ -1,7 +1,9 @@
-package com.skcraft.plume.listener;
+package com.skcraft.plume.module;
 
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import com.sk89q.worldedit.util.eventbus.EventBus;
+import com.skcraft.plume.common.extension.module.Module;
 import com.skcraft.plume.event.Cause;
 import com.skcraft.plume.event.DelegateEvent;
 import com.skcraft.plume.event.block.BlockChange;
@@ -21,12 +23,14 @@ import net.minecraft.init.Blocks;
 
 import java.util.List;
 
+@Module(name = "robot-abstraction-listener", hidden = true)
 public class RobotAbstractionListener {
 
     private final EventBus eventBus;
     private final BlockState STONE_STATE = BlockState.create(Blocks.stone);
     private final BlockState AIR_STATE = BlockState.create(Blocks.air);
 
+    @Inject
     public RobotAbstractionListener(EventBus eventBus) {
         this.eventBus = eventBus;
     }

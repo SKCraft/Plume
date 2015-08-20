@@ -1,7 +1,8 @@
-package com.skcraft.plume.listener;
+package com.skcraft.plume.module;
 
 import com.sk89q.worldedit.util.eventbus.EventHandler.Priority;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
+import com.skcraft.plume.common.extension.module.Module;
 import com.skcraft.plume.event.Result;
 import com.skcraft.plume.event.block.BlockChange;
 import com.skcraft.plume.event.block.BreakBlockEvent;
@@ -14,16 +15,12 @@ import com.skcraft.plume.event.entity.UseEntityEvent;
 import com.skcraft.plume.util.BlockState;
 import com.skcraft.plume.util.Location3d;
 import com.skcraft.plume.util.Location3i;
+import lombok.extern.java.Log;
 import net.minecraft.entity.Entity;
-import org.apache.logging.log4j.Logger;
 
+@Module(name = "abstraction-events-debug", enabled = false)
+@Log
 public class DebuggingListener {
-
-    private final Logger logger;
-
-    public DebuggingListener(Logger logger) {
-        this.logger = logger;
-    }
 
     @Subscribe(priority = Priority.VERY_LATE)
     public void onPlaceBlock(PlaceBlockEvent event) {
@@ -39,7 +36,7 @@ public class DebuggingListener {
             if (event.getResult() != Result.DEFAULT) {
                 builder.append(" [").append(event.getResult()).append("]");
             }
-            logger.info(builder.toString());
+            log.info(builder.toString());
         }
     }
 
@@ -57,7 +54,7 @@ public class DebuggingListener {
             if (event.getResult() != Result.DEFAULT) {
                 builder.append(" [").append(event.getResult()).append("]");
             }
-            logger.info(builder.toString());
+            log.info(builder.toString());
         }
     }
 
@@ -75,7 +72,7 @@ public class DebuggingListener {
             if (event.getResult() != Result.DEFAULT) {
                 builder.append(" [").append(event.getResult()).append("]");
             }
-            logger.info(builder.toString());
+            log.info(builder.toString());
         }
     }
 
@@ -93,7 +90,7 @@ public class DebuggingListener {
             if (event.getResult() != Result.DEFAULT) {
                 builder.append(" [").append(event.getResult()).append("]");
             }
-            logger.info(builder.toString());
+            log.info(builder.toString());
         }
     }
 
@@ -111,7 +108,7 @@ public class DebuggingListener {
             if (event.getResult() != Result.DEFAULT) {
                 builder.append(" [").append(event.getResult()).append("]");
             }
-            logger.info(builder.toString());
+            log.info(builder.toString());
         }
     }
 
@@ -129,7 +126,7 @@ public class DebuggingListener {
             if (event.getResult() != Result.DEFAULT) {
                 builder.append(" [").append(event.getResult()).append("]");
             }
-            logger.info(builder.toString());
+            log.info(builder.toString());
         }
     }
 
@@ -147,7 +144,7 @@ public class DebuggingListener {
             if (event.getResult() != Result.DEFAULT) {
                 builder.append(" [").append(event.getResult()).append("]");
             }
-            logger.info(builder.toString());
+            log.info(builder.toString());
         }
     }
 

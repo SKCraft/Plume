@@ -1,7 +1,9 @@
-package com.skcraft.plume.listener;
+package com.skcraft.plume.module;
 
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import com.sk89q.worldedit.util.eventbus.EventBus;
+import com.skcraft.plume.common.extension.module.Module;
 import com.skcraft.plume.event.Cause;
 import com.skcraft.plume.event.DelegateEvent;
 import com.skcraft.plume.event.block.BlockChange;
@@ -17,7 +19,6 @@ import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
@@ -27,11 +28,13 @@ import net.minecraftforge.event.world.BlockEvent;
 
 import java.util.List;
 
+@Module(name = "event-abstraction-listener", hidden = true)
 public class EventAbstractionListener {
 
     private final EventBus eventBus;
     private final BlockState AIR_STATE = BlockState.create(Blocks.air);
 
+    @Inject
     public EventAbstractionListener(EventBus eventBus) {
         this.eventBus = eventBus;
     }
