@@ -2,12 +2,12 @@ package com.skcraft.plume.common.auth;
 
 import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.util.cache.ManagedCache;
 import com.skcraft.plume.common.util.cache.ManagedCacheBuilder;
 import lombok.Getter;
-import lombok.extern.java.Log;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.ExecutionException;
@@ -48,6 +48,7 @@ public class UserCache {
      *
      * @param hive The underlying users database
      */
+    @Inject
     public UserCache(Hive hive) {
         checkNotNull(hive, "hive");
         this.hive = hive;

@@ -2,13 +2,15 @@ package com.skcraft.plume.common.module;
 
 import com.google.inject.Inject;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
-import com.skcraft.plume.common.auth.Hive;
+import com.skcraft.plume.common.UserId;
+import com.skcraft.plume.common.auth.*;
 import com.skcraft.plume.common.ban.BanManager;
 import com.skcraft.plume.common.config.Config;
 import com.skcraft.plume.common.config.InjectConfig;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
 import com.skcraft.plume.common.extension.ServiceLocator;
 import com.skcraft.plume.common.extension.module.Module;
+import com.skcraft.plume.common.party.PartyCache;
 import com.skcraft.plume.common.party.PartyManager;
 import com.skcraft.plume.common.sql.DatabaseBans;
 import com.skcraft.plume.common.sql.DatabaseHive;
@@ -29,6 +31,8 @@ public class MySQLServices {
     @Getter private Hive hive;
     @Getter private BanManager bans;
     @Getter private PartyManager parties;
+    @Getter private UserCache userCache;
+    @Getter private PartyCache partyCache;
 
     @Inject
     public MySQLServices(MySQLPool pool, ServiceLocator services) {
@@ -48,6 +52,24 @@ public class MySQLServices {
         services.register(Hive.class, hive);
         services.register(BanManager.class, bans);
         services.register(PartyManager.class, parties);
+
+        // Not the ideal way to do it but we'll have to manage for now
+        services.register(UserCache.class, userCache = new UserCache(hive));
+        services.register(PartyCache.class, partyCache = new PartyCache(parties));
+
+        services.register(HiveAuthorizer.class, new HiveAuthorizer());
+    }
+
+    private class HiveAuthorizer implements Authorizer {
+        @Override
+        public Subject getSubject(UserId userId, Context context) {
+            User user = userCache.getUserIfPresent(userId);
+            if (user != null) {
+                return user.getSubject();
+            } else {
+                return NoAccessSubject.INSTANCE;
+            }
+        }
     }
 
     private static class ServicesConfig {

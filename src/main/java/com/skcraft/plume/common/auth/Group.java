@@ -84,8 +84,12 @@ public class Group implements Subject {
     }
 
     @Override
-    public boolean hasPermission(String permission) {
-        return getPermission(permission, Sets.<Group>newHashSet()).isPermit();
+    public boolean hasPermission(String permission, Context context) {
+        Grant ret = Grant.baseline();
+        for (String p : LegacyContext.getEffectivePermissions(permission, context)) {
+            ret = ret.add(getPermission(p, Sets.<Group>newHashSet()));
+        }
+        return ret.isPermit();
     }
 
 }
