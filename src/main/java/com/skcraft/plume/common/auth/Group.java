@@ -19,6 +19,7 @@ public class Group implements Subject {
 
     private int id;
     private String name;
+    private boolean autoJoin;
     private Set<Group> parents = Sets.newHashSet();
     private Set<String> permissions = Sets.newHashSet();
 

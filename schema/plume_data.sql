@@ -57,11 +57,13 @@ CREATE TABLE IF NOT EXISTS `claim` (
 
 -- Dumping structure for table plume_data.group
 CREATE TABLE IF NOT EXISTS `group` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  `permissions` text NOT NULL,
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(50) NOT NULL,
+  `permissions` TEXT NOT NULL,
+  `auto_join` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
+  UNIQUE INDEX `name` (`name`),
+  INDEX `auto_join` (`auto_join`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Data exporting was unselected.
