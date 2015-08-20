@@ -35,6 +35,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 
+import java.util.List;
 import java.util.logging.Level;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -48,12 +49,13 @@ public class CommandManager {
     private final EventBus eventBus;
     private final Environment environment;
 
-    @Getter
-    private final Injector injector;
-    @InjectService
-    private Service<Authorizer> authorizer;
+    @Getter private final Injector injector;
+    @InjectService private Service<Authorizer> authorizer;
     private final SimpleDispatcher dispatcher;
     private final ParametricBuilder builder;
+
+    private boolean registered = false;
+    private List<Object> commandObjects = Lists.newArrayList();
 
     @Inject
     public CommandManager(EventBus eventBus, Environment environment) {
@@ -68,6 +70,17 @@ public class CommandManager {
         builder.setAuthorizer(new AuthorizerAdapter());
 
         dispatcher = new SimpleDispatcher();
+    }
+
+    public void registerCommands(Object object) {
+        checkNotNull(object, "object");
+        synchronized (this) {
+            if (!registered) {
+                commandObjects.add(object);
+            } else {
+                builder.registerMethodsAsCommands(dispatcher, object);
+            }
+        }
     }
 
     @Subscribe
@@ -103,6 +116,18 @@ public class CommandManager {
                 }
             };
             event.registerServerCommand(adapter);
+        }
+    }
+
+    @Subscribe
+    public void onCommandRegistration(CommandRegistrationEvent event) {
+        synchronized (this) {
+            if (!registered) {
+                for (Object object : commandObjects) {
+                    event.getBuilder().registerMethodsAsCommands(event.getDispatcher(), object);
+                }
+                registered = true;
+            }
         }
     }
 
