@@ -1,7 +1,6 @@
 package com.skcraft.plume.command;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.sk89q.intake.CommandException;
@@ -134,22 +133,17 @@ public class CommandManager {
     private class AuthorizerAdapter implements com.sk89q.intake.util.auth.Authorizer {
         @Override
         public boolean testPermission(Namespace namespace, String permission) {
-            Optional<Authorizer> optional = authorizer.get();
-            if (optional.isPresent()) {
-                ICommandSender sender = checkNotNull(namespace.get(ICommandSender.class), "ICommandSender");
-                if (sender instanceof MinecraftServer || sender instanceof RConConsoleSource) {
-                    return true;
-                } else if (sender instanceof EntityPlayer) {
-                    EntityPlayer player = (EntityPlayer) sender;
-                    Builder context = new Builder();
-                    environment.update(context);
-                    Contexts.update(context, player);
-                    return optional.get().getSubject(Profiles.fromPlayer(player)).hasPermission(permission, context.build());
-                } else {
-                    return false;
-                }
+            Authorizer authorizer = CommandManager.this.authorizer.provide();
+            ICommandSender sender = checkNotNull(namespace.get(ICommandSender.class), "ICommandSender");
+            if (sender instanceof MinecraftServer || sender instanceof RConConsoleSource) {
+                return true;
+            } else if (sender instanceof EntityPlayer) {
+                EntityPlayer player = (EntityPlayer) sender;
+                Builder context = new Builder();
+                environment.update(context);
+                Contexts.update(context, player);
+                return authorizer.getSubject(Profiles.fromPlayer(player)).hasPermission(permission, context.build());
             } else {
-                log.warning("No authorizer service available to test permissions for commands");
                 return false;
             }
         }

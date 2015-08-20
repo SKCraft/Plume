@@ -55,8 +55,7 @@ class ModuleLoader {
         config.save();
 
         for (Class<?> module : loadable) {
-            Module annotation = module.getAnnotation(Module.class);
-            log.info("Loading " + annotation.name() + "...");
+            log.info("Loading " + Modules.getModuleName(module) + "...");
             injector.getInstance(module);
         }
     }

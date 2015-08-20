@@ -32,43 +32,36 @@ public class UserLoader {
 
     @SubscribeEvent
     public void onAuthenticate(PlayerAuthenticateEvent event) {
-        Optional<UserCache> optional = userCache.get();
-        if (optional.isPresent()) {
-            Date now = new Date();
-            UserCache userCache = optional.get();
-            UserId userId = Profiles.fromProfile(event.getProfile());
-            User user = userCache.getUser(userId);
+        UserCache userCache = this.userCache.provide();
+        Date now = new Date();
+        UserId userId = Profiles.fromProfile(event.getProfile());
+        User user = userCache.getUser(userId);
 
-            if (user != null) {
-                if (user.getSubject().hasPermission("whitelist", environment.update(new Context.Builder()).build())) {
-                    user.setLastOnline(now);
-                    userCache.getHive().saveUser(user, false);
-                } else {
-                    event.getNetHandler().func_147322_a(config.get().notWhitelistedMessage);
-                }
+        if (user != null) {
+            if (user.getSubject().hasPermission("whitelist", environment.update(new Context.Builder()).build())) {
+                user.setLastOnline(now);
+                userCache.getHive().saveUser(user, false);
             } else {
-                // TODO: Allow user creation via config
-                event.getNetHandler().func_147322_a(config.get().noUserMessage);
+                event.getNetHandler().func_147322_a(config.get().notWhitelistedMessage);
             }
+        } else {
+            // TODO: Allow user creation via config
+            event.getNetHandler().func_147322_a(config.get().noUserMessage);
         }
     }
 
     @SubscribeEvent
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        Optional<UserCache> optional = userCache.get();
-        if (optional.isPresent()) {
-            UserId userId = Profiles.fromPlayer(event.player);
-            optional.get().pin(userId); // Should already be loaded
-        }
+        UserCache userCache = this.userCache.provide();
+        UserId userId = Profiles.fromPlayer(event.player);
+        userCache.pin(userId); // Should already be loaded
     }
 
     @SubscribeEvent
     public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        Optional<UserCache> optional = userCache.get();
-        if (optional.isPresent()) {
-            UserId userId = Profiles.fromPlayer(event.player);
-            optional.get().unpin(userId);
-        }
+        UserCache userCache = this.userCache.provide();
+        UserId userId = Profiles.fromPlayer(event.player);
+        userCache.unpin(userId);
     }
 
     private static class UsersConfig {

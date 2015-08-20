@@ -5,15 +5,21 @@ import com.sk89q.worldedit.util.eventbus.EventBus;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
 import com.skcraft.plume.common.event.lifecycle.PostInitializationEvent;
 import com.skcraft.plume.common.extension.module.PlumeLoader;
+import com.skcraft.plume.common.util.FatalError;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.*;
+import lombok.extern.java.Log;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.util.List;
+import java.util.logging.Level;
 
 @Mod(modid = Plume.MODID, name = "Plume", dependencies = "required-after:worldedit", acceptableRemoteVersions = "*")
+@Log
 public class Plume {
     
     public static final String MODID = "plume";
@@ -32,6 +38,16 @@ public class Plume {
         return logger;
     }
 
+    private void handleFatalErrors(List<FatalError> errors) {
+        if (!errors.isEmpty()) {
+            for (FatalError error : errors) {
+                log.log(Level.SEVERE, error.getMessage());
+            }
+
+            FMLCommonHandler.instance().exitJava(0, true);
+        }
+    }
+
     @EventHandler
     public void onPreInitialization(FMLPreInitializationEvent event) {
         logger = event.getModLog();
@@ -41,8 +57,14 @@ public class Plume {
                 .addModule(new PlumeForgeModule())
                 .load();
 
-        getEventBus().post(new InitializationEvent());
-        getEventBus().post(new PostInitializationEvent());
+        InitializationEvent initializationEvent = new InitializationEvent();
+        getEventBus().post(initializationEvent);
+        handleFatalErrors(initializationEvent.getFatalErrors());
+
+        PostInitializationEvent postInitializationEvent = new PostInitializationEvent();
+        getEventBus().post(postInitializationEvent);
+        handleFatalErrors(postInitializationEvent.getFatalErrors());
+
         getEventBus().post(event);
     }
 

@@ -20,4 +20,8 @@ public class Service<T> {
         return locator.get(service);
     }
 
+    public T provide() {
+        return locator.provide(service);
+    }
+
 }

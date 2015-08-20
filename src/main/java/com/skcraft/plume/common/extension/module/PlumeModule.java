@@ -12,7 +12,7 @@ import com.skcraft.plume.common.config.InjectConfig;
 import com.skcraft.plume.common.extension.DataDir;
 import com.skcraft.plume.common.extension.InjectService;
 import com.skcraft.plume.common.extension.Service;
-import com.skcraft.plume.common.extension.ServiceLocator;
+import com.skcraft.plume.common.extension.ServiceFactory;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -68,13 +68,14 @@ class PlumeModule extends AbstractModule {
                             });
                         } else if (field.getType() == Service.class && field.isAnnotationPresent(InjectService.class)) {
                             InjectService annotation = field.getAnnotation(InjectService.class);
-                            ServiceLocator locator = encounter.getProvider(ServiceLocator.class).get();
+                            ServiceFactory serviceFactory = encounter.getProvider(ServiceFactory.class).get();
 
+                            final Class<?> finalClazz = clazz;
                             encounter.register((MembersInjector<I>) instance -> {
                                 try {
                                     field.setAccessible(true);
                                     ParameterizedType paramType = (ParameterizedType) field.getGenericType();
-                                    field.set(instance, new Service<>(locator, (Class<?>) paramType.getActualTypeArguments()[0]));
+                                    field.set(instance, serviceFactory.create((Class<?>) paramType.getActualTypeArguments()[0], finalClazz));
                                 } catch (IllegalAccessException e) {
                                     throw new RuntimeException("Failed to set @InjectConfig", e);
                                 }

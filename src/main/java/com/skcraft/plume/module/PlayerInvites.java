@@ -1,6 +1,5 @@
 package com.skcraft.plume.module;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -41,55 +40,50 @@ public class PlayerInvites {
     @Command(aliases = "invite", desc = "Invite a user")
     @Require("plume.invite")
     public void invite(ICommandSender sender, String name) {
-        Optional<UserCache> optional = this.userCache.get();
-        if (optional.isPresent()) {
-            UserCache userCache = optional.get();
+        UserCache userCache = this.userCache.provide();
 
-            UserId referrer;
-            if (sender instanceof EntityPlayer) {
-                referrer = Profiles.fromPlayer((EntityPlayer) sender);
-            } else {
-                referrer = null;
+        UserId referrer;
+        if (sender instanceof EntityPlayer) {
+            referrer = Profiles.fromPlayer((EntityPlayer) sender);
+        } else {
+            referrer = null;
+        }
+
+        ListenableFuture<?> future = executor.getExecutor().submit(() -> {
+            UserId userId = null;
+            try {
+                userId = profileService.findUserId(name);
+            } catch (IOException e) {
+                sender.addChatMessage(Messages.error("Couldn't look up the user information for '" + name + "'."));
             }
 
-            ListenableFuture<?> future = executor.getExecutor().submit(() -> {
-                UserId userId = null;
-                try {
-                    userId = profileService.findUserId(name);
-                } catch (IOException e) {
-                    sender.addChatMessage(Messages.error("Couldn't look up the user information for '" + name + "'."));
-                }
+            if (userId != null) {
+                Map<UserId, User> map = userCache.getHive().findUsersById(Lists.newArrayList(userId));
+                User user;
 
-                if (userId != null) {
-                    Map<UserId, User> map = userCache.getHive().findUsersById(Lists.newArrayList(userId));
-                    User user;
-
-                    if (map.containsKey(userId)) {
-                        user = map.get(userId);
-                    } else {
-                        Set<Group> groups = Sets.newConcurrentHashSet();
-                        groups.addAll(userCache.getHive().getLoadedGroups().stream().filter(Group::isAutoJoin).collect(Collectors.toList()));
-
-                        user = new User();
-                        user.setUserId(userId);
-                        user.setJoinDate(new Date());
-                        user.setReferrer(referrer);
-                        user.setGroups(groups);
-                        userCache.getHive().saveUser(user, true);
-                    }
-
-                    tickExecutorService.execute(() -> {
-                        sender.addChatMessage(Messages.info(user.getUserId().getName() + " has been invited to the server."));
-                    });
+                if (map.containsKey(userId)) {
+                    user = map.get(userId);
                 } else {
-                    sender.addChatMessage(Messages.error("Couldn't find a Minecraft account with the name '" + name + "'."));
-                }
-            });
+                    Set<Group> groups = Sets.newConcurrentHashSet();
+                    groups.addAll(userCache.getHive().getLoadedGroups().stream().filter(Group::isAutoJoin).collect(Collectors.toList()));
 
-            executor.addCallbacks(future, sender);
-        } else {
-            sender.addChatMessage(Messages.error("The invite cannot be used at this time."));
-        }
+                    user = new User();
+                    user.setUserId(userId);
+                    user.setJoinDate(new Date());
+                    user.setReferrer(referrer);
+                    user.setGroups(groups);
+                    userCache.getHive().saveUser(user, true);
+                }
+
+                tickExecutorService.execute(() -> {
+                    sender.addChatMessage(Messages.info(user.getUserId().getName() + " has been invited to the server."));
+                });
+            } else {
+                sender.addChatMessage(Messages.error("Couldn't find a Minecraft account with the name '" + name + "'."));
+            }
+        });
+
+        executor.addCallbacks(future, sender);
     }
 
 }
