@@ -8,6 +8,7 @@ import com.skcraft.plume.common.extension.InjectService;
 import com.skcraft.plume.common.extension.Service;
 import com.skcraft.plume.common.extension.module.Module;
 import com.skcraft.plume.event.network.PlayerAuthenticateEvent;
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class BanChecker {
     @InjectService
     private Service<BanManager> bans;
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGH)
     public void onAuthenticate(PlayerAuthenticateEvent event) {
         Optional<BanManager> optional = bans.get();
         if (optional.isPresent()) {
