@@ -4,7 +4,7 @@ import com.google.inject.Injector;
 import com.sk89q.worldedit.util.eventbus.EventBus;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
 import com.skcraft.plume.common.event.lifecycle.PostInitializationEvent;
-import com.skcraft.plume.common.extension.module.PlumeLoader;
+import com.skcraft.plume.common.util.module.PlumeLoader;
 import com.skcraft.plume.common.util.FatalError;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;

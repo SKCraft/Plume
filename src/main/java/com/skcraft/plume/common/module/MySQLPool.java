@@ -1,9 +1,9 @@
 package com.skcraft.plume.common.module;
 
 import com.google.inject.Singleton;
-import com.skcraft.plume.common.config.Config;
-import com.skcraft.plume.common.config.InjectConfig;
-import com.skcraft.plume.common.sql.DatabaseManager;
+import com.skcraft.plume.common.util.config.Config;
+import com.skcraft.plume.common.util.config.InjectConfig;
+import com.skcraft.plume.common.service.sql.DatabaseManager;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import ninja.leaping.configurate.objectmapping.Setting;

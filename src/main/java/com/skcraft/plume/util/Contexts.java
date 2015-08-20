@@ -1,6 +1,6 @@
 package com.skcraft.plume.util;
 
-import com.skcraft.plume.common.auth.Context;
+import com.skcraft.plume.common.service.auth.Context;
 import net.minecraft.entity.player.EntityPlayer;
 
 import static com.google.common.base.Preconditions.checkNotNull;

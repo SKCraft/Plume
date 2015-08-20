@@ -8,8 +8,8 @@ import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 import com.sk89q.intake.Command;
 import com.skcraft.plume.command.CommandManager;
-import com.skcraft.plume.common.extension.module.AutoRegister;
-import com.skcraft.plume.common.extension.module.Module;
+import com.skcraft.plume.common.util.module.AutoRegister;
+import com.skcraft.plume.common.util.module.Module;
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraftforge.common.MinecraftForge;
 

@@ -1,11 +1,11 @@
 package com.skcraft.plume.module;
 
 import com.skcraft.plume.common.UserId;
-import com.skcraft.plume.common.ban.Ban;
-import com.skcraft.plume.common.ban.BanManager;
-import com.skcraft.plume.common.extension.InjectService;
-import com.skcraft.plume.common.extension.Service;
-import com.skcraft.plume.common.extension.module.Module;
+import com.skcraft.plume.common.service.ban.Ban;
+import com.skcraft.plume.common.service.ban.BanManager;
+import com.skcraft.plume.common.util.service.InjectService;
+import com.skcraft.plume.common.util.service.Service;
+import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.event.network.PlayerAuthenticateEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;

@@ -2,7 +2,7 @@ package com.skcraft.plume.module;
 
 import com.sk89q.worldedit.util.eventbus.EventHandler.Priority;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
-import com.skcraft.plume.common.extension.module.Module;
+import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.event.Result;
 import com.skcraft.plume.event.block.BlockChange;
 import com.skcraft.plume.event.block.BreakBlockEvent;

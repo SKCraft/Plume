@@ -1,16 +1,15 @@
 package com.skcraft.plume.module;
 
-import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.skcraft.plume.common.UserId;
-import com.skcraft.plume.common.auth.Context;
-import com.skcraft.plume.common.auth.User;
-import com.skcraft.plume.common.auth.UserCache;
-import com.skcraft.plume.common.config.Config;
-import com.skcraft.plume.common.config.InjectConfig;
-import com.skcraft.plume.common.extension.InjectService;
-import com.skcraft.plume.common.extension.Service;
-import com.skcraft.plume.common.extension.module.Module;
+import com.skcraft.plume.common.service.auth.Context;
+import com.skcraft.plume.common.service.auth.User;
+import com.skcraft.plume.common.service.auth.UserCache;
+import com.skcraft.plume.common.util.config.Config;
+import com.skcraft.plume.common.util.config.InjectConfig;
+import com.skcraft.plume.common.util.service.InjectService;
+import com.skcraft.plume.common.util.service.Service;
+import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.event.network.PlayerAuthenticateEvent;
 import com.skcraft.plume.util.Profiles;
