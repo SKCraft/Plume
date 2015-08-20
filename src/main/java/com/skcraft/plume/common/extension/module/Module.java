@@ -18,4 +18,6 @@ public @interface Module {
 
     boolean enabled() default true;
 
+    boolean hidden() default false;
+
 }

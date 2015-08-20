@@ -39,9 +39,12 @@ class ModuleLoader {
             Module annotation = module.getAnnotation(Module.class);
 
             Boolean enabled = enabledMap.get(annotation.name());
+
             if (enabled == null) {
                 enabled = annotation.enabled();
-                enabledMap.put(annotation.name(), enabled);
+                if (!annotation.hidden()) {
+                    enabledMap.put(annotation.name(), enabled);
+                }
             }
 
             if (enabled) {
