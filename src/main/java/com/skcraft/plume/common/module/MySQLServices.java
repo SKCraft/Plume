@@ -57,12 +57,12 @@ public class MySQLServices {
         services.register(UserCache.class, userCache = new UserCache(hive));
         services.register(PartyCache.class, partyCache = new PartyCache(parties));
 
-        services.register(HiveAuthorizer.class, new HiveAuthorizer());
+        services.register(Authorizer.class, new HiveAuthorizer());
     }
 
     private class HiveAuthorizer implements Authorizer {
         @Override
-        public Subject getSubject(UserId userId, Context context) {
+        public Subject getSubject(UserId userId) {
             User user = userCache.getUserIfPresent(userId);
             if (user != null) {
                 return user.getSubject();

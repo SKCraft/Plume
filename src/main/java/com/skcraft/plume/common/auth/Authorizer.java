@@ -4,6 +4,6 @@ import com.skcraft.plume.common.UserId;
 
 public interface Authorizer {
 
-    Subject getSubject(UserId userId, Context context);
+    Subject getSubject(UserId userId);
 
 }
