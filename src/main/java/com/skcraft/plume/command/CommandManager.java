@@ -3,10 +3,7 @@ package com.skcraft.plume.command;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.sk89q.intake.CommandException;
-import com.sk89q.intake.CommandMapping;
-import com.sk89q.intake.Intake;
-import com.sk89q.intake.InvocationCommandException;
+import com.sk89q.intake.*;
 import com.sk89q.intake.argument.Namespace;
 import com.sk89q.intake.dispatcher.SimpleDispatcher;
 import com.sk89q.intake.parametric.Injector;
@@ -15,13 +12,13 @@ import com.sk89q.intake.parametric.provider.PrimitivesModule;
 import com.sk89q.intake.util.auth.AuthorizationException;
 import com.sk89q.worldedit.util.eventbus.EventBus;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
+import com.skcraft.plume.common.event.lifecycle.PostInitializationEvent;
 import com.skcraft.plume.common.service.auth.Authorizer;
 import com.skcraft.plume.common.service.auth.Context.Builder;
-import com.skcraft.plume.common.event.lifecycle.PostInitializationEvent;
+import com.skcraft.plume.common.util.Environment;
+import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.common.util.service.InjectService;
 import com.skcraft.plume.common.util.service.Service;
-import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.util.Contexts;
 import com.skcraft.plume.util.Profiles;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
@@ -34,6 +31,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -77,7 +76,7 @@ public class CommandManager {
             if (!registered) {
                 commandObjects.add(object);
             } else {
-                builder.registerMethodsAsCommands(dispatcher, object);
+                doCommandRegistration(object);
             }
         }
     }
@@ -123,11 +122,43 @@ public class CommandManager {
         synchronized (this) {
             if (!registered) {
                 for (Object object : commandObjects) {
-                    event.getBuilder().registerMethodsAsCommands(event.getDispatcher(), object);
+                    doCommandRegistration(object);
                 }
                 registered = true;
             }
         }
+    }
+
+    private void doCommandRegistration(Object object) {
+        for (Method method : object.getClass().getDeclaredMethods()) {
+            Command definition = method.getAnnotation(Command.class);
+            Group group = method.getAnnotation(Group.class);
+            if (definition != null) {
+                CommandCallable callable = builder.build(object, method);
+
+                if (group != null) {
+                    for (At at : group.value()) {
+                        SimpleDispatcher node = dispatcher;
+                        for (String entry : at.value()) {
+                            CommandMapping mapping = node.get(entry);
+                            if (mapping == null) {
+                                SimpleDispatcher child = new SimpleDispatcher();
+                                node.registerCommand(child, entry);
+                                node = child;
+                            } else if (mapping.getCallable() instanceof SimpleDispatcher) {
+                                node = (SimpleDispatcher) mapping.getCallable();
+                            } else {
+                                throw new IllegalStateException("Can't put command at " + Arrays.toString(at.value()) + " because there is an existing command there");
+                            }
+                        }
+                        node.registerCommand(callable, definition.aliases());
+                    }
+                } else {
+                    dispatcher.registerCommand(callable, definition.aliases());
+                }
+            }
+        }
+
     }
 
     private class AuthorizerAdapter implements com.sk89q.intake.util.auth.Authorizer {
