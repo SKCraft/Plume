@@ -54,7 +54,9 @@ class PopulateWorker implements Runnable {
             try {
                 // Give up collecting states to load once batchMaxSize has been
                 // reached, or if too much time has elapsed
-                Queues.drain(queue, batch, batchMaxSize, collectTime, TimeUnit.MILLISECONDS);
+                do {
+                    Queues.drain(queue, batch, batchMaxSize, collectTime, TimeUnit.MILLISECONDS);
+                } while (batch.isEmpty());
 
                 Map<WorldVector3i, Claim> loaded = claims.findClaimsByPosition(Lists.transform(batch, ChunkState::getPosition));
 
