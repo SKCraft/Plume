@@ -1,15 +1,11 @@
 package com.skcraft.plume.module;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Inject;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
 import com.sk89q.intake.parametric.annotation.Text;
 import com.skcraft.plume.common.UserId;
-import com.skcraft.plume.common.service.auth.Group;
-import com.skcraft.plume.common.service.auth.User;
 import com.skcraft.plume.common.service.ban.Ban;
 import com.skcraft.plume.common.service.ban.BanManager;
 import com.skcraft.plume.common.util.Environment;
