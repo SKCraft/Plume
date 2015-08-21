@@ -5,6 +5,7 @@ import com.sk89q.worldedit.util.eventbus.EventBus;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
 import com.skcraft.plume.common.event.lifecycle.PostInitializationEvent;
 import com.skcraft.plume.common.util.FatalError;
+import com.skcraft.plume.common.util.SharedLocale;
 import com.skcraft.plume.common.util.logging.Log4jRedirect;
 import com.skcraft.plume.common.util.module.PlumeLoader;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -16,6 +17,7 @@ import lombok.extern.java.Log;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,6 +52,8 @@ public class Plume {
         Logger logger = Logger.getLogger("com.skcraft.plume");
         logger.setUseParentHandlers(false);
         logger.addHandler(new Log4jRedirect(event.getModLog(), "Plume"));
+
+        SharedLocale.loadBundle("com.skcraft.plume.lang.Plume", Locale.getDefault());
 
         injector = new PlumeLoader()
                 .setDataDir(new File(event.getModConfigurationDirectory(), "plume"))
