@@ -90,4 +90,12 @@ public interface ClaimMap {
      */
     List<Claim> updateClaim(Collection<WorldVector3i> positions, UserId owner, @Nullable String party, @Nullable UserId existingOwner);
 
+    /**
+     * Get the number of claims that a player owns.
+     *
+     * @param owner The user ID of the owner
+     * @return The number of claims
+     */
+    int getClaimCount(UserId owner);
+
 }

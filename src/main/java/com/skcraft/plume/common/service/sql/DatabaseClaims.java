@@ -134,6 +134,26 @@ public class DatabaseClaims implements ClaimMap {
         }
     }
 
+    @Override
+    public int getClaimCount(UserId owner) {
+        checkNotNull(owner, "owner");
+
+        try {
+            DSLContext create = database.create();
+
+            int ownerId = database.getUserIdCache().getOrCreateUserId(create, owner);
+
+            Record record = create.selectCount()
+                    .from(CLAIM)
+                    .where(CLAIM.SERVER.eq(server).and(CLAIM.OWNER_ID.eq(ownerId)))
+                    .fetchOne();
+
+            return (Integer) record.getValue(0);
+        } catch (org.jooq.exception.DataAccessException e) {
+            throw new DataAccessException("Failed to fetch the number of owned claims", e);
+        }
+    }
+
     private List<Claim> executeReplace(DSLContext context, Collection<WorldVector3i> positions, UserId owner, @Nullable String party) {
         checkNotNull(positions, "positions");
         checkNotNull(owner, "owner");

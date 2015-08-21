@@ -113,6 +113,13 @@ public class DatabaseClaimsTest {
     }
 
     @Test
+    public void testGetClaimCount() throws Exception {
+        DatabaseClaims claims = createClaims(MockDatabase.MOCK_SERVER);
+        assertThat(claims.getClaimCount(MockDatabase.SK_USER), is(2));
+        assertThat(claims.getClaimCount(MockDatabase.VINCENT_USER), is(2));
+    }
+
+    @Test
     public void testSaveClaim() throws Exception {
         DatabaseClaims claims = createClaims(MockDatabase.MOCK_SERVER);
         Claim claim;
