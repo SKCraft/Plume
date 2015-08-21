@@ -50,7 +50,7 @@ dependencies {
     compile 'org.modelmapper.extensions:modelmapper-jooq:0.7.4'
     compile 'com.zaxxer:HikariCP:2.4.0'
     compile 'com.googlecode.json-simple:json-simple:1.1.1'
-    compile 'com.sk89q.worldedit:worldedit-core:6.1.1-SNAPSHOT'
+    compile 'com.sk89q.worldedit:worldedit-forge-mc1.7.10:6.1.1-SNAPSHOT:dev'
     compile 'ninja.leaping.configurate:configurate-hocon:2.0'
     compile 'com.sk89q.intake:intake:4.1-SNAPSHOT'
     compile 'com.sk89q:squirrelid:0.1.0'
