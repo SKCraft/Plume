@@ -25,7 +25,6 @@ import static com.skcraft.plume.common.service.sql.model.data.tables.UserId.USER
 
 public class DatabaseBans implements BanManager {
 
-    private static final Condition ACTIVE_BAN_CONDITION = BAN.EXPIRE_TIME.isNull().or(BAN.EXPIRE_TIME.gt(Timestamp.from(Instant.now())));
     @Getter
     private final DatabaseManager database;
 
@@ -33,6 +32,8 @@ public class DatabaseBans implements BanManager {
         checkNotNull(database, "database");
         this.database = database;
     }
+
+    public static Condition getActiveBanCondition() { return BAN.EXPIRE_TIME.isNull().or(BAN.EXPIRE_TIME.gt(Timestamp.from(Instant.now()))); }
 
     @Override
     public List<Ban> findActiveBans(UserId id) throws DataAccessException {
@@ -49,7 +50,7 @@ public class DatabaseBans implements BanManager {
                     .select(USER_ID.fields())
                     .from(USER_ID)
                     .crossJoin(BAN)
-                    .where(USER_ID.UUID.eq(id.getUuid().toString()).and(BAN.USER_ID.eq(USER_ID.ID)).and(ACTIVE_BAN_CONDITION))
+                    .where(USER_ID.UUID.eq(id.getUuid().toString()).and(BAN.USER_ID.eq(USER_ID.ID)).and(getActiveBanCondition()))
                     .fetch();
 
             for (Record record : banRecords) {
@@ -106,7 +107,7 @@ public class DatabaseBans implements BanManager {
                     .set(BAN.EXPIRE_TIME, now)
                     .set(BAN.PARDON_BY, pardonUserId != null ? pardonUserId : null)
                     .set(BAN.PARDON_REASON, pardonReason)
-                    .where(BAN.USER_ID.in(create.select(USER_ID.ID).from(USER_ID).where(USER_ID.UUID.eq(userUuid.toString()))).and(ACTIVE_BAN_CONDITION))
+                    .where(BAN.USER_ID.in(create.select(USER_ID.ID).from(USER_ID).where(USER_ID.UUID.eq(userUuid.toString()))).and(getActiveBanCondition()))
                     .execute();
         } catch (org.jooq.exception.DataAccessException e) {
             throw new DataAccessException("Failed to pardon bans for " + user, e);
