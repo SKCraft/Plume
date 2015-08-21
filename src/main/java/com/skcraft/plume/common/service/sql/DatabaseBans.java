@@ -45,8 +45,8 @@ public class DatabaseBans implements BanManager {
 
             // Select user IDs, join bans
             Result<Record> banRecords = create
-                    .select(USER_ID.fields())
                     .select(BAN.fields())
+                    .select(USER_ID.fields())
                     .from(USER_ID)
                     .crossJoin(BAN)
                     .where(USER_ID.UUID.eq(id.getUuid().toString()).and(BAN.USER_ID.eq(USER_ID.ID)).and(ACTIVE_BAN_CONDITION))
@@ -74,7 +74,8 @@ public class DatabaseBans implements BanManager {
             int userId = database.getUserIdCache().getOrCreateUserId(create, ban.getUserId());
 
             BanRecord record = create.newRecord(BAN, ban);
-            checkArgument(record.getId() == null, "Can't save existing ban");
+            //checkArgument(record.getId() == null, "Can't save existing ban");
+            record.setId(null);
             record.setUserId(userId);
 
             BanRecord result = create
@@ -105,7 +106,7 @@ public class DatabaseBans implements BanManager {
                     .set(BAN.EXPIRE_TIME, now)
                     .set(BAN.PARDON_BY, pardonUserId != null ? pardonUserId : null)
                     .set(BAN.PARDON_REASON, pardonReason)
-                    .where(BAN.USER_ID.in(create.select(USER_ID.ID).where(USER_ID.UUID.eq(userUuid.toString()))).and(ACTIVE_BAN_CONDITION))
+                    .where(BAN.USER_ID.in(create.select(USER_ID.ID).from(USER_ID).where(USER_ID.UUID.eq(userUuid.toString()))).and(ACTIVE_BAN_CONDITION))
                     .execute();
         } catch (org.jooq.exception.DataAccessException e) {
             throw new DataAccessException("Failed to pardon bans for " + user, e);
