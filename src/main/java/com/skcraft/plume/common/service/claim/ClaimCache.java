@@ -9,6 +9,7 @@ import com.skcraft.plume.common.service.party.PartyCache;
 import com.skcraft.plume.common.util.WorldVector3i;
 import gnu.trove.iterator.TLongObjectIterator;
 import gnu.trove.map.hash.TLongObjectHashMap;
+import lombok.Getter;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -69,7 +70,8 @@ public class ClaimCache {
                 }
             });
 
-    private final ClaimMap claims;
+    @Getter
+    private final ClaimMap claimMap;
     private final PartyCache parties;
     private final BlockingQueue<ChunkState> statePopulateQueue = new LinkedBlockingQueue<>();
     private final ReadWriteLock stateLock = new ReentrantReadWriteLock();
@@ -95,7 +97,7 @@ public class ClaimCache {
         checkNotNull(claims, "claims");
         checkNotNull(parties, "parties");
         checkArgument(workerThreadCount >= 1, "workerThreadCount >= 1");
-        this.claims = claims;
+        this.claimMap = claims;
         this.parties = parties;
 
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
