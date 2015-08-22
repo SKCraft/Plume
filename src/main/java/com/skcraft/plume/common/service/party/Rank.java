@@ -5,8 +5,18 @@ package com.skcraft.plume.common.service.party;
  */
 public enum Rank {
 
-    MEMBER,
-    MANAGER,
-    OWNER
+    MEMBER(false),
+    MANAGER(true),
+    OWNER(true);
+
+    private final boolean manage;
+
+    Rank(boolean manage) {
+        this.manage = manage;
+    }
+
+    public boolean canManage() {
+        return manage;
+    }
 
 }
