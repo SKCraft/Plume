@@ -35,6 +35,10 @@ public class ClaimRequest {
     }
 
     public void addPositions(Collection<WorldVector3i> positions) {
+        if (positions.isEmpty()) {
+            return;
+        }
+
         Map<WorldVector3i, Claim> existing = claimCache.getClaimMap().findClaimsByPosition(positions);
 
         // Sort out positions into free chunks and owned chunks

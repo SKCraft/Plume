@@ -103,8 +103,8 @@ public class Claims {
                     request.addPositions(positions);
                     request.checkQuota(config.get().limits.totalClaimsMax);
 
-                    if (!request.hasUnclaimed()) {
-                        throw new ClaimAttemptException(tr("claims.noUnclaimedChunksSelected", request.getAlreadyOwned().size()));
+                    if (request.getUnclaimed().size() + request.getAlreadyOwned().size() == 0) {
+                        throw new ClaimAttemptException(tr("claims.alreadyClaimedByOthers", request.getAlreadyOwned().size()));
                     }
 
                     pendingRequests.put(owner, request); // The user will have to accept or cancel the request
@@ -155,9 +155,11 @@ public class Claims {
                         // Rebuild a claim request because there may have been changes to the claims
                         ClaimRequest request = new ClaimRequest(claimCache, existingRequest.getOwner(), existingRequest.getParty());
                         request.addPositions(existingRequest.getUnclaimed());
+                        request.addPositions(existingRequest.getAlreadyOwned());
                         request.checkQuota(config.get().limits.totalClaimsMax);
 
-                        if (!request.hasUnclaimed()) { // But it could turn out that there are no unclaimed chunks left
+                        if (request.getUnclaimed().size() + request.getAlreadyOwned().size() == 0) {
+                            // But it could turn out that there are no unclaimed chunks left
                             throw new ClaimAttemptException(tr("claims.unclaimedNowTaken"));
                         }
 
@@ -196,7 +198,10 @@ public class Claims {
                         List<ItemStack> removed = pair.getValue1();
 
                         try {
-                            List<Claim> claims = claimCache.getClaimMap().saveClaim(request.getUnclaimed(), request.getOwner(), request.getParty());
+                            List<WorldVector3i> positions = Lists.newArrayList();
+                            positions.addAll(request.getUnclaimed());
+                            positions.addAll(request.getAlreadyOwned());
+                            List<Claim> claims = claimCache.getClaimMap().saveClaim(positions, request.getOwner(), request.getParty());
                             claimCache.putClaims(claims);
                             return request;
                         } catch (Exception e) {
