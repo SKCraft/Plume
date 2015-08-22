@@ -2,6 +2,7 @@ package com.skcraft.plume.module.claim;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
@@ -27,15 +28,15 @@ import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.common.util.service.InjectService;
 import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.util.Messages;
-import com.skcraft.plume.util.profile.ProfileLookupException;
-import com.skcraft.plume.util.profile.ProfileNotFoundException;
-import com.skcraft.plume.util.profile.ProfileService;
-import com.skcraft.plume.util.profile.Profiles;
 import com.skcraft.plume.util.Worlds;
 import com.skcraft.plume.util.concurrent.BackgroundExecutor;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
 import com.skcraft.plume.util.inventory.Inventories;
 import com.skcraft.plume.util.inventory.InventoryView;
+import com.skcraft.plume.util.profile.ProfileLookupException;
+import com.skcraft.plume.util.profile.ProfileNotFoundException;
+import com.skcraft.plume.util.profile.ProfileService;
+import com.skcraft.plume.util.profile.Profiles;
 import com.skcraft.plume.util.worldedit.WorldEditAPI;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.event.ClickEvent;
@@ -46,7 +47,6 @@ import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
 import org.javatuples.Pair;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -158,14 +158,17 @@ public class Claims {
 
                         InventoryView inventory = new InventoryView(player.inventory);
                         int has = inventory.getCountOf(config.get().cost.item);
+                        List<ItemStack> removed = Lists.newArrayList();
 
                         if (has < cost) {
                             pendingRequests.put(owner, request);
                             throw new ClaimAttemptException(tr("claims.cannotAfford"));
                         }
 
-                        List<ItemStack> removed = inventory.remove(config.get().cost.item, cost);
-                        inventory.markDirty();
+                        if (cost > 0) {
+                            removed = inventory.remove(config.get().cost.item, cost);
+                            inventory.markDirty();
+                        }
 
                         return new Pair<>(request, removed);
                     }, tickExecutorService)
@@ -182,7 +185,7 @@ public class Claims {
                         }
                     }, claimExecutor)
                     .done(request -> {
-                        player.addChatMessage(Messages.info(tr("claims.purchaseSuccessful", request.getUnclaimed().size())));
+                        player.addChatMessage(Messages.info(tr("claims.purchaseSuccess", request.getUnclaimed().size())));
                     }, tickExecutorService)
                     .fail(e -> {
                         if (e instanceof ClaimAttemptException) {
@@ -248,7 +251,94 @@ public class Claims {
                     return request;
                 }, claimExecutor)
                 .done(request -> {
-                    player.addChatMessage(Messages.info(tr("claims.unclaimSuccessful", request.getAlreadyOwned().size())));
+                    player.addChatMessage(Messages.info(tr("claims.unclaimSuccess", request.getAlreadyOwned().size())));
+                }, tickExecutorService)
+                .fail(e -> {
+                    if (e instanceof ClaimAttemptException) {
+                        player.addChatMessage(Messages.error(e.getMessage()));
+                    } else {
+                        player.addChatMessage(Messages.exception(e));
+                    }
+                }, tickExecutorService);
+
+        bgExecutor.notifyOnDelay(deferred, player);
+    }
+
+    @Command(aliases = "claim", desc = "Claim a section of land")
+    @Group(@At("claimmanage"))
+    @Require("plume.claimmanage.claim")
+    public void adminClaim(@Sender EntityPlayer sender, String ownerName, @Optional String party) throws CommandException {
+        ClaimCache claimCache = this.claimCache.provide();
+        Region selection;
+        String worldName = Worlds.getWorldName(sender.worldObj);
+
+        try {
+            selection = WorldEditAPI.getSelection(sender);
+        } catch (IncompleteRegionException e) {
+            sender.addChatMessage(Messages.error(tr("claims.makeSelectionFirst")));
+            return;
+        }
+
+        Deferred<?> deferred = Deferreds
+                .when(() -> {
+                    UserId owner = profileService.findUserId(ownerName);
+
+                    ClaimEnumerator enumerator = new ClaimEnumerator(config.get());
+                    enumerator.setLimited(false);
+                    List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.fromVector2D(worldName, input));
+
+                    List<Claim> claims = claimCache.getClaimMap().saveClaim(positions, owner, party);
+                    claimCache.putClaims(claims);
+
+                    return positions;
+                }, claimExecutor)
+                .done(positions -> {
+                    sender.addChatMessage(Messages.info(tr("claims.adminClaimSuccess", positions.size())));
+                }, tickExecutorService)
+                .fail(e -> {
+                    if (e instanceof ClaimAttemptException) {
+                        sender.addChatMessage(Messages.error(e.getMessage()));
+                    } else if (e instanceof ProfileNotFoundException) {
+                        sender.addChatMessage(Messages.error(tr("args.minecraftUserNotFound", ((ProfileNotFoundException) e).getName())));
+                    } else if (e instanceof ProfileLookupException) {
+                        sender.addChatMessage(Messages.error(tr("args.minecraftUserLookupFailed", ((ProfileLookupException) e).getName())));
+                    } else {
+                        sender.addChatMessage(Messages.exception(e));
+                    }
+                }, tickExecutorService);
+
+        bgExecutor.notifyOnDelay(deferred, sender);
+    }
+
+    @Command(aliases = "unclaim", desc = "Unclaim a section of land")
+    @Group(@At("claimmanage"))
+    @Require("plume.claimmanage.unclaim")
+    public void adminUnclaim(@Sender EntityPlayer player) throws CommandException {
+        ClaimCache claimCache = this.claimCache.provide();
+        Region selection;
+        UserId owner = Profiles.fromPlayer(player);
+        String worldName = Worlds.getWorldName(player.worldObj);
+
+        try {
+            selection = WorldEditAPI.getSelection(player);
+        } catch (IncompleteRegionException e) {
+            player.addChatMessage(Messages.error(tr("claims.makeSelectionFirst")));
+            return;
+        }
+
+        Deferred<?> deferred = Deferreds
+                .when(() -> {
+                    ClaimEnumerator enumerator = new ClaimEnumerator(config.get());
+                    enumerator.setLimited(true);
+                    List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.fromVector2D(worldName, input));
+
+                    claimCache.getClaimMap().removeClaims(positions);
+                    claimCache.putAsUnclaimed(positions);
+
+                    return positions;
+                }, claimExecutor)
+                .done(positions -> {
+                    player.addChatMessage(Messages.info(tr("claims.adminUnclaimSuccess", positions.size())));
                 }, tickExecutorService)
                 .fail(e -> {
                     if (e instanceof ClaimAttemptException) {
