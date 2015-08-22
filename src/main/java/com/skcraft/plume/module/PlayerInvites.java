@@ -90,7 +90,7 @@ public class PlayerInvites {
                     }
                 }, tickExecutorService);
 
-        executor.addCallbacks(deferred, sender);
+        executor.notifyOnDelay(deferred, sender);
     }
 
 }

@@ -93,7 +93,7 @@ public class BanCommands {
                     }
                 }, tickExecutorService);
 
-        executor.addCallbacks(deferred, sender);
+        executor.notifyOnDelay(deferred, sender);
 
     }
 
