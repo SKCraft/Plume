@@ -84,7 +84,7 @@ public class PartyCache {
         try {
             return cache.get(name.toLowerCase());
         } catch (ExecutionException e) {
-            throw new DataAccessException("Could not load the party for " + name);
+            throw new DataAccessException("Could not load the party for " + name, e);
         }
     }
 
