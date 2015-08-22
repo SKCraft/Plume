@@ -18,6 +18,8 @@ import com.skcraft.plume.command.Sender;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.service.claim.Claim;
 import com.skcraft.plume.common.service.claim.ClaimCache;
+import com.skcraft.plume.common.service.party.Party;
+import com.skcraft.plume.common.service.party.PartyCache;
 import com.skcraft.plume.common.util.Vectors;
 import com.skcraft.plume.common.util.WorldVector3i;
 import com.skcraft.plume.common.util.concurrent.Deferred;
@@ -58,6 +60,7 @@ public class Claims {
 
     @InjectConfig("claims") private Config<ClaimConfig> config;
     @InjectService private Service<ClaimCache> claimCache;
+    @InjectService private Service<PartyCache> partyCache;
     @Inject private TickExecutorService tickExecutorService;
     @Inject private BackgroundExecutor bgExecutor;
     @Inject private ProfileService profileService;
@@ -66,8 +69,9 @@ public class Claims {
 
     @Command(aliases = "claim", desc = "Claim a section of land")
     @Require("plume.claims.claim")
-    public void claim(@Sender EntityPlayer player, @Optional String party) throws CommandException {
+    public void claim(@Sender EntityPlayer player, @Optional String partyName) throws CommandException {
         ClaimCache claimCache = this.claimCache.provide();
+        PartyCache partyCache = this.partyCache.provide();
         Region selection;
         UserId owner = Profiles.fromPlayer(player);
         String worldName = Worlds.getWorldName(player.worldObj);
@@ -86,9 +90,16 @@ public class Claims {
                     enumerator.setLimited(true);
                     List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.fromVector2D(worldName, input));
 
+                    if (partyName != null) {
+                        Party party = partyCache.getParty(partyName);
+                        if (party == null) {
+                            throw new ClaimAttemptException(tr("claims.partyDoesNotExist", partyName));
+                        }
+                    }
+
                     // Then build a claim request based on the unclaimed chunks
                     // Filter out chunks that are already owned by the player or other players
-                    ClaimRequest request = new ClaimRequest(claimCache, owner, party);
+                    ClaimRequest request = new ClaimRequest(claimCache, owner, partyName);
                     request.addPositions(positions);
                     request.checkQuota(config.get().limits.totalClaimsMax);
 
@@ -132,6 +143,7 @@ public class Claims {
     @Command(aliases = "claimaccept", desc = "Cancel a pending claim request")
     public void acceptClaim(@Sender EntityPlayer player) {
         ClaimCache claimCache = this.claimCache.provide();
+        PartyCache partyCache = this.partyCache.provide();
         UserId owner = Profiles.fromPlayer(player);
         ClaimRequest existingRequest = pendingRequests.getIfPresent(owner);
 
@@ -147,6 +159,13 @@ public class Claims {
 
                         if (!request.hasUnclaimed()) { // But it could turn out that there are no unclaimed chunks left
                             throw new ClaimAttemptException(tr("claims.unclaimedNowTaken"));
+                        }
+
+                        if (request.getParty() != null) {
+                            Party party = partyCache.getParty(request.getParty());
+                            if (party == null) {
+                                throw new ClaimAttemptException(tr("claims.partyDoesNotExist", request.getParty()));
+                            }
                         }
 
                         return request;
@@ -267,8 +286,9 @@ public class Claims {
     @Command(aliases = "claim", desc = "Claim a section of land")
     @Group(@At("claimmanage"))
     @Require("plume.claimmanage.claim")
-    public void adminClaim(@Sender EntityPlayer sender, String ownerName, @Optional String party) throws CommandException {
+    public void adminClaim(@Sender EntityPlayer sender, String ownerName, @Optional String partyName) throws CommandException {
         ClaimCache claimCache = this.claimCache.provide();
+        PartyCache partyCache = this.partyCache.provide();
         Region selection;
         String worldName = Worlds.getWorldName(sender.worldObj);
 
@@ -287,7 +307,14 @@ public class Claims {
                     enumerator.setLimited(false);
                     List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.fromVector2D(worldName, input));
 
-                    List<Claim> claims = claimCache.getClaimMap().saveClaim(positions, owner, party);
+                    if (partyName != null) {
+                        Party party = partyCache.getParty(partyName);
+                        if (party == null) {
+                            throw new ClaimAttemptException(tr("claims.partyDoesNotExist", partyName));
+                        }
+                    }
+
+                    List<Claim> claims = claimCache.getClaimMap().saveClaim(positions, owner, partyName);
                     claimCache.putClaims(claims);
 
                     return positions;
