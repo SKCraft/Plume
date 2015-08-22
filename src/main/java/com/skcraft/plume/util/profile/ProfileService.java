@@ -1,4 +1,4 @@
-package com.skcraft.plume.util;
+package com.skcraft.plume.util.profile;
 
 import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
@@ -10,7 +10,6 @@ import com.sk89q.squirrelid.resolver.HttpRepositoryService;
 import com.skcraft.plume.common.UserId;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -35,15 +34,16 @@ public class ProfileService {
             });
 
     @Nullable
-    public UserId findUserId(String name) throws IOException {
+    public UserId findUserId(String name) throws ProfileLookupException, ProfileNotFoundException {
         try {
-            return cache.get(name.toLowerCase()).orNull();
-        } catch (ExecutionException e) {
-            if (e.getCause() instanceof IOException) {
-                throw (IOException) e.getCause();
+            Optional<UserId> optional = cache.get(name.toLowerCase());
+            if (optional.isPresent()) {
+                return optional.get();
             } else {
-                throw new RuntimeException("Failed to get user profile");
+                throw new ProfileNotFoundException(name);
             }
+        } catch (ExecutionException e) {
+            throw new ProfileLookupException(e.getCause(), name);
         }
     }
 

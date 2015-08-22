@@ -20,7 +20,7 @@ import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.common.util.service.InjectService;
 import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.util.Contexts;
-import com.skcraft.plume.util.Profiles;
+import com.skcraft.plume.util.profile.Profiles;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import lombok.Getter;
 import lombok.extern.java.Log;

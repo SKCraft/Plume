@@ -12,7 +12,7 @@ import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.event.network.PlayerAuthenticateEvent;
-import com.skcraft.plume.util.Profiles;
+import com.skcraft.plume.util.profile.Profiles;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import ninja.leaping.configurate.objectmapping.Setting;

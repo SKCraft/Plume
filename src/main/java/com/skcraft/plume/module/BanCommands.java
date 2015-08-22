@@ -1,6 +1,5 @@
 package com.skcraft.plume.module;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Inject;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
@@ -10,16 +9,20 @@ import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.service.ban.Ban;
 import com.skcraft.plume.common.service.ban.BanManager;
 import com.skcraft.plume.common.util.Environment;
+import com.skcraft.plume.common.util.concurrent.Deferred;
+import com.skcraft.plume.common.util.concurrent.Deferreds;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.common.util.service.InjectService;
 import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.util.Messages;
-import com.skcraft.plume.util.ProfileService;
-import com.skcraft.plume.util.Profiles;
 import com.skcraft.plume.util.concurrent.BackgroundExecutor;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
+import com.skcraft.plume.util.profile.ProfileLookupException;
+import com.skcraft.plume.util.profile.ProfileNotFoundException;
+import com.skcraft.plume.util.profile.ProfileService;
+import com.skcraft.plume.util.profile.Profiles;
 import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,9 +30,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import ninja.leaping.configurate.objectmapping.Setting;
 
-import java.io.IOException;
 import java.util.Date;
 
+import static com.skcraft.plume.common.util.SharedLocale.tr;
 
 @Module(name = "ban-commands")
 @Log
@@ -55,40 +58,42 @@ public class BanCommands {
             issuer = null;
         }
 
-        ListenableFuture<?> future = executor.getExecutor().submit(() -> {
-            UserId userId;
-            try {
-                userId = profileService.findUserId(name);
-            } catch (IOException e) {
-                tickExecutorService.execute(() -> {
-                    sender.addChatMessage(Messages.error("Couldn't look up the user information for '" + name + "'."));
-                });
-                return;
-            }
+        Deferred<?> deferred = Deferreds
+                .when(() -> {
+                    UserId userId = profileService.findUserId(name);
 
-            if (userId != null) {
-                Ban currentBan = new Ban();
-                currentBan.setUserId(userId);
-                currentBan.setExpireTime(null);
-                currentBan.setHeuristic(false);
-                currentBan.setIssueBy(issuer);
-                currentBan.setIssueTime(new Date());
-                currentBan.setReason(reason);
-                currentBan.setServer(environment.getServerId());
+                    Ban currentBan = new Ban();
+                    currentBan.setUserId(userId);
+                    currentBan.setExpireTime(null);
+                    currentBan.setHeuristic(false);
+                    currentBan.setIssueBy(issuer);
+                    currentBan.setIssueTime(new Date());
+                    currentBan.setReason(reason);
+                    currentBan.setServer(environment.getServerId());
 
-                banMan.addBan(currentBan);
+                    banMan.addBan(currentBan);
 
-                tickExecutorService.execute(() -> {
+                    return userId;
+                }, executor.getExecutor())
+                .done(userId -> {
                     EntityPlayerMP targetPlayer = MinecraftServer.getServer().getConfigurationManager().func_152612_a(name);
-                    if (targetPlayer != null) targetPlayer.playerNetServerHandler.kickPlayerFromServer(config.get().kickMessage);
-                    sender.addChatMessage(Messages.info(currentBan.getUserId().getName() + " has been banned from the server."));
-                });
-            } else {
-                sender.addChatMessage(Messages.error("Couldn't find a Minecraft account with the name '" + name + "'."));
-            }
-        });
+                    if (targetPlayer != null) {
+                        targetPlayer.playerNetServerHandler.kickPlayerFromServer(config.get().kickMessage);
+                    }
 
-        executor.addCallbacks(future, sender);
+                    sender.addChatMessage(Messages.info(tr("bans.userBanned", userId.getName())));
+                }, tickExecutorService)
+                .fail(e -> {
+                    if (e instanceof ProfileNotFoundException) {
+                        sender.addChatMessage(Messages.error(tr("args.minecraftUserNotFound", ((ProfileNotFoundException) e).getName())));
+                    } else if (e instanceof ProfileLookupException) {
+                        sender.addChatMessage(Messages.error(tr("args.minecraftUserLookupFailed", ((ProfileLookupException) e).getName())));
+                    } else {
+                        sender.addChatMessage(Messages.exception(e));
+                    }
+                }, tickExecutorService);
+
+        executor.addCallbacks(deferred, sender);
 
     }
 
@@ -104,29 +109,26 @@ public class BanCommands {
             issuer = null;
         }
 
-        ListenableFuture<?> future = executor.getExecutor().submit(() -> {
-            UserId userId;
-            try {
-                userId = profileService.findUserId(name);
-            } catch (IOException e) {
-                tickExecutorService.execute(() -> {
-                    sender.addChatMessage(Messages.error("Couldn't look up the user information for '" + name + "'."));
-                });
-                return;
-            }
+        Deferred<?> deferred = Deferreds
+                .when(() -> {
+                    UserId userId = profileService.findUserId(name);
+                    banMan.pardon(userId, issuer, reason);
+                    return userId;
+                }, executor.getExecutor())
+                .done(userId -> {
+                    sender.addChatMessage(Messages.info(tr("bans.userUnbanned", userId.getName())));
+                }, tickExecutorService)
+                .fail(e -> {
+                    if (e instanceof ProfileNotFoundException) {
+                        sender.addChatMessage(Messages.error(tr("args.minecraftUserNotFound", ((ProfileNotFoundException) e).getName())));
+                    } else if (e instanceof ProfileLookupException) {
+                        sender.addChatMessage(Messages.error(tr("args.minecraftUserLookupFailed", ((ProfileLookupException) e).getName())));
+                    } else {
+                        sender.addChatMessage(Messages.exception(e));
+                    }
+                }, tickExecutorService);
 
-            if (userId != null) {
-                banMan.pardon(userId, issuer, reason);
-
-                tickExecutorService.execute(() -> {
-                    sender.addChatMessage(Messages.info(userId.getName() + " has been pardoned from the server."));
-                });
-            } else {
-                sender.addChatMessage(Messages.error("Couldn't find a Minecraft account with the name '" + name + "'."));
-            }
-        });
-
-        executor.addCallbacks(future, sender);
+        executor.notifyOnDelay(deferred, sender);
     }
 
     private static class BansConfig {

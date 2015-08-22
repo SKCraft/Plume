@@ -1,4 +1,4 @@
-package com.skcraft.plume.util;
+package com.skcraft.plume.util.profile;
 
 import com.mojang.authlib.GameProfile;
 import com.skcraft.plume.common.UserId;

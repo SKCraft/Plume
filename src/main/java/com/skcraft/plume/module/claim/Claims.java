@@ -27,7 +27,10 @@ import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.common.util.service.InjectService;
 import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.util.Messages;
-import com.skcraft.plume.util.Profiles;
+import com.skcraft.plume.util.profile.ProfileLookupException;
+import com.skcraft.plume.util.profile.ProfileNotFoundException;
+import com.skcraft.plume.util.profile.ProfileService;
+import com.skcraft.plume.util.profile.Profiles;
 import com.skcraft.plume.util.Worlds;
 import com.skcraft.plume.util.concurrent.BackgroundExecutor;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
@@ -43,6 +46,7 @@ import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
 import org.javatuples.Pair;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -56,6 +60,7 @@ public class Claims {
     @InjectService private Service<ClaimCache> claimCache;
     @Inject private TickExecutorService tickExecutorService;
     @Inject private BackgroundExecutor bgExecutor;
+    @Inject private ProfileService profileService;
     private final ListeningExecutorService claimExecutor = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
     private final Cache<UserId, ClaimRequest> pendingRequests = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
 

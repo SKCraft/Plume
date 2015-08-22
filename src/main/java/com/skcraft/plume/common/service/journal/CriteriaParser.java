@@ -1,8 +1,5 @@
 package com.skcraft.plume.common.service.journal;
 
-import com.skcraft.plume.common.UserId;
-import com.skcraft.plume.util.ProfileService;
-
 /**
  * Created by Boris Lachev on 8/22/2015.
  */
