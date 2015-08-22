@@ -60,7 +60,9 @@ public class BanCommands {
             try {
                 userId = profileService.findUserId(name);
             } catch (IOException e) {
-                sender.addChatMessage(Messages.error("Couldn't look up the user information for '" + name + "'."));
+                tickExecutorService.execute(() -> {
+                    sender.addChatMessage(Messages.error("Couldn't look up the user information for '" + name + "'."));
+                });
                 return;
             }
 
@@ -107,7 +109,9 @@ public class BanCommands {
             try {
                 userId = profileService.findUserId(name);
             } catch (IOException e) {
-                sender.addChatMessage(Messages.error("Couldn't look up the user information for '" + name + "'."));
+                tickExecutorService.execute(() -> {
+                    sender.addChatMessage(Messages.error("Couldn't look up the user information for '" + name + "'."));
+                });
                 return;
             }
 
