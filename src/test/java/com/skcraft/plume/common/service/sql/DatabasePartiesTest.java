@@ -45,6 +45,7 @@ public class DatabasePartiesTest {
         party.setName("noobs");
         party.setMembers(Sets.newHashSet(new Member(LEISER_USER, Rank.MEMBER), new Member(MockDatabase.VINCENT_USER, Rank.OWNER), new Member(MockDatabase.SK_USER, Rank.MEMBER)));
         party.setCreateTime(MockDatabase.parseDate("2012-01-02 11:12:13"));
+        partyManager.addParty(party);
 
         Party addedParty = partyManager.findPartyByName("noobs");
         assertThat(party.getName(), equalTo("noobs"));
