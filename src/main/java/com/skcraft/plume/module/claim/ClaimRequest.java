@@ -65,6 +65,10 @@ public class ClaimRequest {
         return !unclaimed.isEmpty();
     }
 
+    public boolean hasClaimed() {
+        return !alreadyOwned.isEmpty();
+    }
+
     public Object getPositionCount() {
         return unclaimed.size() + alreadyOwned.size() + ownedByOthers.size();
     }

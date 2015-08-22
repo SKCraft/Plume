@@ -236,6 +236,30 @@ public class ClaimCache {
         }
     }
 
+    /**
+     * Set the given positions as unclaimed in the cache if those positions
+     * are already cached.
+     *
+     * @param positions The positions
+     */
+    public void putAsUnclaimed(Collection<WorldVector3i> positions) {
+        checkNotNull(positions, "positions");
+        Lock lock = stateLock.writeLock();
+        try {
+            lock.lock();
+            for (WorldVector3i position : positions) {
+                if (position != null) {
+                    TLongObjectHashMap<ChunkState> states = statesByWorld.getUnchecked(position.getWorldName());
+                    ChunkState state = new ChunkState(position);
+                    state.setLoaded(true);
+                    states.put(toLong(position), state);
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
     protected static long toLong(WorldVector3i position) {
         int msw = position.getX();
         int lsw = position.getZ();

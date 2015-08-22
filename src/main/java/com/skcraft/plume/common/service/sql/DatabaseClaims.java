@@ -89,6 +89,36 @@ public class DatabaseClaims implements ClaimMap {
         }
     }
 
+    private static List<Row3<String, Integer, Integer>> rowsFromPositions(Collection<WorldVector3i> positions) {
+        List<Row3<String, Integer, Integer>> rows = Lists.newArrayList();
+        for (WorldVector3i position : positions) {
+            rows.add(row(position.getWorldName(), position.getX(), position.getZ()));
+        }
+        return rows;
+    }
+
+    @Override
+    public void removeClaims(Collection<WorldVector3i> positions) {
+        checkNotNull(positions, "positions");
+
+        try {
+            DSLContext create = database.create();
+
+            // We will remove entries from this set
+            Set<WorldVector3i> freePositions = Sets.newHashSet(positions);
+
+            // Collect Row3s (world, x, z) that will be used in the jOOQ query
+            List<Row3<String, Integer, Integer>> coordRows = rowsFromPositions(positions);
+
+            create
+                    .deleteFrom(CLAIM)
+                    .where(CLAIM.SERVER.eq(server).and(row(CLAIM.WORLD, CLAIM.X, CLAIM.Z).in(coordRows)))
+                    .execute();
+        } catch (org.jooq.exception.DataAccessException e) {
+            throw new DataAccessException("Failed to fetch claims for given coordinates", e);
+        }
+    }
+
     @Override
     public List<Claim> updateClaim(Collection<WorldVector3i> positions, UserId owner, @Nullable String party, @Nullable UserId existingOwner) {
         checkNotNull(positions, "positions");
@@ -100,10 +130,7 @@ public class DatabaseClaims implements ClaimMap {
             Set<WorldVector3i> freePositions = Sets.newHashSet(positions);
 
             // Collect Row3s (world, x, z) that will be used in the jOOQ query
-            List<Row3<String, Integer, Integer>> coordRows = Lists.newArrayList();
-            for (WorldVector3i position : positions) {
-                coordRows.add(row(position.getWorldName(), position.getX(), position.getZ()));
-            }
+            List<Row3<String, Integer, Integer>> coordRows = rowsFromPositions(positions);
 
             Cursor<Record> claimRecords = create
                     .select(CLAIM.fields())

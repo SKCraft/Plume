@@ -64,10 +64,17 @@ public interface ClaimMap {
      * @param positions A list of chunk coordinates
      * @param owner The new owner of the claims
      * @param party An optional party to associate with the claim
-     * @return A list of claim instances
+     * @return A list of claim instances to be used to update the cache
      * @throws DataAccessException If data could not be retrieved or saved
      */
     List<Claim> saveClaim(Collection<WorldVector3i> positions, UserId owner, @Nullable String party);
+
+    /**
+     * Remove the claims at the given positions.
+     *
+     * @param positions A list of chunk coordinates
+     */
+    void removeClaims(Collection<WorldVector3i> positions);
 
     /**
      * Update claim information for the given chunk positions, but only if

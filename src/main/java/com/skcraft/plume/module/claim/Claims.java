@@ -23,7 +23,6 @@ import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.common.util.service.InjectService;
 import com.skcraft.plume.common.util.service.Service;
-import com.skcraft.plume.util.Items;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.Profiles;
 import com.skcraft.plume.util.Worlds;
@@ -203,6 +202,55 @@ public class Claims {
         } else {
             player.addChatMessage(Messages.error(tr("claims.noPending")));
         }
+    }
+
+    @Command(aliases = "unclaim", desc = "Unclaim a section of land")
+    @Require("plume.claims.unclaim")
+    public void unclaim(EntityPlayer player) throws CommandException {
+        ClaimCache claimCache = this.claimCache.provide();
+        Region selection;
+        UserId owner = Profiles.fromPlayer(player);
+        String worldName = Worlds.getWorldName(player.worldObj);
+
+        try {
+            selection = WorldEditAPI.getSelection(player);
+        } catch (IncompleteRegionException e) {
+            player.addChatMessage(Messages.error(tr("claims.makeSelectionFirst")));
+            return;
+        }
+
+        Deferred<?> deferred = Deferreds
+                .when(() -> {
+                    // First grab a list of chunks from the player's selection
+                    ClaimEnumerator enumerator = new ClaimEnumerator(config.get());
+                    enumerator.setLimited(true);
+                    List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.fromVector2D(worldName, input));
+
+                    // Filter chunks
+                    ClaimRequest request = new ClaimRequest(claimCache, owner, null);
+                    request.addPositions(positions);
+
+                    if (!request.hasClaimed()) {
+                        throw new ClaimAttemptException(tr("claims.noClaimedChunks"));
+                    }
+
+                    claimCache.getClaimMap().removeClaims(request.getAlreadyOwned());
+                    claimCache.putAsUnclaimed(request.getAlreadyOwned());
+
+                    return request;
+                }, claimExecutor)
+                .done(request -> {
+                    player.addChatMessage(Messages.info(tr("claims.unclaimSuccessful", request.getAlreadyOwned().size())));
+                }, tickExecutorService)
+                .fail(e -> {
+                    if (e instanceof ClaimAttemptException) {
+                        player.addChatMessage(Messages.error(e.getMessage()));
+                    } else {
+                        player.addChatMessage(Messages.exception(e));
+                    }
+                }, tickExecutorService);
+
+        bgExecutor.notifyOnDelay(deferred, player);
     }
 
 }
