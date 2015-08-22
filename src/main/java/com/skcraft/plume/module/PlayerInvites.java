@@ -6,6 +6,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Inject;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
+import com.skcraft.plume.command.Sender;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.service.auth.Group;
 import com.skcraft.plume.common.service.auth.User;
@@ -39,7 +40,7 @@ public class PlayerInvites {
 
     @Command(aliases = "invite", desc = "Invite a user")
     @Require("plume.invite")
-    public void invite(ICommandSender sender, String name) {
+    public void invite(@Sender ICommandSender sender, String name) {
         UserCache userCache = this.userCache.provide();
 
         UserId referrer;

@@ -11,6 +11,9 @@ import com.sk89q.intake.Require;
 import com.sk89q.intake.parametric.annotation.Optional;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.regions.Region;
+import com.skcraft.plume.command.At;
+import com.skcraft.plume.command.Group;
+import com.skcraft.plume.command.Sender;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.service.claim.Claim;
 import com.skcraft.plume.common.service.claim.ClaimCache;
@@ -58,7 +61,7 @@ public class Claims {
 
     @Command(aliases = "claim", desc = "Claim a section of land")
     @Require("plume.claims.claim")
-    public void claim(EntityPlayer player, @Optional String party) throws CommandException {
+    public void claim(@Sender EntityPlayer player, @Optional String party) throws CommandException {
         ClaimCache claimCache = this.claimCache.provide();
         Region selection;
         UserId owner = Profiles.fromPlayer(player);
@@ -122,7 +125,7 @@ public class Claims {
     }
 
     @Command(aliases = "claimaccept", desc = "Cancel a pending claim request")
-    public void acceptClaim(EntityPlayer player) {
+    public void acceptClaim(@Sender EntityPlayer player) {
         ClaimCache claimCache = this.claimCache.provide();
         UserId owner = Profiles.fromPlayer(player);
         ClaimRequest existingRequest = pendingRequests.getIfPresent(owner);
@@ -194,7 +197,7 @@ public class Claims {
     }
 
     @Command(aliases = "claimcancel", desc = "Cancel a pending claim request")
-    public void cancelClaim (EntityPlayer player){
+    public void cancelClaim (@Sender EntityPlayer player){
         UserId owner = Profiles.fromPlayer(player);
         if (pendingRequests.asMap().containsKey(owner)) {
             pendingRequests.invalidate(owner);
@@ -206,7 +209,7 @@ public class Claims {
 
     @Command(aliases = "unclaim", desc = "Unclaim a section of land")
     @Require("plume.claims.unclaim")
-    public void unclaim(EntityPlayer player) throws CommandException {
+    public void unclaim(@Sender EntityPlayer player) throws CommandException {
         ClaimCache claimCache = this.claimCache.provide();
         Region selection;
         UserId owner = Profiles.fromPlayer(player);

@@ -1,6 +1,8 @@
 package com.skcraft.plume.command;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.sk89q.intake.argument.ArgumentException;
 import com.sk89q.intake.argument.ArgumentParseException;
 import com.sk89q.intake.argument.CommandArgs;
@@ -9,10 +11,13 @@ import com.sk89q.intake.parametric.Provider;
 import com.sk89q.intake.parametric.ProvisionException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.List;
+
+import static com.skcraft.plume.common.util.SharedLocale.tr;
 
 public class ForgeModule extends AbstractModule {
 
@@ -20,11 +25,51 @@ public class ForgeModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(ICommandSender.class).toProvider(senderProvider);
+        bind(ICommandSender.class).annotatedWith(Sender.class).toProvider(senderProvider);
+        bind(EntityPlayer.class).annotatedWith(Sender.class).toProvider(new PlayerSenderProvider());
         bind(EntityPlayer.class).toProvider(new PlayerProvider());
     }
 
     private class PlayerProvider implements Provider<EntityPlayer> {
+        @Override
+        public boolean isProvided() {
+            return false;
+        }
+
+        @Nullable
+        @Override
+        public EntityPlayer get(CommandArgs arguments, List<? extends Annotation> modifiers) throws ArgumentException, ProvisionException {
+            String test = arguments.next();
+            List<EntityPlayer> candidates = Lists.newArrayList();
+
+            for (Object object : MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
+                EntityPlayer player = (EntityPlayer) object;
+                String name = player.getGameProfile().getName();
+                if (name.equalsIgnoreCase(test)) {
+                    return player;
+                } else {
+                    candidates.add(player);
+                }
+            }
+
+            if (candidates.isEmpty()) {
+                throw new ArgumentParseException(tr("args.noPlayersMatched", test));
+            } else if (candidates.size() == 1) {
+                return candidates.get(0);
+            } else {
+                Joiner joiner = Joiner.on(tr("listSeparator"));
+                throw new ArgumentParseException(tr("args.didYouMean", joiner.join(candidates)));
+            }
+        }
+
+        @Override
+        public List<String> getSuggestions(String prefix) {
+            return ImmutableList.of();
+        }
+    }
+
+
+    private class PlayerSenderProvider implements Provider<EntityPlayer> {
         @Override
         public boolean isProvided() {
             return false;

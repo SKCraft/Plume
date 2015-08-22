@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
 import com.sk89q.intake.parametric.annotation.Text;
+import com.skcraft.plume.command.Sender;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.service.ban.Ban;
 import com.skcraft.plume.common.service.ban.BanManager;
@@ -44,7 +45,7 @@ public class BanCommands {
 
     @Command(aliases = "ban", desc = "Ban a user")
     @Require("plume.bans.ban")
-    public void ban(ICommandSender sender, String name, @Text String reason) {
+    public void ban(@Sender ICommandSender sender, String name, @Text String reason) {
         BanManager banMan = this.banManager.provide();
 
         UserId issuer;
@@ -91,7 +92,7 @@ public class BanCommands {
 
     @Command(aliases = "pardon", desc = "Pardon a user")
     @Require("plume.bans.pardon")
-    public void pardon(ICommandSender sender, String name, @Text String reason) {
+    public void pardon(@Sender ICommandSender sender, String name, @Text String reason) {
         BanManager banMan = this.banManager.provide();
 
         UserId issuer;
