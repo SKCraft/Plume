@@ -10,6 +10,7 @@ import org.jooq.*;
 import org.jooq.impl.DSL;
 
 import javax.annotation.Nullable;
+import java.sql.Timestamp;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -226,7 +227,7 @@ public class DatabaseClaims implements ClaimMap {
                     values.add(position.getZ());
                     values.add(ownerId);
                     values.add(party);
-                    values.add(now);
+                    values.add(new Timestamp(now.getTime()));
 
                     Claim claim = new Claim();
                     claim.setServer(server);
