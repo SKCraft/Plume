@@ -30,7 +30,7 @@ public class CriteriaParser{
                             break;
                         case "player":
                             parsed = tokens[i + 1];
-                            builder.setUserId();
+                            //builder.setUserId();
                     }
                 }
             } else {
