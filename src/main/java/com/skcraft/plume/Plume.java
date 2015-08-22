@@ -1,5 +1,6 @@
 package com.skcraft.plume;
 
+import com.google.common.reflect.TypeToken;
 import com.google.inject.Injector;
 import com.sk89q.worldedit.util.eventbus.EventBus;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
@@ -8,12 +9,17 @@ import com.skcraft.plume.common.util.FatalError;
 import com.skcraft.plume.common.util.SharedLocale;
 import com.skcraft.plume.common.util.logging.Log4jRedirect;
 import com.skcraft.plume.common.util.module.PlumeLoader;
+import com.skcraft.plume.util.config.ItemStackTypeSerializer;
+import com.skcraft.plume.util.config.SingleItemMatcherTypeSerializer;
+import com.skcraft.plume.util.inventory.SingleItemMatcher;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.*;
 import lombok.extern.java.Log;
+import net.minecraft.item.ItemStack;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 
 import java.io.File;
 import java.util.List;
@@ -54,6 +60,9 @@ public class Plume {
         logger.addHandler(new Log4jRedirect(event.getModLog(), "Plume"));
 
         SharedLocale.loadBundle("com.skcraft.plume.lang.Plume", Locale.getDefault());
+
+        TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(ItemStack.class), new ItemStackTypeSerializer());
+        TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(SingleItemMatcher.class), new SingleItemMatcherTypeSerializer());
 
         injector = new PlumeLoader()
                 .setDataDir(new File(event.getModConfigurationDirectory(), "plume"))
