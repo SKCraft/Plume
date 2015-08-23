@@ -30,6 +30,7 @@ class PlumeModule extends AbstractModule {
     @Override
     protected void configure() {
         bindScope(Module.class, Scopes.SINGLETON);
+        bindScope(AutoRegister.class, Scopes.SINGLETON);
 
         bind(File.class).annotatedWith(DataDir.class).toInstance(dataDir);
         bind(EventBus.class).toInstance(eventBus);
