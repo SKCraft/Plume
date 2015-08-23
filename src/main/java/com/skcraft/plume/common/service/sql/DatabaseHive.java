@@ -64,6 +64,7 @@ public class DatabaseHive implements Hive {
                 group.setId(record.getId());
                 group.setName(record.getName());
                 group.setPermissions(ImmutableSet.copyOf(record.getPermissions().toLowerCase().split("\n")));
+                group.setAutoJoin(record.getAutoJoin() == 1);
                 groupsBuilder.put(group.getId(), group);
             }
 
