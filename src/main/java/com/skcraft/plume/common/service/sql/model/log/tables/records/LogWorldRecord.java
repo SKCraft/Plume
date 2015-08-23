@@ -28,7 +28,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class LogWorldRecord extends UpdatableRecordImpl<LogWorldRecord> implements Record2<Short, String> {
 
-	private static final long serialVersionUID = -2122865749;
+	private static final long serialVersionUID = 2039105465;
 
 	/**
 	 * Setter for <code>log.log_world.id</code>.

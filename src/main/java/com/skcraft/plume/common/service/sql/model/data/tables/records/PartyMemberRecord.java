@@ -28,7 +28,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PartyMemberRecord extends UpdatableRecordImpl<PartyMemberRecord> implements Record3<String, Integer, String> {
 
-	private static final long serialVersionUID = 245052861;
+	private static final long serialVersionUID = -604045155;
 
 	/**
 	 * Setter for <code>data.party_member.party_name</code>.

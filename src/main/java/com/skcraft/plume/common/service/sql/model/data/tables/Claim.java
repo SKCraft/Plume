@@ -35,7 +35,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Claim extends TableImpl<ClaimRecord> {
 
-	private static final long serialVersionUID = 26100207;
+	private static final long serialVersionUID = -1062319953;
 
 	/**
 	 * The reference instance of <code>data.claim</code>

@@ -34,7 +34,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class GroupParent extends TableImpl<GroupParentRecord> {
 
-	private static final long serialVersionUID = -2038830007;
+	private static final long serialVersionUID = -530349303;
 
 	/**
 	 * The reference instance of <code>data.group_parent</code>

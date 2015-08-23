@@ -34,7 +34,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Group extends TableImpl<GroupRecord> {
 
-	private static final long serialVersionUID = 1806636168;
+	private static final long serialVersionUID = 1459060773;
 
 	/**
 	 * The reference instance of <code>data.group</code>
@@ -63,6 +63,11 @@ public class Group extends TableImpl<GroupRecord> {
 	 * The column <code>data.group.permissions</code>.
 	 */
 	public final TableField<GroupRecord, String> PERMISSIONS = createField("permissions", org.jooq.impl.SQLDataType.CLOB.nullable(false), this, "");
+
+	/**
+	 * The column <code>data.group.auto_join</code>.
+	 */
+	public final TableField<GroupRecord, Byte> AUTO_JOIN = createField("auto_join", org.jooq.impl.SQLDataType.TINYINT.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>data.group</code> table reference

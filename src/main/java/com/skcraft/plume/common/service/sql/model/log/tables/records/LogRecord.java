@@ -30,7 +30,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class LogRecord extends UpdatableRecordImpl<LogRecord> implements Record9<Integer, Timestamp, Integer, Short, Integer, Short, Integer, Short, String> {
 
-	private static final long serialVersionUID = -895554115;
+	private static final long serialVersionUID = 1095389259;
 
 	/**
 	 * Setter for <code>log.log.id</code>.

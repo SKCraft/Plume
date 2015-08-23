@@ -34,7 +34,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PartyMember extends TableImpl<PartyMemberRecord> {
 
-	private static final long serialVersionUID = 1243207598;
+	private static final long serialVersionUID = 1041242350;
 
 	/**
 	 * The reference instance of <code>data.party_member</code>

@@ -34,7 +34,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class UserGroup extends TableImpl<UserGroupRecord> {
 
-	private static final long serialVersionUID = -955813569;
+	private static final long serialVersionUID = -1433630721;
 
 	/**
 	 * The reference instance of <code>data.user_group</code>

@@ -30,7 +30,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class BanRecord extends UpdatableRecordImpl<BanRecord> implements Record10<Integer, Integer, Timestamp, Integer, String, String, Byte, Timestamp, Integer, String> {
 
-	private static final long serialVersionUID = -1711293464;
+	private static final long serialVersionUID = 1054436616;
 
 	/**
 	 * Setter for <code>data.ban.id</code>.

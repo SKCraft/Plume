@@ -30,7 +30,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ClaimRecord extends UpdatableRecordImpl<ClaimRecord> implements Record7<String, String, Integer, Integer, Integer, String, Timestamp> {
 
-	private static final long serialVersionUID = 1655588272;
+	private static final long serialVersionUID = -1067338032;
 
 	/**
 	 * Setter for <code>data.claim.server</code>.

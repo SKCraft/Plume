@@ -36,7 +36,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Ban extends TableImpl<BanRecord> {
 
-	private static final long serialVersionUID = 269992977;
+	private static final long serialVersionUID = 487762641;
 
 	/**
 	 * The reference instance of <code>data.ban</code>
