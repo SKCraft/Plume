@@ -2,8 +2,6 @@ package com.skcraft.plume.event.entity;
 
 import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
-import com.skcraft.plume.event.block.BlockChange;
-import com.skcraft.plume.util.Location3d;
 import com.skcraft.plume.event.BulkEvent;
 import com.skcraft.plume.event.Cause;
 import com.skcraft.plume.event.DelegateEvent;
@@ -11,7 +9,6 @@ import com.skcraft.plume.event.Result;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 
-import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -56,7 +53,7 @@ public class EntityEvent extends DelegateEvent implements BulkEvent {
      *                           list once the predicate returns {@code false}
      * @return True if one or more entities were filtered out
      */
-    public boolean filter(Predicate<Entity> predicate, boolean cancelEventOnFalse) {
+    public boolean filterEntities(Predicate<Entity> predicate, boolean cancelEventOnFalse) {
         return filter(getEntities(), Functions.<Entity>identity(), predicate, cancelEventOnFalse);
     }
 
