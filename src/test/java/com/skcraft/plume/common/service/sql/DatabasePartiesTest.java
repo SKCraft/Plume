@@ -9,6 +9,7 @@ import com.skcraft.plume.common.service.party.PartyExistsException;
 import com.skcraft.plume.common.service.party.Rank;
 import org.junit.Before;
 import org.junit.Test;
+import uk.co.it.modular.hamcrest.date.DateMatchers;
 
 import java.util.Map;
 import java.util.UUID;
@@ -73,8 +74,8 @@ public class DatabasePartiesTest {
         Map<String, Party> parties = partyManager.findPartiesByName(Lists.newArrayList("guests", "friends"));
 
         assertThat(parties.size(), is(2));
-        assertThat(parties.get("guests").getCreateTime(), equalTo(MockDatabase.parseDate("2015-03-05 10:20:30")));
-        assertThat(parties.get("friends").getCreateTime(), equalTo(MockDatabase.parseDate("2015-02-04 10:20:30")));
+        assertThat(parties.get("guests").getCreateTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2015-03-05 10:20:30")));
+        assertThat(parties.get("friends").getCreateTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2015-02-04 10:20:30")));
     }
 
     @Test
@@ -83,7 +84,7 @@ public class DatabasePartiesTest {
         Party party = partyManager.findPartyByName("guests");
 
         assertThat(party.getName(), equalTo("guests"));
-        assertThat(party.getCreateTime(), equalTo(MockDatabase.parseDate("2015-03-05 10:20:30")));
+        assertThat(party.getCreateTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2015-03-05 10:20:30")));
 
         assertThat(party.getMembers().size(), is(2));
         assertThat(party.getMembers(), containsInAnyOrder(new Member(MockDatabase.VINCENT_USER, Rank.OWNER), new Member(MockDatabase.SK_USER, Rank.MEMBER)));
@@ -96,7 +97,7 @@ public class DatabasePartiesTest {
 
         partyManager.refreshParty(party);
 
-        assertThat(partyManager.findPartyByName("guests").getCreateTime(), equalTo(MockDatabase.parseDate("2015-03-05 10:20:30")));
+        assertThat(partyManager.findPartyByName("guests").getCreateTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2015-03-05 10:20:30")));
     }
 
     @Test

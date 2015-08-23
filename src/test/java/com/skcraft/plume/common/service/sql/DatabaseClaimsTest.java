@@ -5,6 +5,7 @@ import com.skcraft.plume.common.service.claim.Claim;
 import com.skcraft.plume.common.util.WorldVector3i;
 import org.junit.Before;
 import org.junit.Test;
+import uk.co.it.modular.hamcrest.date.DateMatchers;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class DatabaseClaimsTest {
         assertThat(claim.getParty(), equalTo("friends"));
         assertThat(claim.getX(), is(SK_OWNED.getX()));
         assertThat(claim.getZ(), is(SK_OWNED.getZ()));
-        assertThat(claim.getIssueTime(), equalTo(MockDatabase.parseDate("2005-01-02 02:04:06")));
+        assertThat(claim.getIssueTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2005-01-02 02:04:06")));
     }
 
     private void verifySKOwned2(DatabaseClaims claims) {
@@ -57,7 +58,7 @@ public class DatabaseClaimsTest {
         assertThat(claim.getParty(), nullValue());
         assertThat(claim.getX(), is(SK_OWNED2.getX()));
         assertThat(claim.getZ(), is(SK_OWNED2.getZ()));
-        assertThat(claim.getIssueTime(), equalTo(MockDatabase.parseDate("2005-01-03 00:00:00")));
+        assertThat(claim.getIssueTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2005-01-03 00:00:00")));
     }
 
     private void verifyVincentOwned(DatabaseClaims claims) {
@@ -70,7 +71,7 @@ public class DatabaseClaimsTest {
         assertThat(claim.getParty(), equalTo("guests"));
         assertThat(claim.getX(), is(VINCENT_OWNED.getX()));
         assertThat(claim.getZ(), is(VINCENT_OWNED.getZ()));
-        assertThat(claim.getIssueTime(), equalTo(MockDatabase.parseDate("2005-02-03 00:10:00")));
+        assertThat(claim.getIssueTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2005-02-03 00:10:00")));
     }
 
     private void verifyVincentOwned2(DatabaseClaims claims) {
@@ -83,7 +84,7 @@ public class DatabaseClaimsTest {
         assertThat(claim.getParty(), equalTo("friends"));
         assertThat(claim.getX(), is(VINCENT_OWNED2.getX()));
         assertThat(claim.getZ(), is(VINCENT_OWNED2.getZ()));
-        assertThat(claim.getIssueTime(), equalTo(MockDatabase.parseDate("2015-04-03 00:00:00")));
+        assertThat(claim.getIssueTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2015-04-03 00:00:00")));
     }
 
     @Test
@@ -109,7 +110,7 @@ public class DatabaseClaimsTest {
         assertThat(claim.getParty(), equalTo("friends"));
         assertThat(claim.getX(), is(SK_OWNED.getX()));
         assertThat(claim.getZ(), is(SK_OWNED.getZ()));
-        assertThat(claim.getIssueTime(), equalTo(MockDatabase.parseDate("2005-01-02 02:04:06")));
+        assertThat(claim.getIssueTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2005-01-02 02:04:06")));
     }
 
     @Test

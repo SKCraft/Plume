@@ -9,6 +9,7 @@ import com.skcraft.plume.common.service.journal.Record;
 import com.skcraft.plume.common.util.Order;
 import org.junit.Before;
 import org.junit.Test;
+import uk.co.it.modular.hamcrest.date.DateMatchers;
 
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class DatabaseJournalTest {
 
     private void verifyRecord1(Record record) {
         assertThat(record.getId(), is(1));
-        assertThat(record.getTime(), equalTo(MockDatabase.parseDate("2014-05-01 00:01:00")));
+        assertThat(record.getTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2014-05-01 00:01:00")));
         assertThat(record.getUserId(), equalTo(MockDatabase.SK_USER));
         assertThat(record.getLocation().getWorldName(), equalTo("world"));
         assertThat(record.getLocation().getX(), is(-20));
@@ -52,7 +53,7 @@ public class DatabaseJournalTest {
 
     private void verifyRecord2(Record record) {
         assertThat(record.getId(), is(2));
-        assertThat(record.getTime(), equalTo(MockDatabase.parseDate("2014-05-01 00:02:00")));
+        assertThat(record.getTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2014-05-01 00:02:00")));
         assertThat(record.getUserId(), equalTo(MockDatabase.SK_USER));
         assertThat(record.getLocation().getWorldName(), equalTo("world"));
         assertThat(record.getLocation().getX(), is(50));
@@ -64,7 +65,7 @@ public class DatabaseJournalTest {
 
     private void verifyRecord3(Record record) {
         assertThat(record.getId(), is(3));
-        assertThat(record.getTime(), equalTo(MockDatabase.parseDate("2014-05-01 00:03:00")));
+        assertThat(record.getTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2014-05-01 00:03:00")));
         assertThat(record.getUserId(), equalTo(MockDatabase.VINCENT_USER));
         assertThat(record.getLocation().getWorldName(), equalTo("world"));
         assertThat(record.getLocation().getX(), is(-20));
@@ -76,7 +77,7 @@ public class DatabaseJournalTest {
 
     private void verifyRecord4(Record record) {
         assertThat(record.getId(), is(4));
-        assertThat(record.getTime(), equalTo(MockDatabase.parseDate("2014-05-01 00:04:00")));
+        assertThat(record.getTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2014-05-01 00:04:00")));
         assertThat(record.getUserId(), equalTo(MockDatabase.SK_USER));
         assertThat(record.getLocation().getWorldName(), equalTo("nether"));
         assertThat(record.getLocation().getX(), is(50));
@@ -88,7 +89,7 @@ public class DatabaseJournalTest {
 
     private void verifyRecord5(Record record) {
         assertThat(record.getId(), is(5));
-        assertThat(record.getTime(), equalTo(MockDatabase.parseDate("2014-05-01 00:05:00")));
+        assertThat(record.getTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2014-05-01 00:05:00")));
         assertThat(record.getUserId(), equalTo(MockDatabase.VINCENT_USER));
         assertThat(record.getLocation().getWorldName(), equalTo("end"));
         assertThat(record.getLocation().getX(), is(-20));
