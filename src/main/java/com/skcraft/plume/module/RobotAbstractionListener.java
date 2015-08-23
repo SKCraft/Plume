@@ -36,8 +36,7 @@ public class RobotAbstractionListener {
     }
 
     private Cause createCause(Agent agent) {
-        // TODO: Create some player object
-        return Cause.create(agent);
+        return Cause.create(agent.player(), agent);
     }
 
     @SubscribeEvent
