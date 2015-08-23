@@ -72,4 +72,11 @@ public interface ManagedCache<K, V> {
      */
     void put(K key, V value);
 
+    /**
+     * Refresh the given key.
+     *
+     * @param key The key
+     */
+    void refresh(K key);
+
 }

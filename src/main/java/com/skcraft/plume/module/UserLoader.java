@@ -34,7 +34,7 @@ public class UserLoader {
         UserCache userCache = this.userCache.provide();
         Date now = new Date();
         UserId userId = Profiles.fromProfile(event.getProfile());
-        User user = userCache.getUser(userId);
+        User user = userCache.getUser(userId, true);
 
         if (user != null) {
             if (user.getSubject().hasPermission("whitelist", environment.update(new Context.Builder()).build())) {

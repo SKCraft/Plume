@@ -102,8 +102,29 @@ public class UserCache {
      */
     @Nullable
     public User getUser(UserId userId) {
+        return getUser(userId, false);
+    }
+
+    /**
+     * Fetch the user from the cache, loading it from the database on miss,
+     * unless {@code reload} is true, in which case the cache will be updated
+     * with the latest copy from the database regardless.
+     *
+     * <p>The method will block if the user has to be loaded from the
+     * underlying database.</p>
+     *
+     * @param userId The user ID
+     * @param reload Whether the cache should be reloaded if an entry already exists
+     * @return A user, or null if the user is missing
+     * @throws DataAccessException Thrown if the user could not be loaded
+     */
+    @Nullable
+    public User getUser(UserId userId, boolean reload) {
         checkNotNull(userId, "userId");
         try {
+            if (reload) {
+                cache.refresh(userId);
+            }
             return cache.get(userId);
         } catch (ExecutionException e) {
             throw new DataAccessException("Couldn't get user", e);

@@ -120,4 +120,11 @@ class GuavaManagedCache<K, V> implements ManagedCache<K, V> {
         expireCache.refresh(key); // Reset access time
     }
 
+    @Override
+    public void refresh(K key) {
+        checkNotNull(key, "key");
+        referenceCache.refresh(key);
+        expireCache.refresh(key);
+    }
+
 }
