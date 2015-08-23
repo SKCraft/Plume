@@ -12,6 +12,7 @@
 6. Run `./gradlew clean setupDecompWorkspace build`
 7. In IntelliJ IDEA, open up the `build.gradle` file to create a new project for Plume.
 8. On the Gradle panel (it may be on the right), browse to "Other" and double click "genIntellijRuns". When it completes, confirm to reload the workspace.
+9. Run -> Edit Configurations, choose "Minecraft Server", and add `-Dfml.coreMods.load=com.skcraft.plume.asm.PlumePlugin` to VM options, followed by `nogui` to program arguments.
 
 ### IntelliJ IDEA
 
