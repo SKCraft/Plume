@@ -38,12 +38,6 @@ public class PartyCommands {
     @Inject private TickExecutorService tickExecutorService;
     @InjectService private Service<PartyCache> partyCache;
 
-    @Command(aliases = "party", desc = "/party create/add/remove/info/mine")
-    //@Require("plume.party.party") //TODO uncomment this when online
-    public void party(@Sender EntityPlayer sender, String name) {
-        sender.addChatMessage(Messages.info(tr("party.help.usage")));
-    }
-
     @Command(aliases = "create", desc = "Create a new party")
     @Group(@At("party"))
     //@Require("plume.party.create") //TODO uncomment this when online
