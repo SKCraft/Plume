@@ -15,7 +15,6 @@ import java.io.File;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@Singleton
 @AutoRegister
 public class ConfigFactory {
 

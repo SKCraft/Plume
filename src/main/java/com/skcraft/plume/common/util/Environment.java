@@ -1,6 +1,5 @@
 package com.skcraft.plume.common.util;
 
-import com.google.inject.Singleton;
 import com.skcraft.plume.common.service.auth.Context;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
@@ -8,7 +7,6 @@ import com.skcraft.plume.common.util.module.AutoRegister;
 import ninja.leaping.configurate.objectmapping.Setting;
 
 @AutoRegister
-@Singleton
 public class Environment {
 
     @InjectConfig("environment")

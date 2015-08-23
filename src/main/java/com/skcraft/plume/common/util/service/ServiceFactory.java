@@ -18,7 +18,6 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @AutoRegister
-@Singleton
 public class ServiceFactory {
 
     private final ServiceLocator locator;

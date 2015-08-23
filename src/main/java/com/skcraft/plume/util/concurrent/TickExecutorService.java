@@ -2,7 +2,6 @@ package com.skcraft.plume.util.concurrent;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.AbstractListeningExecutorService;
-import com.google.inject.Singleton;
 import com.skcraft.plume.common.util.module.AutoRegister;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -17,7 +16,6 @@ import java.util.logging.Level;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @AutoRegister
-@Singleton
 @Log
 public class TickExecutorService extends AbstractListeningExecutorService {
 
