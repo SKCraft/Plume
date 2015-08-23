@@ -9,11 +9,14 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
 public class ClaimConfig {
 
-    @Setting("cost")
+    @Setting
     public Cost cost = new Cost();
 
-    @Setting("limits")
+    @Setting
     public ClaimLimits limits = new ClaimLimits();
+
+    @Setting
+    public Protection protection = new Protection();
 
     @ConfigSerializable
     public static class Cost {
@@ -46,6 +49,14 @@ public class ClaimConfig {
 
         @Setting(comment = "The maximum number of chunks that can be claimed in total by one person")
         public int totalClaimsMax = 400;
+
+    }
+
+    @ConfigSerializable
+    public static class Protection {
+
+        @Setting(comment = "Whether fake players should be given free reign to do whatever they want")
+        public boolean ignoreFakePlayers = true;
 
     }
 

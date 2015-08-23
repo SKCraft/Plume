@@ -153,6 +153,22 @@ public class ClaimCache {
     }
 
     /**
+     * Removed cache claim data for all chunks in a given world.
+     *
+     * @param worldName The world name
+     */
+    public void invalidateChunksInWorld(String worldName) {
+        checkNotNull(worldName, "worldName");
+        Lock lock = stateLock.writeLock();
+        try {
+            lock.lock();
+            statesByWorld.invalidate(worldName);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
      * Get a claim for the given position if it has been cached.
      *
      * <p>This method is the recommended method to use to get claim data

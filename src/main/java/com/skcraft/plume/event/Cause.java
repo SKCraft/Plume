@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityThrowable;
@@ -90,10 +91,10 @@ public final class Cause {
     }
 
     @Nullable
-    public EntityPlayerMP getFirstEntityPlayerMP() {
+    public EntityPlayer getFirstPlayer() {
         for (Object object : causes) {
-            if (object instanceof EntityPlayerMP) {
-                return (EntityPlayerMP) object;
+            if (object instanceof EntityPlayer) {
+                return (EntityPlayer) object;
             }
         }
 

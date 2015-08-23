@@ -58,29 +58,31 @@ class PopulateWorker implements Runnable {
                     Queues.drain(queue, batch, batchMaxSize, collectTime, TimeUnit.MILLISECONDS);
                 } while (batch.isEmpty());
 
-                Map<WorldVector3i, Claim> loaded = claims.findClaimsByPosition(Lists.transform(batch, ChunkState::getPosition));
+                try {
+                    Map<WorldVector3i, Claim> loaded = claims.findClaimsByPosition(Lists.transform(batch, ChunkState::getPosition));
 
-                for (ChunkState state : batch) {
-                    try {
+                    for (ChunkState state : batch) {
                         Claim claim = loaded.get(state.getPosition());
 
-                        // TODO: Fetch parties in bulk instead
-                        // Currently the cache backing the party cache doesn't support bulk
-                        // loads while also blocking other threads from loading the values
-                        // themselves
-                        String partyName = claim.getParty();
-                        Party party = null;
-                        if (partyName != null) {
-                            party = parties.getParty(partyName);
+                        if (claim != null) {
+                            // TODO: Fetch parties in bulk instead
+                            // Currently the cache backing the party cache doesn't support bulk
+                            // loads while also blocking other threads from loading the values
+                            // themselves
+                            String partyName = claim.getParty();
+                            Party party = null;
+                            if (partyName != null) {
+                                party = parties.getParty(partyName);
+                            }
+
+                            state.setClaim(claim, party);
                         }
 
-                        state.setClaim(claim, party);
                         state.setLoaded(true);
-                    } catch (DataAccessException e) {
-                        // Should perhaps add a back off option, but it needs to also
-                        // not result in a huge queue due to database unavailability
-                        log.warning("Failed to read claim information for " + state.getPosition());
                     }
+                } catch (DataAccessException e) {
+                    queue.addAll(batch); // Re-insert
+                    log.log(Level.WARNING, "Failed to read claim information", e);
                 }
                 batch.clear();
             } catch (Exception e) {

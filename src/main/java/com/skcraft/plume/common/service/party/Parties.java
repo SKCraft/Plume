@@ -2,11 +2,13 @@ package com.skcraft.plume.common.service.party;
 
 import com.skcraft.plume.common.UserId;
 
-import static com.skcraft.plume.common.util.SharedLocale.tr;
-
 public final class Parties {
 
     private Parties() { }
+
+    public static boolean isMember(Party party, UserId userId) {
+        return party.getMembers().contains(new Member(userId, Rank.MEMBER));
+    }
 
     public static boolean canManage(Party party, UserId userId) {
         for (Member member : party.getMembers()) {

@@ -10,6 +10,22 @@ public final class WorldVector3i {
     private final int y;
     private final int z;
 
+    public WorldVector3i add(int x, int y, int z) {
+        return new WorldVector3i(worldName, this.x + x, this.y + y, this.z + z);
+    }
+
+    public WorldVector3i sub(int x, int y, int z) {
+        return new WorldVector3i(worldName, this.x - x, this.y - y, this.z - z);
+    }
+
+    public WorldVector3i mult(int x, int y, int z) {
+        return new WorldVector3i(worldName, this.x * x, this.y * y, this.z * z);
+    }
+
+    public WorldVector3i div(int x, int y, int z) {
+        return new WorldVector3i(worldName, this.x / x, this.y / y, this.z / z);
+    }
+
     @Override
     public String toString() {
         return "{" + worldName + ":" + x + "," + y + "," + z + "}";

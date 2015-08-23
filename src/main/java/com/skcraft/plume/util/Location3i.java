@@ -1,5 +1,6 @@
 package com.skcraft.plume.util;
 
+import com.skcraft.plume.common.util.WorldVector3i;
 import lombok.Data;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
@@ -21,6 +22,10 @@ public class Location3i {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    public WorldVector3i toWorldVector() {
+        return new WorldVector3i(Worlds.getWorldName(world), x, y, z);
     }
 
     @Override
