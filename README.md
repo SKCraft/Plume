@@ -1,12 +1,17 @@
 # Plume
 
-## Compiling
+## Development
 
-1. Install MySQL server locally.
-2. Create a `plume_dev` user with `plume_dev` as the password. Grant read/write/manage access to `plume\_*` and read access to `mysql.proc`.
-3. Create the database schemas `plume_data` and `plume_log`.
-4. Import the tables from schema/plum_data.sql into `plum_data`.
-5. Run `./gradlew clean setupDecompWorkspace build`
+[JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html) required. [IntelliJ IDEA](https://www.jetbrains.com/idea/) recommended.
+
+1. Install [MySQL Community Server](https://dev.mysql.com/downloads/mysql/) locally.
+2. Users not familiar with MySQL can install [HeidiSQL](http://www.heidisql.com/).
+3. Create a `plume_dev` user with `plume_dev` as the password. You can either give the user full access to the database, or preferrably grant read/write/manage access to `plume\_*` and read access to the table `mysql.proc`. This can be done in HeidiSQL in "User manager" under "Tools",
+4. Create the databases `plume_data` and `plume_log`. In HeidiSQL, right click the server on the left, go to "Create new" and choose "Database". Use "utf8mb4_general_ci" as the collation.
+5. Import the tables from `schema/` into their respective databases. In HeidiSQL, select "plume_data", go to "Load SQL file..", select "plume_data.sql", and then click the blue play button in the toolbar to execute the query. Do the same for "plume_log".
+6. Run `./gradlew clean setupDecompWorkspace build`
+7. In IntelliJ IDEA, open up the `build.gradle` file to create a new project for Plume.
+8. On the Gradle panel (it may be on the right), browse to "Other" and double click "genIntellijRuns". When it completes, confirm to reload the workspace.
 
 ### IntelliJ IDEA
 
