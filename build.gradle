@@ -164,7 +164,7 @@ task('generateSchema') << {
                 }
             }
             target() {
-                packageName('com.skcraft.plume.common.sql.model')
+                packageName('com.skcraft.plume.common.service.sql.model')
                 directory('src/main/java')
             }
         }
