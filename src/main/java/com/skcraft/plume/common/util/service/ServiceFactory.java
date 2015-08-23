@@ -5,11 +5,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.sk89q.worldedit.util.eventbus.EventHandler.Priority;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
-import com.skcraft.plume.common.event.lifecycle.PostInitializationEvent;
+import com.skcraft.plume.common.event.lifecycle.InitializationVerifyEvent;
+import com.skcraft.plume.common.util.FatalError;
 import com.skcraft.plume.common.util.module.AutoRegister;
 import com.skcraft.plume.common.util.module.Modules;
-import com.skcraft.plume.common.util.FatalError;
 
 import java.util.Collection;
 import java.util.Map;
@@ -44,8 +45,8 @@ public class ServiceFactory {
         return new Service<>(locator, (Class<T>) service);
     }
 
-    @Subscribe
-    public void onPostInitialization(PostInitializationEvent event) {
+    @Subscribe(priority = Priority.VERY_EARLY)
+    public void onInitializationVerify(InitializationVerifyEvent event) {
         synchronized (this) {
             if (!loaded) {
                 loaded = true;

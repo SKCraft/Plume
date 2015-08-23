@@ -4,6 +4,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.inject.Injector;
 import com.sk89q.worldedit.util.eventbus.EventBus;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
+import com.skcraft.plume.common.event.lifecycle.InitializationVerifyEvent;
 import com.skcraft.plume.common.event.lifecycle.PostInitializationEvent;
 import com.skcraft.plume.common.util.FatalError;
 import com.skcraft.plume.common.util.SharedLocale;
@@ -73,9 +74,11 @@ public class Plume {
         getEventBus().post(initializationEvent);
         handleFatalErrors(initializationEvent.getFatalErrors());
 
-        PostInitializationEvent postInitializationEvent = new PostInitializationEvent();
-        getEventBus().post(postInitializationEvent);
-        handleFatalErrors(postInitializationEvent.getFatalErrors());
+        InitializationVerifyEvent initializationVerifyEvent = new InitializationVerifyEvent();
+        getEventBus().post(initializationVerifyEvent);
+        handleFatalErrors(initializationVerifyEvent.getFatalErrors());
+
+        getEventBus().post(new PostInitializationEvent());
 
         getEventBus().post(event);
     }
