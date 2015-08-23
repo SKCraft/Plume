@@ -62,6 +62,7 @@ public class ModMode {
                     backupData.putAll(player);
                     backupData.getFile().delete();
                     MinecraftServer.getServer().getConfigurationManager().func_152610_b(player.getGameProfile());
+                    player.fallDistance = 0;
                     player.setGameType(WorldSettings.GameType.SURVIVAL);
                 } catch (IOException e) {
                     e.printStackTrace();
