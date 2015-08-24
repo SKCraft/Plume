@@ -238,7 +238,7 @@ public class ClaimCache {
                     String partyName = claim.getParty();
                     Party party = null;
                     if (partyName != null) {
-                        party = parties.getParty(partyName);
+                        party = parties.get(partyName);
                     }
 
                     ChunkState state = new ChunkState(position);

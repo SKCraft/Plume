@@ -17,6 +17,7 @@ import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.common.util.service.InjectService;
 import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.util.Messages;
+import com.skcraft.plume.util.Server;
 import com.skcraft.plume.util.concurrent.BackgroundExecutor;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
 import com.skcraft.plume.util.profile.ProfileLookupException;
@@ -27,7 +28,6 @@ import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.server.MinecraftServer;
 import ninja.leaping.configurate.objectmapping.Setting;
 
 import java.util.Date;
@@ -76,9 +76,9 @@ public class BanCommands {
                     return userId;
                 }, executor.getExecutor())
                 .done(userId -> {
-                    EntityPlayerMP targetPlayer = MinecraftServer.getServer().getConfigurationManager().func_152612_a(name);
+                    EntityPlayerMP targetPlayer = Server.findPlayer(name);
                     if (targetPlayer != null) {
-                        targetPlayer.playerNetServerHandler.kickPlayerFromServer(config.get().kickMessage);
+                        Server.kick(targetPlayer, config.get().kickMessage);
                     }
 
                     sender.addChatMessage(Messages.info(tr("bans.userBanned", userId.getName())));

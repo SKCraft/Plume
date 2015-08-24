@@ -1,10 +1,7 @@
 package com.skcraft.plume.common.service.sql;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.*;
 import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.service.auth.Group;
@@ -22,6 +19,10 @@ import org.jooq.impl.DSL;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -37,6 +38,7 @@ public class DatabaseHive implements Hive {
     @Getter
     private final DatabaseManager database;
     private ImmutableMap<Integer, Group> groups = ImmutableMap.of();
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     public DatabaseHive(DatabaseManager database) {
         checkNotNull(database, "database");
@@ -54,6 +56,8 @@ public class DatabaseHive implements Hive {
     }
 
     private void loadGroups() throws DataAccessException {
+        Lock lock = this.lock.writeLock();
+        lock.lock();
         try {
             DSLContext create = database.create();
             // Fetch groups
@@ -83,6 +87,8 @@ public class DatabaseHive implements Hive {
             this.groups = groups;
         } catch (org.jooq.exception.DataAccessException e) {
             throw new DataAccessException("Failed to get group data", e);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -95,6 +101,8 @@ public class DatabaseHive implements Hive {
         checkNotNull(ids, "ids");
         checkArgument(!ids.isEmpty(), "empty list provided");
 
+        Lock lock = this.lock.readLock();
+        lock.lock();
         try {
             DSLContext create = database.create();
 
@@ -144,6 +152,8 @@ public class DatabaseHive implements Hive {
             return map;
         } catch (org.jooq.exception.DataAccessException e) {
             throw new DataAccessException("Failed to get user data", e);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -189,6 +199,53 @@ public class DatabaseHive implements Hive {
             });
         } catch (org.jooq.exception.DataAccessException e) {
             throw new DataAccessException("Failed to save the user " + user, e);
+        }
+    }
+
+    @Override
+    public void refreshUser(User user) {
+        checkNotNull(user);
+
+        Lock lock = this.lock.readLock();
+        lock.lock();
+        try {
+            DSLContext create = database.create();
+
+            com.skcraft.plume.common.service.sql.model.data.tables.UserId r = USER_ID.as("r");
+
+            Record userRecord = create
+                .select(USER_ID.fields())
+                .select(USER.fields())
+                .from(USER_ID)
+                .leftOuterJoin(USER).on(USER.USER_ID.eq(USER_ID.ID))
+                .leftOuterJoin(r).on(USER.REFERRER_ID.eq(r.ID))
+                .where(USER_ID.UUID.eq(user.getUserId().getUuid().toString()))
+                .fetchOne();
+
+            List<Record> groupRecords = create
+                    .select()
+                    .from(USER_ID.join(USER_GROUP).on(USER_GROUP.USER_ID.eq(USER_ID.ID)))
+                    .where(USER_ID.UUID.eq(user.getUserId().getUuid().toString()))
+                    .fetch();
+
+            if (userRecord != null) {
+                database.getModelMapper().map(userRecord, user);
+                user.setUserId(database.getUserIdCache().fromRecord(userRecord, USER_ID));
+                user.setReferrer(database.getUserIdCache().fromRecord(userRecord, r));
+
+                Set<Group> groups = Sets.newConcurrentHashSet();
+                for (Record record : groupRecords) {
+                    Group group = this.groups.get(record.getValue(USER_GROUP.GROUP_ID));
+                    if (group != null) {
+                        groups.add(group);
+                    }
+                }
+                user.setGroups(groups);
+            }
+        } catch (org.jooq.exception.DataAccessException e) {
+            throw new DataAccessException("Failed to refresh the user " + user, e);
+        } finally {
+            lock.unlock();
         }
     }
 

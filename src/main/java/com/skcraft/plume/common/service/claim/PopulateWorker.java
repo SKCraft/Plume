@@ -72,7 +72,7 @@ class PopulateWorker implements Runnable {
                             String partyName = claim.getParty();
                             Party party = null;
                             if (partyName != null) {
-                                party = parties.getParty(partyName);
+                                party = parties.get(partyName);
                             }
 
                             state.setClaim(claim, party);

@@ -51,7 +51,7 @@ public class PartyCommands {
                     party.setName(name);
                     party.setCreateTime(new Date());
                     party.setMembers(Sets.newHashSet(new Member(issuer, Rank.OWNER)));
-                    partyMan.addParty(party);
+                    partyMan.add(party);
                     partyMan.getManager().refreshParty(party);
 
                     return party;
@@ -80,7 +80,7 @@ public class PartyCommands {
         Deferred<?> deferred = Deferreds
                 .when(() -> {
                     UserId userId = profileService.findUserId(invitee);
-                    Party party = partyMan.getParty(name);
+                    Party party = partyMan.get(name);
 
                     if (party == null) {
                         throw new CommandException(tr("party.exception.nonexistant"));
@@ -121,7 +121,7 @@ public class PartyCommands {
         Deferred<?> deferred = Deferreds
                 .when(() -> {
                     UserId userId = profileService.findUserId(removee);
-                    Party party = partyMan.getParty(name);
+                    Party party = partyMan.get(name);
 
                     if (party == null) {
                         throw new CommandException(tr("party.exception.nonexistant"));
@@ -161,7 +161,7 @@ public class PartyCommands {
 
         Deferred<?> deferred = Deferreds
                 .when(() -> {
-                    Party party = partyMan.getParty(name);
+                    Party party = partyMan.get(name);
 
                     if (party == null) {
                         throw new CommandException(tr("party.exception.nonexistant"));

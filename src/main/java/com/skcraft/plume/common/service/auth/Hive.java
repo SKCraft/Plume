@@ -51,4 +51,11 @@ public interface Hive {
      */
     void saveUser(User user, boolean saveGroups);
 
+    /**
+     * Refresh a user instance with data from the database.
+     *
+     * @param user The user
+     */
+    void refreshUser(User user);
+
 }

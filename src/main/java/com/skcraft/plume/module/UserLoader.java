@@ -1,42 +1,57 @@
 package com.skcraft.plume.module;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.service.auth.Context;
 import com.skcraft.plume.common.service.auth.User;
 import com.skcraft.plume.common.service.auth.UserCache;
+import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
+import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.common.util.service.InjectService;
 import com.skcraft.plume.common.util.service.Service;
-import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.event.network.PlayerAuthenticateEvent;
+import com.skcraft.plume.util.Server;
 import com.skcraft.plume.util.profile.Profiles;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
+import net.minecraft.entity.player.EntityPlayerMP;
 import ninja.leaping.configurate.objectmapping.Setting;
 
 import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static com.skcraft.plume.common.util.SharedLocale.tr;
 
 @Module(name = "user-loader", hidden = true)
 public class UserLoader {
 
-    @InjectConfig("users")
-    private Config<UsersConfig> config;
-    @InjectService
-    private Service<UserCache> userCache;
-    @Inject
-    private Environment environment;
+    private final Cache<User, Boolean> expireCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(2, TimeUnit.MINUTES)
+            .build();
+    private final Map<UserId, User> online = Maps.newHashMap();
+
+    @InjectConfig("users") private Config<UsersConfig> config;
+    @InjectService private Service<UserCache> userCache;
+    @Inject private Environment environment;
 
     @SubscribeEvent
     public void onAuthenticate(PlayerAuthenticateEvent event) {
         UserCache userCache = this.userCache.provide();
         Date now = new Date();
         UserId userId = Profiles.fromProfile(event.getProfile());
-        User user = userCache.getUser(userId, true);
+        User user = userCache.load(userId);
 
         if (user != null) {
+            // Keep a strong reference so the user cache keeps the object long enough
+            // for us to reach PlayerLoggedInEvent
+            expireCache.put(user, true);
+
             if (user.getSubject().hasPermission("whitelist", environment.update(new Context.Builder()).build())) {
                 user.setLastOnline(now);
                 userCache.getHive().saveUser(user, false);
@@ -53,14 +68,18 @@ public class UserLoader {
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         UserCache userCache = this.userCache.provide();
         UserId userId = Profiles.fromPlayer(event.player);
-        userCache.pin(userId); // Should already be loaded
+        User user = userCache.getIfPresent(userId);
+        if (user != null) {
+            online.put(userId, user);
+        } else {
+            Server.kick((EntityPlayerMP) event.player, tr("users.profileNotLoaded"));
+        }
     }
 
     @SubscribeEvent
     public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        UserCache userCache = this.userCache.provide();
         UserId userId = Profiles.fromPlayer(event.player);
-        userCache.unpin(userId);
+        online.remove(userId);
     }
 
     private static class UsersConfig {

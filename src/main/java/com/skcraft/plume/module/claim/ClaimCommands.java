@@ -91,7 +91,7 @@ public class ClaimCommands {
                     List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.fromVector2D(worldName, input));
 
                     if (partyName != null) {
-                        Party party = partyCache.getParty(partyName);
+                        Party party = partyCache.get(partyName);
                         if (party == null) {
                             throw new ClaimAttemptException(tr("claims.partyDoesNotExist", partyName));
                         }
@@ -164,7 +164,7 @@ public class ClaimCommands {
                         }
 
                         if (request.getParty() != null) {
-                            Party party = partyCache.getParty(request.getParty());
+                            Party party = partyCache.get(request.getParty());
                             if (party == null) {
                                 throw new ClaimAttemptException(tr("claims.partyDoesNotExist", request.getParty()));
                             }
@@ -313,7 +313,7 @@ public class ClaimCommands {
                     List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.fromVector2D(worldName, input));
 
                     if (partyName != null) {
-                        Party party = partyCache.getParty(partyName);
+                        Party party = partyCache.get(partyName);
                         if (party == null) {
                             throw new ClaimAttemptException(tr("claims.partyDoesNotExist", partyName));
                         }

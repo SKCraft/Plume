@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
+import com.skcraft.plume.common.event.lifecycle.ReloadEvent;
 import com.skcraft.plume.common.service.auth.*;
 import com.skcraft.plume.common.service.ban.BanManager;
 import com.skcraft.plume.common.service.claim.ClaimCache;
@@ -67,10 +68,17 @@ public class MySQLServices {
         services.register(Authorizer.class, new HiveAuthorizer());
     }
 
+    @Subscribe
+    public void onReload(ReloadEvent event) {
+        userCache.refreshAll();
+        partyCache.refreshAll();
+        claimCache.refreshAllClaims();
+    }
+
     private class HiveAuthorizer implements Authorizer {
         @Override
         public Subject getSubject(UserId userId) {
-            User user = userCache.getUserIfPresent(userId);
+            User user = userCache.getIfPresent(userId);
             if (user != null) {
                 return user.getSubject();
             } else {

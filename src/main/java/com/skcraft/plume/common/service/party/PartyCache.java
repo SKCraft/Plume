@@ -1,14 +1,15 @@
 package com.skcraft.plume.common.service.party;
 
+import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
-import com.skcraft.plume.common.util.cache.ManagedCache;
-import com.skcraft.plume.common.util.cache.ManagedCacheBuilder;
+import com.skcraft.plume.common.service.claim.NoSuchPartyException;
+import com.skcraft.plume.common.util.ObjectCache;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
@@ -18,28 +19,30 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class PartyCache {
+public class PartyCache implements ObjectCache<String, Party> {
 
     @Getter
     private final PartyManager manager;
 
-    private final ManagedCache<String, Party> cache = ManagedCacheBuilder.newBuilder()
+    private final LoadingCache<String, Party> cache = CacheBuilder.newBuilder()
+            .weakValues()
             .build(new CacheLoader<String, Party>() {
                 @Override
                 public Party load(String key) throws Exception {
-                    return manager.findPartiesByName(Lists.newArrayList(key)).get(key);
+                    Party party = manager.findPartiesByName(Lists.newArrayList(key)).get(key);
+                    if (party != null) {
+                        return party;
+                    } else {
+                        throw new NoSuchPartyException();
+                    }
                 }
 
                 @Override
                 public ListenableFuture<Party> reload(String key, Party oldValue) {
-                    synchronized (writeLock) {
-                        manager.refreshParty(oldValue);
-                    }
+                    manager.refreshParty(oldValue);
                     return Futures.immediateFuture(oldValue);
                 }
             });
-
-    private final Object writeLock = new Object();
 
     /**
      * Create a new party cache.
@@ -58,33 +61,46 @@ public class PartyCache {
      * @throws DataAccessException Thrown if data can't be accessed
      * @throws PartyExistsException If there's already an existing party with the ID
      */
-    public void addParty(Party party) throws PartyExistsException {
+    public void add(Party party) throws PartyExistsException {
         checkNotNull(party, "party");
 
-        synchronized (writeLock) {
-            try {
-                manager.addParty(party);
-                cache.put(party.getName().toLowerCase(), party);
-            } catch (Throwable e) {
-                throw e;
-            }
-        }
+        manager.addParty(party);
+        cache.refresh(party.getName().toLowerCase());
     }
 
-    /**
-     * Get a party for the given ID, preferring values from the cache but
-     * otherwise fetching parties from the underlying party manager.
-     *
-     * @param name The name of the party
-     * @return A party
-     * @throws DataAccessException If the party could not be loaded
-     */
-    @Nullable
-    public Party getParty(String name) {
+    @Override
+    public Party load(String name) {
+        Party party = cache.getIfPresent(name.toLowerCase());
+        if (party != null) {
+            manager.refreshParty(party);
+        } else {
+            return get(name);
+        }
+        return party;
+    }
+
+    @Override
+    public Party get(String name) {
         try {
             return cache.get(name.toLowerCase());
         } catch (ExecutionException e) {
-            throw new DataAccessException("Could not load the party for " + name, e);
+            if (e.getCause() instanceof NoSuchPartyException) {
+                return null;
+            }
+            throw new DataAccessException("Could not load the party for " + name, e.getCause());
+        }
+    }
+
+    @Nullable
+    @Override
+    public Party getIfPresent(String key) {
+        return cache.getIfPresent(key.toLowerCase());
+    }
+
+    @Override
+    public void refreshAll() {
+        for (String key : cache.asMap().keySet()) {
+            cache.refresh(key);
         }
     }
 
@@ -100,13 +116,8 @@ public class PartyCache {
         checkNotNull(party, "party");
         checkNotNull(members, "members");
 
-        //noinspection SynchronizationOnLocalVariableOrMethodParameter
-        synchronized (writeLock) {
-            manager.addMembers(party.getName(), members);
-            Set<Member> newMembers = Sets.newHashSet(party.getMembers());
-            newMembers.addAll(members);
-            party.setMembers(newMembers);
-        }
+        manager.addMembers(party.getName(), members);
+        cache.refresh(party.getName().toLowerCase());
     }
 
     /**
@@ -119,14 +130,9 @@ public class PartyCache {
         checkNotNull(party, "party");
         checkNotNull(members, "members");
 
-        //noinspection SynchronizationOnLocalVariableOrMethodParameter
-        synchronized (writeLock) {
-            Set<UserId> ids = members.stream().map(Member::getUserId).collect(Collectors.toSet());
-            manager.removeMembers(party.getName(), ids);
-            Set<Member> newMembers = Sets.newHashSet(party.getMembers());
-            newMembers.removeAll(members);
-            party.setMembers(newMembers);
-        }
+        Set<UserId> ids = members.stream().map(Member::getUserId).collect(Collectors.toSet());
+        manager.removeMembers(party.getName(), ids);
+        cache.refresh(party.getName().toLowerCase());
     }
 
 

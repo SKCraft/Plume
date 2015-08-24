@@ -23,7 +23,7 @@ public class User {
     @Nullable private Date joinDate;
     @Nullable private Date lastOnline;
     @Nullable private String hostKey;
-    private transient Set<Group> groups = Sets.newHashSet();
+    private transient Set<Group> groups = Sets.newConcurrentHashSet();
     private transient final Subject subject = new UserSubject(this);
 
 }
