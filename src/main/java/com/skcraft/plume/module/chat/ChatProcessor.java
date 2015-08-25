@@ -1,13 +1,10 @@
 package com.skcraft.plume.module.chat;
 
-import com.skcraft.plume.util.Messages;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
-
-import java.util.List;
 
 public class ChatProcessor {
     public static void sendChatMessage(EntityPlayerMP sender, String msg, EntityPlayerMP recipient) {
@@ -40,7 +37,55 @@ public class ChatProcessor {
         return formatted;
     }
 
-    public static ChatComponentText chat(String msg) {
-        return new ChatComponentText(msg);
+    public static ChatComponentText chat(String... msg) {
+        String txt = "";
+        for (String s : msg) {
+            if (s.contains("§")) {
+                txt += ChatProcessor.getColorFromCode(s).toString();
+            } else txt += s;
+        }
+
+        return new ChatComponentText(txt);
+    }
+
+    public static EnumChatFormatting getColorFromCode(String hex) {
+        switch(hex) {
+            case "§0":
+                return EnumChatFormatting.BLACK;
+            case "§1":
+                return EnumChatFormatting.DARK_BLUE;
+            case "§2":
+                return EnumChatFormatting.DARK_GREEN;
+            case "§3":
+                return EnumChatFormatting.DARK_AQUA;
+            case "§4":
+                return EnumChatFormatting.DARK_RED;
+            case "§5":
+                return EnumChatFormatting.DARK_PURPLE;
+            case "§6":
+                return EnumChatFormatting.GOLD;
+            case "§7":
+                return EnumChatFormatting.GRAY;
+            case "§8":
+                return EnumChatFormatting.DARK_GRAY;
+            case "§9":
+                return EnumChatFormatting.BLUE;
+            case "§a":
+                return EnumChatFormatting.GREEN;
+            case "§b":
+                return EnumChatFormatting.AQUA;
+            case "§c":
+                return EnumChatFormatting.RED;
+            case "§d":
+                return EnumChatFormatting.LIGHT_PURPLE;
+            case "§e":
+                return EnumChatFormatting.YELLOW;
+            case "§f":
+                return EnumChatFormatting.WHITE;
+            case "§r":
+                return EnumChatFormatting.RESET;
+            default:
+                return EnumChatFormatting.RESET;
+        }
     }
 }

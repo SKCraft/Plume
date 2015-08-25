@@ -1,11 +1,15 @@
 package com.skcraft.plume.module.chat;
 
+import com.skcraft.plume.common.UserId;
+import com.skcraft.plume.util.profile.Profiles;
 import net.minecraft.entity.player.EntityPlayerMP;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ChatChannelManager {
-    private ArrayList<ChatChannel> channels = new ArrayList<ChatChannel>();
+    private HashMap<String, ChatChannel> channels = new HashMap<>();
+    private HashMap<UserId, String> users = new HashMap<>();
 
     private static final ChatChannelManager MANAGER = new ChatChannelManager();
 
@@ -14,33 +18,32 @@ public class ChatChannelManager {
     }
 
     public ChatChannel getChatChannelOf(EntityPlayerMP member) {
-        for (ChatChannel ch : channels)
-            if (ch.contains(member))
-                return ch;
-
-        return null;
+        return this.getChatChannelByName(users.get(Profiles.fromPlayer(member)));
     }
 
     public ChatChannel getChatChannelByName(String name) {
-        for (ChatChannel ch : channels)
-            if (ch.getName() == name)
-                return ch;
+        return channels.get(name.toLowerCase());
+    }
 
-        return null;
+    public void addTo(EntityPlayerMP player, String cc) {
+        users.put(Profiles.fromPlayer(player), cc);
+        channels.get(cc).addMember(player);
+    }
+
+    public void exitCC(EntityPlayerMP player) {
+        channels.remove(users.get(Profiles.fromPlayer(player)));
+        users.remove(Profiles.fromPlayer(player));
     }
 
     public void addChatChannel(ChatChannel cc) {
-        channels.add(cc);
+        channels.put(cc.getName().toLowerCase(), cc);
     }
 
-    public void delChatChannel(ChatChannel cc) {
-        channels.remove(cc);
+    public void delChatChannel(String name) {
+        channels.remove(name.toLowerCase());
     }
 
     public boolean isInChatChannel(EntityPlayerMP s) {
-        if (this.getChatChannelOf(s) != null)
-            return true;
-        else
-            return false;
+        return users.containsKey(Profiles.fromPlayer(s));
     }
 }
