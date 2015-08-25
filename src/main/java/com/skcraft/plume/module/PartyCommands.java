@@ -5,7 +5,6 @@ import com.google.inject.Inject;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.CommandException;
 import com.sk89q.intake.Require;
-import com.sk89q.intake.parametric.annotation.Text;
 import com.skcraft.plume.command.At;
 import com.skcraft.plume.command.Group;
 import com.skcraft.plume.command.Sender;
@@ -25,7 +24,6 @@ import com.skcraft.plume.util.concurrent.BackgroundExecutor;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
 import lombok.extern.java.Log;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ChatComponentText;
 
 import java.util.Date;
 
@@ -41,7 +39,7 @@ public class PartyCommands {
 
     @Command(aliases = "create", usage = "/party create [name]", desc = "Create a new party")
     @Group(@At("party"))
-    @Require("plume.party.create") //TODO uncomment this when online
+    @Require("plume.party.create")
     public void create(@Sender EntityPlayer sender, String name) {
         PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
@@ -73,7 +71,7 @@ public class PartyCommands {
 
     @Command(aliases = "add", usage = "/party add [party] [username]", desc = "Adds a player to a party")
     @Group(@At("party"))
-    @Require("plume.party.add") //TODO uncomment this when online
+    @Require("plume.party.add")
     public void add(@Sender EntityPlayer sender, String name, String invitee) {
         PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
@@ -116,7 +114,7 @@ public class PartyCommands {
 
     @Command(aliases = "remove", usage = "/party remove [party] [username]", desc = "Removes a player from a party")
     @Group(@At("party"))
-    @Require("plume.party.remove") //TODO uncomment this when online
+    @Require("plume.party.remove")
     public void remove(@Sender EntityPlayer sender, String name, String removee) {
         PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
@@ -159,7 +157,7 @@ public class PartyCommands {
 
     @Command(aliases = "rank", usage = "/party rank [party] [username] [manager|member]", desc = "Changes the rank of a party member")
     @Group(@At("party"))
-    @Require("plume.party.rank") //TODO uncomment this when online
+    @Require("plume.party.rank")
     public void rank(@Sender EntityPlayer sender, String name, String target, String rank) {
         PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
@@ -212,7 +210,7 @@ public class PartyCommands {
 
     @Command(aliases = "leave", usage = "/party leave [party]", desc = "Leave a party you're a member/manager of")
     @Group(@At("party"))
-    @Require("plume.party.leave") //TODO uncomment this when online
+    @Require("plume.party.leave")
     public void leave(@Sender EntityPlayer sender, String name) {
         PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
@@ -257,7 +255,7 @@ public class PartyCommands {
 
     @Command(aliases = "info", usage = "/party info [party]", desc = "Displays info about a party")
     @Group(@At("party"))
-    @Require("plume.party.info") //TODO uncomment this when online
+    @Require("plume.party.info")
     public void info(@Sender EntityPlayer sender, String name) {
         PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
@@ -293,7 +291,7 @@ public class PartyCommands {
 
     @Command(aliases = "add", usage = "/partymanage add [party] [username]", desc = "Adds a player to a party")
     @Group(@At("partymanage"))
-    @Require("plume.partymanage.add") //TODO uncomment this when online
+    @Require("plume.partymanage.add")
     public void manageadd(@Sender EntityPlayer sender, String name, String invitee) {
         PartyCache partyMan = this.partyCache.provide();
 
@@ -331,7 +329,7 @@ public class PartyCommands {
 
     @Command(aliases = "remove", usage = "/partymanage remove [party] [username]", desc = "Removes a player from a party")
     @Group(@At("partymanage"))
-    @Require("plume.partymanage.remove") //TODO uncomment this when online
+    @Require("plume.partymanage.remove")
     public void manageremove(@Sender EntityPlayer sender, String name, String removee) {
         PartyCache partyMan = this.partyCache.provide();
 
@@ -371,7 +369,7 @@ public class PartyCommands {
 
     @Command(aliases = "rank", usage = "/partymanage rank [party] [username] [manager|member]", desc = "Changes the rank of a party member")
     @Group(@At("partymanage"))
-    @Require("plume.partymanage.rank") //TODO uncomment this when online
+    @Require("plume.partymanage.rank")
     public void managerank(@Sender EntityPlayer sender, String name, String target, String rank) {
         PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
@@ -421,7 +419,7 @@ public class PartyCommands {
     //TODO make this entire thing less hacky once sk adds a queries for it
     @Command(aliases = "delete", usage = "/party delete [party]", desc = "Deletes a new party")
     @Group(@At("partymanage"))
-    @Require("plume.partymanage.delete") //TODO uncomment this when online
+    @Require("plume.partymanage.delete")
     public void managedelete(@Sender EntityPlayer sender, String name) {
         PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
@@ -435,7 +433,7 @@ public class PartyCommands {
                     } else if (!Parties.canManage(party, issuer)) {
                         throw new CommandException(tr("party.exception.cannotmanage"));
                     } else {
-                        partyMan.removeMembers(party, party.getMembers()); //TODO make this less hacky, i.e. add a sql query to delete a party
+                        partyMan.removeMembers(party, party.getMembers());
                         partyMan.getManager().refreshParty(party);
                         return true;
                     }
