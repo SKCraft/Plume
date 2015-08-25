@@ -36,7 +36,8 @@ public class RestartCommands {
         if (arg.equals("abort")) {
             if (restarting) {
                 timer.cancel();
-                Messages.broadcastInfo("restart.broadcast.canceled");
+                restarting = false;
+                Messages.broadcastInfo(tr("restart.broadcast.canceled"));
             } else sender.addChatMessage(Messages.error(tr("restart.cancel.failed")));
         } else if (Integer.parseInt(arg) < config.get().maxCountdown && Integer.parseInt(arg) > 0) {
             if (restarting) {
@@ -44,6 +45,7 @@ public class RestartCommands {
             } else {
                 restarting = true;
                 timer.schedule(new RestartTask(Integer.parseInt(arg)), 1000, 1000);
+                Messages.broadcastInfo(tr("restart.broadcast.first", Integer.parseInt(arg)));
             }
         } else {
             sender.addChatMessage(Messages.error(tr("restart.invalidparam")));
@@ -67,7 +69,7 @@ public class RestartCommands {
                 restarting = false;
                 timer.cancel();
                 Messages.broadcastInfo(tr("restart.broadcast.imminent"));
-                //Server.shutdown(tr("restart.kickmessage"));
+                Server.shutdown(tr("restart.kickmessage"));
             }
 
         }
