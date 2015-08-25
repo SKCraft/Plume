@@ -95,6 +95,7 @@ public class UserCache implements ObjectCache<UserId, User> {
 
     @Override
     public void refreshAll() {
+        hive.load();
         for (UserId key : cache.asMap().keySet()) {
             cache.refresh(key);
         }

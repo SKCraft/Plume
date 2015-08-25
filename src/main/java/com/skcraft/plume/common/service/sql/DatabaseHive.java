@@ -242,6 +242,8 @@ public class DatabaseHive implements Hive {
                 }
                 user.setGroups(groups);
             }
+
+            user.refresh();
         } catch (org.jooq.exception.DataAccessException e) {
             throw new DataAccessException("Failed to refresh the user " + user, e);
         } finally {
