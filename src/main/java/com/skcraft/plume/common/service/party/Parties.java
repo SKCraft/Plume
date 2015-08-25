@@ -2,6 +2,8 @@ package com.skcraft.plume.common.service.party;
 
 import com.skcraft.plume.common.UserId;
 
+import static com.skcraft.plume.common.util.SharedLocale.tr;
+
 public final class Parties {
 
     private Parties() { }
@@ -32,22 +34,34 @@ public final class Parties {
 
     public static String getMemberListStr(Party party) {
         StringBuilder str = new StringBuilder();
-        str.append("§eMembers: ");
+        boolean isFirst = true;
+
+        str.append(tr("party.info.memberlist")).append(" ");
 
         for (Member member : party.getMembers()) {
             switch(member.getRank()) {
-                case OWNER:
-                    str.append("§1").append(member.getUserId().getName()).append("§e, ");
+                    case OWNER:
+                    if (!isFirst) str.append(", ");
+                    str.append(tr("party.info.colors.owner"))
+                            .append(member.getUserId().getName())
+                            .append(tr("party.info.colors.sep"));
                     break;
 
                 case MANAGER:
-                    str.append("§9").append(member.getUserId().getName()).append("§e, ");
+                    if (!isFirst) str.append(", ");
+                    str.append(tr("party.info.colors.manager"))
+                            .append(member.getUserId().getName())
+                            .append(tr("party.info.colors.sep"));
                     break;
 
                 case MEMBER:
-                    str.append("§b").append(member.getUserId().getName()).append("§e, ");
+                    if (!isFirst) str.append(", ");
+                    str.append(tr("party.info.colors.member"))
+                            .append(member.getUserId().getName())
+                            .append(tr("party.info.colors.sep"));
                     break;
             }
+            if (isFirst) isFirst = false;
         }
 
         return str.toString();
