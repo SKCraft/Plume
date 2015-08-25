@@ -38,4 +38,15 @@ public final class Server {
         player.playerNetServerHandler.kickPlayerFromServer(message);
     }
 
+    public static void shutdown(String message) {
+        checkNotNull(message, "message");
+
+        for (String name : MinecraftServer.getServer().getAllUsernames()) {
+            if (name != null) {
+                kick(Server.findPlayer(name), message);
+            }
+        }
+
+        MinecraftServer.getServer().initiateShutdown();
+    }
 }

@@ -1,6 +1,8 @@
 package com.skcraft.plume.util;
 
 import lombok.extern.java.Log;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 
@@ -33,4 +35,12 @@ public final class Messages {
         return message;
     }
 
+    public static void broadcastInfo(String message) {
+        for (String name : MinecraftServer.getServer().getAllUsernames()) {
+            if (name != null) {
+                EntityPlayerMP player = Server.findPlayer(name);
+                player.addChatMessage(Messages.info(message));
+            }
+        }
+    }
 }
