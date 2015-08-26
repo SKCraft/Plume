@@ -70,8 +70,8 @@ public class ChatChannelCommands {
         }
 
         ChatChannel ch = ChatChannelManager.getManager().getChatChannelOf(sender);
+        ChatChannelManager.getManager().exitCC(sender);
 
-        ch.remMember(sender);
         ch.broadcastTo("§e", sender.getDisplayName(), " ", "§6", tr("chatchannel.leave.other"), " ", "§e", "#" + ch.getName(), "§6", ".");
 
         sender.addChatMessage(ChatProcessor.chat("§6", tr("chatchannel.leave.self"), " ", "§e", "#" + ch.getName(), "§6", "."));

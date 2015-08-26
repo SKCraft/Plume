@@ -4,6 +4,7 @@ import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Messages;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
@@ -11,6 +12,8 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraftforge.event.ServerChatEvent;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @Module(name = "chatchannel-listener")
 public class ChatListener {
@@ -58,12 +61,18 @@ public class ChatListener {
         }
     }
 
-    /* Do I need to cleanse players on leave, or are they re-added on rejoin? Either way, need a timer...
     @SubscribeEvent
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (ChatChannelManager.getManager().isInChatChannel((EntityPlayerMP) event.player)) {
+        final EntityPlayerMP player = (EntityPlayerMP) event.player;
 
+        if (ChatChannelManager.getManager().isInChatChannel(player)) {
+            Timer t = new Timer();
+            t.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    ChatChannelManager.getManager().exitCC(player);
+                }
+            }, 3600);
         }
     }
-    */
 }
