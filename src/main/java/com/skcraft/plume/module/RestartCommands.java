@@ -27,28 +27,47 @@ public class RestartCommands {
     @Inject private BackgroundExecutor executor;
     @Inject private TickExecutorService tickExecutorService;
     @InjectConfig("restart_commands") private Config<RestartConfig> config;
-    private Timer timer = new Timer("restart");
+    private Timer timer;
     public boolean restarting = false;
 
     @Command(aliases = "restart", desc = "Restarts the server with a countdown. /restart abort to cancel.")
     @Require("plume.restart")
     public void restart(@Sender ICommandSender sender, String arg) {
-        if (arg.equals("abort")) {
+        if (arg.equals("abort") || arg.equals("cancel")) {
             if (restarting) {
                 timer.cancel();
+                timer.purge();
+                timer = null;
                 restarting = false;
                 Messages.broadcastInfo(tr("restart.broadcast.canceled"));
             } else sender.addChatMessage(Messages.error(tr("restart.cancel.failed")));
-        } else if (Integer.parseInt(arg) < config.get().maxCountdown && Integer.parseInt(arg) > 0) {
-            if (restarting) {
-                sender.addChatMessage(Messages.error(tr("restart.alreadyinprogress")));
-            } else {
-                restarting = true;
-                timer.schedule(new RestartTask(Integer.parseInt(arg)), 1000, 1000);
-                Messages.broadcastInfo(tr("restart.broadcast.first", Integer.parseInt(arg)));
-            }
         } else {
-            sender.addChatMessage(Messages.error(tr("restart.invalidparam")));
+            try {
+                int time = Integer.parseInt(arg);
+
+                if (restarting) {
+                    sender.addChatMessage(Messages.error(tr("restart.alreadyinprogress")));
+                } else if (time < config.get().maxCountdown && time > 0) {
+                    sender.addChatMessage(Messages.error(tr("restart.outofrange", config.get().maxCountdown)));
+                } else {
+                    restarting = true;
+                    timer = new Timer();
+                    timer.schedule(new RestartTask(time), 1000, 1000);
+                    if (time % config.get().period != 0) Messages.broadcastInfo(tr("restart.broadcast.first", time));
+
+                    /*
+                    for (String name : MinecraftServer.getServer().getAllUsernames()) {
+                        if (name != null) {
+                            EntityPlayerMP player = Server.findPlayer(name);
+                            //player.playSound("random.explode1", 1.0f, 1.0f); //skcraftshenanigans:shutdown
+                            player.worldObj.playSoundAtEntity(player, "random.explode", 1.0f, 1.0f);
+                        }
+                    }
+                    */
+                }
+            } catch (NumberFormatException e) {
+                sender.addChatMessage(Messages.error(tr("restart.invalidparam", e.getMessage())));
+            }
         }
     }
 
@@ -68,6 +87,8 @@ public class RestartCommands {
             }  else {
                 restarting = false;
                 timer.cancel();
+                timer.purge();
+                timer = null;
                 Messages.broadcastInfo(tr("restart.broadcast.imminent"));
                 Server.shutdown(tr("restart.kickmessage"));
             }
