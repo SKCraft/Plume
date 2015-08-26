@@ -8,6 +8,7 @@ import com.skcraft.plume.common.event.lifecycle.InitializationVerifyEvent;
 import com.skcraft.plume.common.event.lifecycle.PostInitializationEvent;
 import com.skcraft.plume.common.util.FatalError;
 import com.skcraft.plume.common.util.SharedLocale;
+import com.skcraft.plume.common.util.config.SetTypeSerializer;
 import com.skcraft.plume.common.util.logging.Log4jRedirect;
 import com.skcraft.plume.common.util.module.PlumeLoader;
 import com.skcraft.plume.util.config.ItemStackTypeSerializer;
@@ -25,6 +26,7 @@ import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 import java.io.File;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,6 +64,7 @@ public class Plume {
 
         SharedLocale.loadBundle("com.skcraft.plume.lang.Plume", Locale.getDefault());
 
+        TypeSerializers.getDefaultSerializers().registerType(new TypeToken<Set<?>>() {}, new SetTypeSerializer());
         TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(ItemStack.class), new ItemStackTypeSerializer());
         TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(SingleItemMatcher.class), new SingleItemMatcherTypeSerializer());
 
