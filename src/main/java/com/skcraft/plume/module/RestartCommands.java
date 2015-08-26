@@ -24,8 +24,8 @@ import static com.skcraft.plume.common.util.SharedLocale.tr;
 @Module(name = "restart-commands")
 @Log
 public class RestartCommands {
-    @Inject private BackgroundExecutor executor;
-    @Inject private TickExecutorService tickExecutorService;
+
+    @Inject private TickExecutorService tickExecutor;
     @InjectConfig("restart_commands") private Config<RestartConfig> config;
     private Timer timer;
     public boolean restarting = false;
@@ -39,21 +39,35 @@ public class RestartCommands {
                 timer.purge();
                 timer = null;
                 restarting = false;
-                Messages.broadcastInfo(tr("restart.broadcast.canceled"));
-            } else sender.addChatMessage(Messages.error(tr("restart.cancel.failed")));
+                tickExecutor.execute(() -> {
+                    Messages.broadcastInfo(tr("restart.broadcast.canceled"));
+                });
+            } else {
+                tickExecutor.execute(() -> {
+                    sender.addChatMessage(Messages.error(tr("restart.cancel.failed")));
+                });
+            }
         } else {
             try {
                 int time = Integer.parseInt(arg);
 
                 if (restarting) {
-                    sender.addChatMessage(Messages.error(tr("restart.alreadyinprogress")));
-                } else if (time < config.get().maxCountdown && time > 0) {
-                    sender.addChatMessage(Messages.error(tr("restart.outofrange", config.get().maxCountdown)));
+                    tickExecutor.execute(() -> {
+                        sender.addChatMessage(Messages.error(tr("restart.alreadyinprogress")));
+                    });
+                } else if (time > config.get().maxCountdown || time < 0) {
+                    tickExecutor.execute(() -> {
+                        sender.addChatMessage(Messages.error(tr("restart.outofrange", config.get().maxCountdown)));
+                    });
                 } else {
                     restarting = true;
                     timer = new Timer();
-                    timer.schedule(new RestartTask(time), 1000, 1000);
-                    if (time % config.get().period != 0) Messages.broadcastInfo(tr("restart.broadcast.first", time));
+                    timer.scheduleAtFixedRate(new RestartTask(time), 1000, 1000);
+                    if (time % config.get().period != 0) {
+                        tickExecutor.execute(() -> {
+                            Messages.broadcastInfo(tr("restart.broadcast.first", time));
+                        });
+                    }
 
                     /*
                     for (String name : MinecraftServer.getServer().getAllUsernames()) {
@@ -66,7 +80,9 @@ public class RestartCommands {
                     */
                 }
             } catch (NumberFormatException e) {
-                sender.addChatMessage(Messages.error(tr("restart.invalidparam", e.getMessage())));
+                tickExecutor.execute(() -> {
+                    sender.addChatMessage(Messages.error(tr("restart.invalidparam", e.getMessage())));
+                });
             }
         }
     }
@@ -80,8 +96,14 @@ public class RestartCommands {
 
         public void run() {
             if (timeLeft > 0) {
-                if (timeLeft % config.get().period == 0) {
-                    Messages.broadcastInfo(tr("restart.broadcast.in", timeLeft));
+                if (timeLeft % config.get().period == 0 && timeLeft >= 5) {
+                    tickExecutor.execute(() -> {
+                        Messages.broadcastInfo(tr("restart.broadcast.in", timeLeft));
+                    });
+                } else if (timeLeft <= 5) {
+                    tickExecutor.execute(() -> {
+                        Messages.broadcastInfo(tr("restart.broadcast.in", timeLeft));
+                    });
                 }
                 timeLeft--;
             }  else {
@@ -89,8 +111,10 @@ public class RestartCommands {
                 timer.cancel();
                 timer.purge();
                 timer = null;
-                Messages.broadcastInfo(tr("restart.broadcast.imminent"));
-                Server.shutdown(tr("restart.kickmessage"));
+                tickExecutor.execute(() -> {
+                    Messages.broadcastInfo(tr("restart.broadcast.imminent"));
+                    Server.shutdown(tr("restart.kickmessage"));
+                });
             }
 
         }
