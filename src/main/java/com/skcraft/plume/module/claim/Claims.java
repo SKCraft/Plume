@@ -166,7 +166,9 @@ public class Claims {
         public boolean apply(Location3i input) {
             EntityPlayer player = cause.getFirstPlayer();
             ClaimCache claimCache = Claims.this.claimCache.provide();
-            ClaimEntry entry = claimCache.getClaimIfPresent(input.toWorldVector().div(16, 16, 16));
+            WorldVector3i chunkPosition = input.toWorldVector();
+            chunkPosition = new WorldVector3i(chunkPosition.getWorldName(), chunkPosition.getX() >> 4, 0, chunkPosition.getZ() >> 4);
+            ClaimEntry entry = claimCache.getClaimIfPresent(chunkPosition);
 
             if (player != null) {
                 if (entry != null) {
