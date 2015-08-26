@@ -60,7 +60,7 @@ public class Plume {
         // Hack to redirect log messages
         Logger logger = Logger.getLogger("com.skcraft.plume");
         logger.setUseParentHandlers(false);
-        logger.addHandler(new Log4jRedirect(event.getModLog(), "Plume"));
+        logger.addHandler(new Log4jRedirect(event.getModLog(), null));
 
         SharedLocale.loadBundle("com.skcraft.plume.lang.Plume", Locale.getDefault());
 
