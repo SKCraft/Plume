@@ -3,8 +3,11 @@ package com.skcraft.plume.common.service.auth;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
 
+import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A hive is a persistent store of user and authorization
@@ -28,6 +31,16 @@ public interface Hive {
      * @return A list of groups
      */
     List<Group> getLoadedGroups();
+
+    /**
+     * Get a user by user ID.
+     *
+     * @param user The user ID to search
+     * @return The user if the user exists, otherwise null
+     * @throws DataAccessException Thrown if data can't be accessed
+     */
+    @Nullable
+    User findUserById(UserId user);
 
     /**
      * Get user entries for one or more users.
@@ -55,7 +68,16 @@ public interface Hive {
      * Refresh a user instance with data from the database.
      *
      * @param user The user
+     * @return True if the user has been removed
      */
-    void refreshUser(User user);
+    boolean refreshUser(User user);
+
+    /**
+     * Refresh multiple users at once
+     *
+     * @param users a List of users
+     * @return A set of user IDs that have been removed
+     */
+    Set<UserId> refreshUsers(Collection<User> users);
 
 }

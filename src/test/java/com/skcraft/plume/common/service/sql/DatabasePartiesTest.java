@@ -83,7 +83,7 @@ public class DatabasePartiesTest {
         DatabaseParties partyManager = createParties();
         Party party = partyManager.findPartyByName("guests");
 
-        assertThat(party.getName(), equalTo("guests"));
+        assertThat(party.getName(), equalTo("guEsTs"));
         assertThat(party.getCreateTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2015-03-05 10:20:30")));
 
         assertThat(party.getMembers().size(), is(2));
@@ -95,7 +95,7 @@ public class DatabasePartiesTest {
         DatabaseParties partyManager = createParties();
         Party party = partyManager.findPartyByName("guests");
 
-        partyManager.refreshParty(party);
+        assertThat(partyManager.refreshParty(party), is(false));
 
         assertThat(partyManager.findPartyByName("guests").getCreateTime(), DateMatchers.sameSecond(MockDatabase.parseDate("2015-03-05 10:20:30")));
     }

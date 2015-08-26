@@ -4,8 +4,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Inject;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
@@ -44,12 +42,6 @@ public class UserCache implements ObjectCache<UserId, User> {
                         throw new NoSuchUserException();
                     }
                 }
-
-                @Override
-                public ListenableFuture<User> reload(UserId key, User oldValue) throws Exception {
-                    hive.refreshUser(oldValue);
-                    return Futures.immediateFuture(oldValue);
-                }
             });
 
     /**
@@ -65,9 +57,13 @@ public class UserCache implements ObjectCache<UserId, User> {
 
     @Override
     public User load(UserId userId) {
+        checkNotNull(userId, "userId");
         User user = getIfPresent(userId);
         if (user != null) {
-            hive.refreshUser(user);
+            if (hive.refreshUser(user)) {
+                cache.invalidate(userId);
+                return null;
+            }
         } else {
             return get(userId);
         }
@@ -96,9 +92,7 @@ public class UserCache implements ObjectCache<UserId, User> {
     @Override
     public void refreshAll() {
         hive.load();
-        for (UserId key : cache.asMap().keySet()) {
-            cache.refresh(key);
-        }
+        hive.refreshUsers(cache.asMap().values()).forEach(cache::invalidate);
     }
 
 }

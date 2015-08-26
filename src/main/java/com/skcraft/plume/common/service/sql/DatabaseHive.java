@@ -1,5 +1,6 @@
 package com.skcraft.plume.common.service.sql;
 
+import com.google.common.base.Function;
 import com.google.common.collect.*;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.skcraft.plume.common.DataAccessException;
@@ -17,6 +18,8 @@ import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.impl.DSL;
 
+import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -96,8 +99,19 @@ public class DatabaseHive implements Hive {
         return groups;
     }
 
+    @Nullable
+    @Override
+    public User findUserById(UserId user) {
+        checkNotNull(user, "user");
+        return findUsersById(Lists.newArrayList(user)).get(user);
+    }
+
     @Override
     public Map<UserId, User> findUsersById(List<UserId> ids) throws DataAccessException {
+        return fetchUsers(ids, input -> new User());
+    }
+
+    private Map<UserId, User> fetchUsers(Collection<UserId> ids, Function<UserId, User> userSupplier) throws DataAccessException {
         checkNotNull(ids, "ids");
         checkArgument(!ids.isEmpty(), "empty list provided");
 
@@ -116,9 +130,9 @@ public class DatabaseHive implements Hive {
                     .select(USER.fields())
                     .select(r.fields())
                     .from(USER_ID)
-                    .leftOuterJoin(USER).on(USER.USER_ID.eq(USER_ID.ID))
+                    .crossJoin(USER)
                     .leftOuterJoin(r).on(USER.REFERRER_ID.eq(r.ID))
-                    .where(USER_ID.UUID.in(uuidStrings))
+                    .where(USER_ID.UUID.in(uuidStrings).and(USER.USER_ID.eq(USER_ID.ID)))
                     .fetch();
 
             List<Record> groupRecords = create
@@ -128,20 +142,32 @@ public class DatabaseHive implements Hive {
                     .fetch();
 
             for (Record record : userRecords) {
-                User user = database.getModelMapper().map(record, User.class);
-                user.setUserId(database.getUserIdCache().fromRecord(record, USER_ID));
+                UserId userId = database.getUserIdCache().fromRecord(record, USER_ID);
+                User user = userSupplier.apply(userId);
+                database.getModelMapper().map(record, user);
+                user.setUserId(userId);
                 user.setReferrer(database.getUserIdCache().fromRecord(record, r));
                 users.put(record.getValue(USER_ID.ID), user);
             }
+
+            Multimap<User, Group> userGroups = HashMultimap.create();
 
             for (Record record : groupRecords) {
                 User user = users.get(record.getValue(USER_ID.ID));
                 if (user != null) {
                     Group group = groups.get(record.getValue(USER_GROUP.GROUP_ID));
                     if (group != null) {
-                        user.getGroups().add(group);
+                        // Don't immediately update the user with the new groups because
+                        // we may be refreshing the user and so we don't want the
+                        // user's state to be incorrect during loading
+                        userGroups.put(user, group);
                     }
                 }
+            }
+
+            // Update each user's groups from the multimap
+            for (User user : users.values()) {
+                user.setGroups(Sets.newConcurrentHashSet(userGroups.get(user)));
             }
 
             Map<UserId, User> map = Maps.newHashMap();
@@ -203,52 +229,39 @@ public class DatabaseHive implements Hive {
     }
 
     @Override
-    public void refreshUser(User user) {
-        checkNotNull(user);
+    public boolean refreshUser(User user) {
+        return refreshUsers(Lists.newArrayList(user)).contains(user.getUserId());
+    }
 
-        Lock lock = this.lock.readLock();
-        lock.lock();
-        try {
-            DSLContext create = database.create();
-
-            com.skcraft.plume.common.service.sql.model.data.tables.UserId r = USER_ID.as("r");
-
-            Record userRecord = create
-                .select(USER_ID.fields())
-                .select(USER.fields())
-                .from(USER_ID)
-                .leftOuterJoin(USER).on(USER.USER_ID.eq(USER_ID.ID))
-                .leftOuterJoin(r).on(USER.REFERRER_ID.eq(r.ID))
-                .where(USER_ID.UUID.eq(user.getUserId().getUuid().toString()))
-                .fetchOne();
-
-            List<Record> groupRecords = create
-                    .select()
-                    .from(USER_ID.join(USER_GROUP).on(USER_GROUP.USER_ID.eq(USER_ID.ID)))
-                    .where(USER_ID.UUID.eq(user.getUserId().getUuid().toString()))
-                    .fetch();
-
-            if (userRecord != null) {
-                database.getModelMapper().map(userRecord, user);
-                user.setUserId(database.getUserIdCache().fromRecord(userRecord, USER_ID));
-                user.setReferrer(database.getUserIdCache().fromRecord(userRecord, r));
-
-                Set<Group> groups = Sets.newConcurrentHashSet();
-                for (Record record : groupRecords) {
-                    Group group = this.groups.get(record.getValue(USER_GROUP.GROUP_ID));
-                    if (group != null) {
-                        groups.add(group);
-                    }
-                }
-                user.setGroups(groups);
-            }
-
-            user.refresh();
-        } catch (org.jooq.exception.DataAccessException e) {
-            throw new DataAccessException("Failed to refresh the user " + user, e);
-        } finally {
-            lock.unlock();
+    @Override
+    public Set<UserId> refreshUsers(Collection<User> users) {
+        checkNotNull(users, "users");
+        if (users.isEmpty()) {
+            return Sets.newHashSet();
         }
+
+        Map<UserId, User> userMap = Maps.newHashMap();
+        for (User user : users) {
+            userMap.put(user.getUserId(), user);
+        }
+
+        Map<UserId, User> refreshed = fetchUsers(userMap.keySet(), input -> {
+            User user = userMap.get(input);
+            if (user != null) {
+                return user;
+            } else {
+                throw new IllegalStateException("SQL query returned user that wasn't supposed to be refreshed");
+            }
+        });
+
+        Set<UserId> removed = Sets.newHashSet();
+        for (User user : users) {
+            if (!refreshed.containsKey(user.getUserId())) {
+                removed.add(user.getUserId());
+            }
+        }
+
+        return removed;
     }
 
 }

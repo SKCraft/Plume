@@ -4,6 +4,7 @@ import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,9 +48,18 @@ public interface PartyManager {
     /**
      * Refresh the party and re-load its data.
      *
-     * @param party Its party
+     * @param party The party
+     * @return True if the party was removed
      */
-    void refreshParty(Party party);
+    boolean refreshParty(Party party);
+
+    /**
+     * Refresh a collection of parties.
+     *
+     * @param parties Collection of parties to fresh
+     * @return A list of lowercase names of parties that have been removed
+     */
+    Set<String> refreshParties(Collection<Party> parties);
 
     /**
      * Create a new party.

@@ -209,7 +209,7 @@ public class ClaimCache {
                 while (it.hasNext()) {
                     it.advance();
                     ChunkState state = it.value();
-                    if (!state.isLoaded()) {
+                    if (state.isLoaded()) {
                         statePopulateQueue.add(state);
                     }
                 }

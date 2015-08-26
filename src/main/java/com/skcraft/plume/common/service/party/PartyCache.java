@@ -4,8 +4,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.service.claim.NoSuchPartyException;
@@ -36,12 +34,6 @@ public class PartyCache implements ObjectCache<String, Party> {
                         throw new NoSuchPartyException();
                     }
                 }
-
-                @Override
-                public ListenableFuture<Party> reload(String key, Party oldValue) {
-                    manager.refreshParty(oldValue);
-                    return Futures.immediateFuture(oldValue);
-                }
             });
 
     /**
@@ -65,14 +57,17 @@ public class PartyCache implements ObjectCache<String, Party> {
         checkNotNull(party, "party");
 
         manager.addParty(party);
-        cache.refresh(party.getName().toLowerCase());
+        load(party.getName());
     }
 
     @Override
     public Party load(String name) {
         Party party = cache.getIfPresent(name.toLowerCase());
         if (party != null) {
-            manager.refreshParty(party);
+            if (manager.refreshParty(party)) {
+                cache.invalidate(name.toLowerCase());
+                return null;
+            }
         } else {
             return get(name);
         }
@@ -99,9 +94,7 @@ public class PartyCache implements ObjectCache<String, Party> {
 
     @Override
     public void refreshAll() {
-        for (String key : cache.asMap().keySet()) {
-            cache.refresh(key);
-        }
+        manager.refreshParties(cache.asMap().values()).forEach(s -> cache.invalidate(s.toLowerCase()));
     }
 
     /**
@@ -117,7 +110,7 @@ public class PartyCache implements ObjectCache<String, Party> {
         checkNotNull(members, "members");
 
         manager.addMembers(party.getName(), members);
-        cache.refresh(party.getName().toLowerCase());
+        load(party.getName().toLowerCase());
     }
 
     /**
@@ -132,7 +125,7 @@ public class PartyCache implements ObjectCache<String, Party> {
 
         Set<UserId> ids = members.stream().map(Member::getUserId).collect(Collectors.toSet());
         manager.removeMembers(party.getName(), ids);
-        cache.refresh(party.getName().toLowerCase());
+        load(party.getName().toLowerCase());
     }
 
 

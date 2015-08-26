@@ -1,7 +1,6 @@
 package com.skcraft.plume.common.service.sql;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.service.party.Member;
@@ -20,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.skcraft.plume.common.service.sql.model.data.tables.Party.PARTY;
@@ -77,6 +77,11 @@ public class DatabaseParties implements PartyManager {
     @Override
     public Map<String, Party> findPartiesByName(List<String> names) {
         checkNotNull(names, "names");
+        return fetchParties(names, s -> new Party());
+    }
+
+    private Map<String, Party> fetchParties(Collection<String> names, Function<String, Party> partySupplier) {
+        checkNotNull(names, "names");
 
         try {
             DSLContext create = database.create();
@@ -96,17 +101,28 @@ public class DatabaseParties implements PartyManager {
                     .fetch();
 
             for (PartyRecord record : partyRecords) {
-                Party party = record.into(Party.class);
-                parties.put(party.getName(), party);
+                Party party = partySupplier.apply(record.getValue(PARTY.NAME));
+                database.getModelMapper().map(record, party);
+                parties.put(party.getName().toLowerCase(), party);
             }
 
+            Multimap<Party, Member> partyMembers = HashMultimap.create();
+
             for (Record record : memberRecords) {
-                Party party = parties.get(record.getValue(PARTY_MEMBER.PARTY_NAME));
+                Party party = parties.get(record.getValue(PARTY_MEMBER.PARTY_NAME).toLowerCase());
                 if (party != null) {
                     Member member = database.getModelMapper().map(record, Member.class);
                     member.setUserId(getDatabase().getUserIdCache().fromRecord(record, USER_ID));
-                    party.getMembers().add(member);
+                    // Don't immediately update the party with the new members because
+                    // we may be refreshing the party and so we don't want the
+                    // party's state to be incorrect during loading
+                    partyMembers.put(party, member);
                 }
+            }
+
+            // Update each party's members from the multimap
+            for (Party party : parties.values()) {
+                party.setMembers(Sets.newConcurrentHashSet(partyMembers.get(party)));
             }
 
             return parties;
@@ -116,14 +132,40 @@ public class DatabaseParties implements PartyManager {
     }
 
     @Override
-    public void refreshParty(Party party) {
+    public boolean refreshParty(Party party) {
         checkNotNull(party, "party");
-        Party loaded = findPartyByName(party.getName());
-        if (loaded != null) {
-            party.setName(loaded.getName());
-            party.setMembers(loaded.getMembers());
-            party.setCreateTime(loaded.getCreateTime());
+        return refreshParties(Lists.newArrayList(party)).contains(party.getName().toLowerCase());
+    }
+
+    @Override
+    public Set<String> refreshParties(Collection<Party> parties) {
+        checkNotNull(parties, "parties");
+        if (parties.isEmpty()) {
+            return Sets.newHashSet();
         }
+
+        Map<String, Party> partyMap = Maps.newHashMap();
+        for (Party party : parties) {
+            partyMap.put(party.getName().toLowerCase(), party);
+        }
+
+        Map<String, Party> refreshed = fetchParties(partyMap.keySet(), input -> {
+            Party party = partyMap.get(input.toLowerCase());
+            if (party != null) {
+                return party;
+            } else {
+                throw new IllegalStateException("SQL query returned party that wasn't supposed to be refreshed");
+            }
+        });
+
+        Set<String> removed = Sets.newHashSet();
+        for (Party party : parties) {
+            if (!refreshed.containsKey(party.getName().toLowerCase())) {
+                removed.add(party.getName().toLowerCase());
+            }
+        }
+
+        return removed;
     }
 
     @Override
