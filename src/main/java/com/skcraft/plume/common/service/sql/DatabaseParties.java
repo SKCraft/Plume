@@ -27,6 +27,9 @@ import static com.skcraft.plume.common.service.sql.model.data.tables.PartyMember
 import static com.skcraft.plume.common.service.sql.model.data.tables.UserId.USER_ID;
 
 public class DatabaseParties implements PartyManager {
+
+    private static final int QUERY_BATCH_SIZE = 200;
+
     @Getter
     private final DatabaseManager database;
 
@@ -88,41 +91,46 @@ public class DatabaseParties implements PartyManager {
 
             Map<String, Party> parties = Maps.newHashMap();
 
-            List<PartyRecord> partyRecords = create.selectFrom(PARTY)
-                    .where(PARTY.NAME.in(names))
-                    .fetch();
+            UnmodifiableIterator<List<String>> it = Iterators.partition(names.iterator(), QUERY_BATCH_SIZE);
+            while (it.hasNext()) {
+                List<String> partition = it.next();
 
-            List<Record> memberRecords = create
-                    .select(USER_ID.fields())
-                    .select(PARTY_MEMBER.fields())
-                    .from(PARTY_MEMBER)
-                    .crossJoin(USER_ID)
-                    .where(PARTY_MEMBER.PARTY_NAME.in(names).and(PARTY_MEMBER.USER_ID.eq(USER_ID.ID)))
-                    .fetch();
+                List<PartyRecord> partyRecords = create.selectFrom(PARTY)
+                        .where(PARTY.NAME.in(partition))
+                        .fetch();
 
-            for (PartyRecord record : partyRecords) {
-                Party party = partySupplier.apply(record.getValue(PARTY.NAME));
-                database.getModelMapper().map(record, party);
-                parties.put(party.getName().toLowerCase(), party);
-            }
+                List<Record> memberRecords = create
+                        .select(USER_ID.fields())
+                        .select(PARTY_MEMBER.fields())
+                        .from(PARTY_MEMBER)
+                        .crossJoin(USER_ID)
+                        .where(PARTY_MEMBER.PARTY_NAME.in(partition).and(PARTY_MEMBER.USER_ID.eq(USER_ID.ID)))
+                        .fetch();
 
-            Multimap<Party, Member> partyMembers = HashMultimap.create();
-
-            for (Record record : memberRecords) {
-                Party party = parties.get(record.getValue(PARTY_MEMBER.PARTY_NAME).toLowerCase());
-                if (party != null) {
-                    Member member = database.getModelMapper().map(record, Member.class);
-                    member.setUserId(getDatabase().getUserIdCache().fromRecord(record, USER_ID));
-                    // Don't immediately update the party with the new members because
-                    // we may be refreshing the party and so we don't want the
-                    // party's state to be incorrect during loading
-                    partyMembers.put(party, member);
+                for (PartyRecord record : partyRecords) {
+                    Party party = partySupplier.apply(record.getValue(PARTY.NAME));
+                    database.getModelMapper().map(record, party);
+                    parties.put(party.getName().toLowerCase(), party);
                 }
-            }
 
-            // Update each party's members from the multimap
-            for (Party party : parties.values()) {
-                party.setMembers(Sets.newConcurrentHashSet(partyMembers.get(party)));
+                Multimap<Party, Member> partyMembers = HashMultimap.create();
+
+                for (Record record : memberRecords) {
+                    Party party = parties.get(record.getValue(PARTY_MEMBER.PARTY_NAME).toLowerCase());
+                    if (party != null) {
+                        Member member = database.getModelMapper().map(record, Member.class);
+                        member.setUserId(getDatabase().getUserIdCache().fromRecord(record, USER_ID));
+                        // Don't immediately update the party with the new members because
+                        // we may be refreshing the party and so we don't want the
+                        // party's state to be incorrect during loading
+                        partyMembers.put(party, member);
+                    }
+                }
+
+                // Update each party's members from the multimap
+                for (Party party : parties.values()) {
+                    party.setMembers(Sets.newConcurrentHashSet(partyMembers.get(party)));
+                }
             }
 
             return parties;

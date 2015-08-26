@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -37,6 +36,8 @@ import static com.skcraft.plume.common.service.sql.model.data.tables.UserGroup.U
 import static com.skcraft.plume.common.service.sql.model.data.tables.UserId.USER_ID;
 
 public class DatabaseHive implements Hive {
+
+    private static final int QUERY_BATCH_SIZE = 200;
 
     @Getter
     private final DatabaseManager database;
@@ -121,58 +122,63 @@ public class DatabaseHive implements Hive {
             DSLContext create = database.create();
 
             Map<Integer, User> users = Maps.newHashMap(); // Temporary map to first get the users then add their groups
-            List<String> uuidStrings = ids.stream().map(id -> id.getUuid().toString()).collect(Collectors.toList());
 
             com.skcraft.plume.common.service.sql.model.data.tables.UserId r = USER_ID.as("r");
 
-            Result<Record> userRecords = create
-                    .select(USER_ID.fields())
-                    .select(USER.fields())
-                    .select(r.fields())
-                    .from(USER_ID)
-                    .crossJoin(USER)
-                    .leftOuterJoin(r).on(USER.REFERRER_ID.eq(r.ID))
-                    .where(USER_ID.UUID.in(uuidStrings).and(USER.USER_ID.eq(USER_ID.ID)))
-                    .fetch();
+            Map<UserId, User> map = Maps.newHashMap();
 
-            List<Record> groupRecords = create
-                    .select()
-                    .from(USER_ID.join(USER_GROUP).on(USER_GROUP.USER_ID.eq(USER_ID.ID)))
-                    .where(USER_ID.UUID.in(uuidStrings))
-                    .fetch();
+            UnmodifiableIterator<List<String>> it = Iterators.partition(ids.stream().map(id -> id.getUuid().toString()).iterator(), QUERY_BATCH_SIZE);
+            while (it.hasNext()) {
+                List<String> partition = it.next();
 
-            for (Record record : userRecords) {
-                UserId userId = database.getUserIdCache().fromRecord(record, USER_ID);
-                User user = userSupplier.apply(userId);
-                database.getModelMapper().map(record, user);
-                user.setUserId(userId);
-                user.setReferrer(database.getUserIdCache().fromRecord(record, r));
-                users.put(record.getValue(USER_ID.ID), user);
-            }
+                Result<Record> userRecords = create
+                        .select(USER_ID.fields())
+                        .select(USER.fields())
+                        .select(r.fields())
+                        .from(USER_ID)
+                        .crossJoin(USER)
+                        .leftOuterJoin(r).on(USER.REFERRER_ID.eq(r.ID))
+                        .where(USER_ID.UUID.in(partition).and(USER.USER_ID.eq(USER_ID.ID)))
+                        .fetch();
 
-            Multimap<User, Group> userGroups = HashMultimap.create();
+                List<Record> groupRecords = create
+                        .select()
+                        .from(USER_ID.join(USER_GROUP).on(USER_GROUP.USER_ID.eq(USER_ID.ID)))
+                        .where(USER_ID.UUID.in(partition))
+                        .fetch();
 
-            for (Record record : groupRecords) {
-                User user = users.get(record.getValue(USER_ID.ID));
-                if (user != null) {
-                    Group group = groups.get(record.getValue(USER_GROUP.GROUP_ID));
-                    if (group != null) {
-                        // Don't immediately update the user with the new groups because
-                        // we may be refreshing the user and so we don't want the
-                        // user's state to be incorrect during loading
-                        userGroups.put(user, group);
+                for (Record record : userRecords) {
+                    UserId userId = database.getUserIdCache().fromRecord(record, USER_ID);
+                    User user = userSupplier.apply(userId);
+                    database.getModelMapper().map(record, user);
+                    user.setUserId(userId);
+                    user.setReferrer(database.getUserIdCache().fromRecord(record, r));
+                    users.put(record.getValue(USER_ID.ID), user);
+                }
+
+                Multimap<User, Group> userGroups = HashMultimap.create();
+
+                for (Record record : groupRecords) {
+                    User user = users.get(record.getValue(USER_ID.ID));
+                    if (user != null) {
+                        Group group = groups.get(record.getValue(USER_GROUP.GROUP_ID));
+                        if (group != null) {
+                            // Don't immediately update the user with the new groups because
+                            // we may be refreshing the user and so we don't want the
+                            // user's state to be incorrect during loading
+                            userGroups.put(user, group);
+                        }
                     }
                 }
-            }
 
-            // Update each user's groups from the multimap
-            for (User user : users.values()) {
-                user.setGroups(Sets.newConcurrentHashSet(userGroups.get(user)));
-            }
+                // Update each user's groups from the multimap
+                for (User user : users.values()) {
+                    user.setGroups(Sets.newConcurrentHashSet(userGroups.get(user)));
+                }
 
-            Map<UserId, User> map = Maps.newHashMap();
-            for (User user : users.values()) {
-                map.put(user.getUserId(), user);
+                for (User user : users.values()) {
+                    map.put(user.getUserId(), user);
+                }
             }
 
             return map;
