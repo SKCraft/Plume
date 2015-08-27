@@ -92,8 +92,11 @@ public class Claims {
             return true;
         } else if (rootCause instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer) rootCause;
-            UserId userId = Profiles.fromPlayer(player);
+            rootCause = Profiles.fromPlayer(player);
+        }
 
+        if (rootCause instanceof UserId) {
+            UserId userId = (UserId) rootCause;
             Claim claim = entry.getClaim();
             if (claim.getOwner().equals(userId)) {
                 return true;
@@ -170,24 +173,24 @@ public class Claims {
             chunkPosition = new WorldVector3i(chunkPosition.getWorldName(), chunkPosition.getX() >> 4, 0, chunkPosition.getZ() >> 4);
             ClaimEntry entry = claimCache.getClaimIfPresent(chunkPosition);
 
-            if (player != null) {
-                if (entry != null) {
-                    Claim claim = entry.getClaim();
+            if (entry != null) {
+                Claim claim = entry.getClaim();
 
-                    if (claim == null) {
-                        return true;
-                    } else if (mayAccess(cause, entry)) {
-                        return true;
-                    } else {
-                        player.addChatMessage(Messages.error(tr("claims.protection.noAccess", claim.getOwner().getName())));
-                        return false;
-                    }
+                if (claim == null) {
+                    return true;
+                } else if (mayAccess(cause, entry)) {
+                    return true;
                 } else {
-                    player.addChatMessage(Messages.error(tr("claims.protection.notLoaded")));
+                    if (player != null) {
+                        player.addChatMessage(Messages.error(tr("claims.protection.noAccess", claim.getOwner().getName())));
+                    }
                     return false;
                 }
             } else {
-                return true;
+                if (player != null) {
+                    player.addChatMessage(Messages.error(tr("claims.protection.notLoaded")));
+                }
+                return false;
             }
         }
     }
