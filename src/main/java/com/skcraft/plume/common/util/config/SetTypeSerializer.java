@@ -9,6 +9,7 @@ import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
 import java.util.List;
 import java.util.Set;
 
+@SuppressWarnings("unchecked")
 public class SetTypeSerializer implements TypeSerializer<Set<?>> {
 
     @Override
