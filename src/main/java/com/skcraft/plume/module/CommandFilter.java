@@ -17,7 +17,7 @@ import static com.skcraft.plume.common.util.SharedLocale.tr;
 @Module(name = "command-filter")
 public class CommandFilter {
 
-    @InjectConfig("command-filter")
+    @InjectConfig("command_filter")
     private Config<CommandConfig> config;
 
     @SubscribeEvent
