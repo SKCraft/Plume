@@ -1,6 +1,7 @@
 package com.skcraft.plume.util;
 
 import lombok.extern.java.Log;
+import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
@@ -14,6 +15,12 @@ import static com.skcraft.plume.common.util.SharedLocale.tr;
 public final class Messages {
 
     private Messages() {
+    }
+
+    public static void sendMessage(ICommandSender sender, String message) {
+        for (String line : message.split("\\r?\\n")) {
+            sender.addChatMessage(new ChatComponentText(line));
+        }
     }
 
     public static ChatComponentText info(String message) {
