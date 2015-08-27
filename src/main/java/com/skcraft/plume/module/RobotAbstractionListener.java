@@ -3,6 +3,7 @@ package com.skcraft.plume.module;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.sk89q.worldedit.util.eventbus.EventBus;
+import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.event.Cause;
 import com.skcraft.plume.event.DelegateEvent;
@@ -36,7 +37,7 @@ public class RobotAbstractionListener {
     }
 
     private Cause createCause(Agent agent) {
-        return Cause.create(agent.player(), agent);
+        return Cause.create(new UserId(agent.ownerUUID(), agent.ownerName()), agent);
     }
 
     @SubscribeEvent
