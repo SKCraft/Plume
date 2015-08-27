@@ -1,5 +1,6 @@
 package com.skcraft.plume.module.claim;
 
+import com.google.common.base.Joiner;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
@@ -18,6 +19,7 @@ import com.skcraft.plume.command.Sender;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.service.claim.Claim;
 import com.skcraft.plume.common.service.claim.ClaimCache;
+import com.skcraft.plume.common.service.claim.ClaimEntry;
 import com.skcraft.plume.common.service.party.Party;
 import com.skcraft.plume.common.service.party.PartyCache;
 import com.skcraft.plume.common.util.Vectors;
@@ -52,6 +54,7 @@ import org.javatuples.Pair;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
@@ -140,7 +143,7 @@ public class ClaimCommands {
         bgExecutor.notifyOnDelay(deferred, player);
     }
 
-    @Command(aliases = "claimaccept", desc = "Cancel a pending claim request")
+    @Command(aliases = "claimaccept", desc = "Accept a pending claim request")
     public void acceptClaim(@Sender EntityPlayer player) {
         ClaimCache claimCache = this.claimCache.provide();
         PartyCache partyCache = this.partyCache.provide();
@@ -229,13 +232,40 @@ public class ClaimCommands {
     }
 
     @Command(aliases = "claimcancel", desc = "Cancel a pending claim request")
-    public void cancelClaim (@Sender EntityPlayer player){
+    public void cancelClaim(@Sender EntityPlayer player){
         UserId owner = Profiles.fromPlayer(player);
         if (pendingRequests.asMap().containsKey(owner)) {
             pendingRequests.invalidate(owner);
             player.addChatMessage(Messages.info(tr("claims.cancelledRequest")));
         } else {
             player.addChatMessage(Messages.error(tr("claims.noPending")));
+        }
+    }
+
+    @Command(aliases = {"owner", "own"}, desc = "Show the owner of the current location")
+    @Require("plume.claims.owner")
+    public void owner(@Sender EntityPlayer player) {
+        ClaimCache claimCache = this.claimCache.provide();
+        WorldVector3i chunkPosition = new WorldVector3i(Worlds.getWorldName(player.worldObj), (int) player.posX >> 4, 0, (int) player.posZ >> 4);
+        ClaimEntry entry = claimCache.getClaimIfPresent(chunkPosition);
+        if (entry != null) {
+            Claim claim = entry.getClaim();
+
+            if (claim == null) {
+                player.addChatMessage(Messages.info(tr("claims.lookup.noClaim")));
+            } else {
+                player.addChatMessage(Messages.info(tr("claims.lookup.owner", claim.getOwner().getName())));
+                Party party = entry.getParty();
+                if (party != null) {
+                    List<String> names = party.getMembers().stream().map(member -> member.getUserId().getName()).collect(Collectors.toList());
+                    player.addChatMessage(Messages.info(tr("claims.lookup.partyName", party.getName())));
+                    player.addChatMessage(Messages.info(tr("claims.lookup.partyMembers", Joiner.on(tr("listSeparator") + " ").join(names))));
+                } else {
+                    player.addChatMessage(Messages.info(tr("claims.lookup.noParty")));
+                }
+            }
+        } else {
+           player.addChatMessage(Messages.info(tr("claims.lookup.notLoaded")));
         }
     }
 
