@@ -6,10 +6,12 @@ import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
+import lombok.extern.java.Log;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import ninja.leaping.configurate.objectmapping.Setting;
 
+@Log
 @Module(name = "operator-check")
 public class OperatorCheck {
 
@@ -22,6 +24,7 @@ public class OperatorCheck {
             ServerConfigurationManager configManager = MinecraftServer.getServer().getConfigurationManager();
             GameProfile gameProfile = event.player.getGameProfile();
             if (configManager.func_152596_g(gameProfile)) { /* isOp() */
+                log.info("Removing op from " + gameProfile.getName() + " (" + gameProfile.getId() + ")");
                 // Warning: Blocks thread -- underlying map not thread-safe
                 configManager.func_152610_b(gameProfile); /* deop() */
             }
