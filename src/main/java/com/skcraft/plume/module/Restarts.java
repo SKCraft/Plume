@@ -29,10 +29,10 @@ public class Restarts {
     private Timer timer;
     public boolean restarting = false;
 
-    @Command(aliases = "restart", desc = "Restarts the server with a countdown. /restart abort to cancel.")
+    @Command(aliases = {"restart", "shutdown"}, desc = "Restarts the server with a countdown. /restart abort to cancel.")
     @Require("plume.restart")
     public void restart(@Sender ICommandSender sender, String arg) {
-        if (arg.equals("abort") || arg.equals("cancel")) {
+        if (arg.equalsIgnoreCase("abort") || arg.equalsIgnoreCase("cancel")) {
             if (restarting) {
                 timer.cancel();
                 timer.purge();
@@ -55,9 +55,7 @@ public class Restarts {
                     timer = new Timer();
                     timer.scheduleAtFixedRate(new RestartTask(time), 1000, 1000);
 
-                    if (time % config.get().period != 0) {
-                        Messages.broadcastInfo(tr("restart.broadcast.first", time));
-                    }
+                    Messages.broadcastInfo(tr("restart.broadcast.first", time));
 
                     for (EntityPlayerMP player : Server.getOnlinePlayers()) {
                         player.worldObj.playSoundAtEntity(player, config.get().shutdownSound, 1.0f, 1.0f);
@@ -71,6 +69,7 @@ public class Restarts {
 
     private class RestartTask extends TimerTask {
         private int timeLeft;
+        private int lastMessage;
 
         public RestartTask(int countdownTime) {
             this.timeLeft = countdownTime;
@@ -78,13 +77,18 @@ public class Restarts {
 
         public void run() {
             if (timeLeft > 0) {
-                if (timeLeft % config.get().period == 0 && timeLeft >= 5) {
+                int left = timeLeft; // Copy variable because we're going to modify it in a second
+                if (timeLeft <= config.get().imminentThreshold) {
                     tickExecutor.execute(() -> {
-                        Messages.broadcastInfo(tr("restart.broadcast.in", timeLeft));
+                        Messages.broadcastInfo(tr("restart.broadcast.imminent", left));
                     });
-                } else if (timeLeft <= 5) {
+                } else if (timeLeft <= config.get().urgentThreshold) {
                     tickExecutor.execute(() -> {
-                        Messages.broadcastInfo(tr("restart.broadcast.in", timeLeft));
+                        Messages.broadcastInfo(tr("restart.broadcast.urgent", left));
+                    });
+                } else if (timeLeft % config.get().subtleInterval == 0) {
+                    tickExecutor.execute(() -> {
+                        Messages.broadcastInfo(tr("restart.broadcast.in", left));
                     });
                 }
                 timeLeft--;
@@ -94,7 +98,6 @@ public class Restarts {
                 timer.purge();
                 timer = null;
                 tickExecutor.execute(() -> {
-                    Messages.broadcastInfo(tr("restart.broadcast.imminent"));
                     Server.shutdown(tr("restart.kickMessage"));
                 });
             }
@@ -106,8 +109,14 @@ public class Restarts {
         @Setting(comment = "The max time that can be used for a shutdown/restart countdown")
         private int maxCountdown = 240;
 
-        @Setting(comment = "The rate at which shutdown/restart messages are shown")
-        private int period = 1;
+        @Setting(comment = "The time interval, in seconds, of the subtle background shutdown messages")
+        private int subtleInterval = 5;
+
+        @Setting(comment = "The time threshold, in seconds, when the frequent and obnoxious shutdown warnings are shown")
+        private int urgentThreshold = 10;
+
+        @Setting(comment = "The time threshold, in seconds, when the 'IMMINENT SHUTDOWN' messages are shown")
+        private int imminentThreshold = 2;
 
         @Setting(comment = "The sound to play when shutting down")
         public String shutdownSound = "records.stal";
