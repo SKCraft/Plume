@@ -11,7 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
 
-@Module(name = "nethercoords-commands")
+@Module(name = "nethercoords")
 @Log
 public class NetherCoords {
 

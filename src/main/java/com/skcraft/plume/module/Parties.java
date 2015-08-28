@@ -29,9 +29,10 @@ import java.util.Date;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "party-commands")
+@Module(name = "parties")
 @Log
-public class PartyCommands {
+public class Parties {
+
     @Inject private BackgroundExecutor executor;
     @Inject private ProfileService profileService;
     @Inject private TickExecutorService tickExecutorService;
@@ -83,7 +84,7 @@ public class PartyCommands {
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
-                    } else if (!Parties.canManage(party, issuer)) {
+                    } else if (!com.skcraft.plume.common.service.party.Parties.canManage(party, issuer)) {
                         throw new CommandException(tr("party.notManager"));
                     } else if (userId.equals(issuer)) {
                         throw new CommandException(tr("party.add.cannotAddSelf"));
@@ -126,12 +127,12 @@ public class PartyCommands {
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
-                    } else if (!Parties.canManage(party, issuer)) {
+                    } else if (!com.skcraft.plume.common.service.party.Parties.canManage(party, issuer)) {
                         throw new CommandException(tr("party.notManager"));
                     } else if (userId.equals(issuer)) {
                         throw new CommandException(tr("party.remove.cannotAddSelf"));
                     } else {
-                        partyMan.removeMembers(party, Sets.newHashSet(Parties.getMemberByUser(party, userId)));
+                        partyMan.removeMembers(party, Sets.newHashSet(com.skcraft.plume.common.service.party.Parties.getMemberByUser(party, userId)));
                         partyMan.getManager().refreshParty(party);
 
                         return userId.getName();
@@ -169,7 +170,7 @@ public class PartyCommands {
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
-                    } else if (!Parties.canManage(party, issuer)) {
+                    } else if (!com.skcraft.plume.common.service.party.Parties.canManage(party, issuer)) {
                         throw new CommandException(tr("party.notManager"));
                     } else if (userId.equals(issuer)) {
                         throw new CommandException(tr("party.rank.cannotChangeSelf"));
@@ -222,13 +223,13 @@ public class PartyCommands {
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
                     } else {
-                        Member member = Parties.getMemberByUser(party, issuer);
+                        Member member = com.skcraft.plume.common.service.party.Parties.getMemberByUser(party, issuer);
                         if (member == null) {
                             throw new CommandException(tr("party.notMember"));
                         } else if (member.getRank().equals(Rank.OWNER)) {
                             throw new CommandException(tr("party.cannotRemoveSelf"));
                         } else {
-                            partyMan.removeMembers(party, Sets.newHashSet(Parties.getMemberByUser(party, issuer)));
+                            partyMan.removeMembers(party, Sets.newHashSet(com.skcraft.plume.common.service.party.Parties.getMemberByUser(party, issuer)));
                             partyMan.getManager().refreshParty(party);
 
                             return null;
@@ -276,7 +277,7 @@ public class PartyCommands {
                     sender.addChatMessage(Messages.info(tr("party.info.1", party.getName())));
                     sender.addChatMessage(Messages.info(tr("party.info.2", party.getCreateTime().toString())));
                     sender.addChatMessage(Messages.info(tr("party.info.3")));
-                    sender.addChatMessage(Messages.info(Parties.getMemberListStr(party)));
+                    sender.addChatMessage(Messages.info(com.skcraft.plume.common.service.party.Parties.getMemberListStr(party)));
                 }, tickExecutorService)
                 .fail(e -> {
                     if (e instanceof CommandException) {
@@ -343,7 +344,7 @@ public class PartyCommands {
                     } else if (userId.equals(Profiles.fromPlayer(sender))) {
                         throw new CommandException(tr("party.remove.cannotAddSelf"));
                     } else {
-                        partyMan.removeMembers(party, Sets.newHashSet(Parties.getMemberByUser(party, userId)));
+                        partyMan.removeMembers(party, Sets.newHashSet(com.skcraft.plume.common.service.party.Parties.getMemberByUser(party, userId)));
                         partyMan.getManager().refreshParty(party);
 
                         return userId.getName();
@@ -430,7 +431,7 @@ public class PartyCommands {
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
-                    } else if (!Parties.canManage(party, issuer)) {
+                    } else if (!com.skcraft.plume.common.service.party.Parties.canManage(party, issuer)) {
                         throw new CommandException(tr("party.notManager"));
                     } else {
                         partyMan.removeMembers(party, party.getMembers());

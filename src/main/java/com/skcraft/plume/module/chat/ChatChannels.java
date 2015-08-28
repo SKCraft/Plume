@@ -1,20 +1,21 @@
-package com.skcraft.plume.module;
+package com.skcraft.plume.module.chat;
 
+import com.google.inject.Inject;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
 import com.skcraft.plume.command.Sender;
 import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.module.chat.ChatChannel;
-import com.skcraft.plume.module.chat.ChatChannelManager;
-import com.skcraft.plume.module.chat.ChatProcessor;
 import com.skcraft.plume.util.Messages;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "chat-commands")
-public class ChatChannelCommands {
+@Module(name = "chat-channels")
+public class ChatChannels {
+
+    @Inject
+    private ChatListener listener;
 
     @Command(aliases = "join", desc = "Join a private chat channel.", usage = "/join <channel>")
     @Require("plume.chatchannels")

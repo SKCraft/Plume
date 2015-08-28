@@ -1,22 +1,21 @@
 package com.skcraft.plume.module.chat;
 
-import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.util.Messages;
+import com.skcraft.plume.common.util.module.AutoRegister;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatComponentTranslation;
 import net.minecraftforge.event.ServerChatEvent;
 
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-@Module(name = "chatchannel-listener")
+@AutoRegister
 public class ChatListener {
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPlayerChat(ServerChatEvent e) {
         // Is the sender in a chat channel AND not using the override prefix?
@@ -75,4 +74,5 @@ public class ChatListener {
             }, 3600);
         }
     }
+
 }

@@ -11,7 +11,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 
-@Module(name = "teleports")
+@Module(name = "teleport")
 public class Teleports {
 
     @Command(aliases = "to", desc = "Teleport to the player specified")

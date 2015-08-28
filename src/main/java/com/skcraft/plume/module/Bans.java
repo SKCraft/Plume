@@ -40,7 +40,7 @@ import static com.skcraft.plume.common.util.SharedLocale.tr;
 
 @Module(name = "bans")
 @Log
-public class BanCommands {
+public class Bans {
 
     @Inject private BackgroundExecutor executor;
     @Inject private ProfileService profileService;

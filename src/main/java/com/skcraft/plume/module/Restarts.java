@@ -20,9 +20,9 @@ import java.util.TimerTask;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "restart-commands")
+@Module(name = "restarts")
 @Log
-public class RestartCommands {
+public class Restarts {
 
     @Inject private TickExecutorService tickExecutor;
     @InjectConfig("restart_commands") private Config<RestartConfig> config;
