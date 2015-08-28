@@ -1,6 +1,5 @@
 package com.skcraft.plume.module;
 
-
 import com.google.inject.Inject;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
@@ -13,6 +12,7 @@ import com.skcraft.plume.util.Server;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
 import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 import ninja.leaping.configurate.objectmapping.Setting;
 
 import java.util.Timer;
@@ -25,7 +25,7 @@ import static com.skcraft.plume.common.util.SharedLocale.tr;
 public class Restarts {
 
     @Inject private TickExecutorService tickExecutor;
-    @InjectConfig("restart_commands") private Config<RestartConfig> config;
+    @InjectConfig("restarts") private Config<RestartConfig> config;
     private Timer timer;
     public boolean restarting = false;
 
@@ -38,50 +38,33 @@ public class Restarts {
                 timer.purge();
                 timer = null;
                 restarting = false;
-                tickExecutor.execute(() -> {
-                    Messages.broadcastInfo(tr("restart.broadcast.canceled"));
-                });
+                Messages.broadcastInfo(tr("restart.broadcast.canceled"));
             } else {
-                tickExecutor.execute(() -> {
-                    sender.addChatMessage(Messages.error(tr("restart.cancel.failed")));
-                });
+                sender.addChatMessage(Messages.error(tr("restart.cancel.failed")));
             }
         } else {
             try {
                 int time = Integer.parseInt(arg);
 
                 if (restarting) {
-                    tickExecutor.execute(() -> {
-                        sender.addChatMessage(Messages.error(tr("restart.alreadyInProgress")));
-                    });
+                    sender.addChatMessage(Messages.error(tr("restart.alreadyInProgress")));
                 } else if (time > config.get().maxCountdown || time < 0) {
-                    tickExecutor.execute(() -> {
-                        sender.addChatMessage(Messages.error(tr("restart.outOfRange", config.get().maxCountdown)));
-                    });
+                    sender.addChatMessage(Messages.error(tr("restart.outOfRange", config.get().maxCountdown)));
                 } else {
                     restarting = true;
                     timer = new Timer();
                     timer.scheduleAtFixedRate(new RestartTask(time), 1000, 1000);
+
                     if (time % config.get().period != 0) {
-                        tickExecutor.execute(() -> {
-                            Messages.broadcastInfo(tr("restart.broadcast.first", time));
-                        });
+                        Messages.broadcastInfo(tr("restart.broadcast.first", time));
                     }
 
-                    /*
-                    for (String name : MinecraftServer.getServer().getAllUsernames()) {
-                        if (name != null) {
-                            EntityPlayerMP player = Server.findPlayer(name);
-                            //player.playSound("random.explode1", 1.0f, 1.0f); //skcraftshenanigans:shutdown
-                            player.worldObj.playSoundAtEntity(player, "random.explode", 1.0f, 1.0f);
-                        }
+                    for (EntityPlayerMP player : Server.getOnlinePlayers()) {
+                        player.worldObj.playSoundAtEntity(player, config.get().shutdownSound, 1.0f, 1.0f);
                     }
-                    */
                 }
             } catch (NumberFormatException e) {
-                tickExecutor.execute(() -> {
-                    sender.addChatMessage(Messages.error(tr("restart.invalidParameters", e.getMessage())));
-                });
+                sender.addChatMessage(Messages.error(tr("restart.invalidParameters", e.getMessage())));
             }
         }
     }
@@ -125,5 +108,8 @@ public class Restarts {
 
         @Setting(comment = "The rate at which shutdown/restart messages are shown")
         private int period = 1;
+
+        @Setting(comment = "The sound to play when shutting down")
+        public String shutdownSound = "records.stal";
     }
 }
