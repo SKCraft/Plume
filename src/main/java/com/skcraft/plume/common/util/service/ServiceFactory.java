@@ -4,7 +4,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.sk89q.worldedit.util.eventbus.EventHandler.Priority;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.event.lifecycle.InitializationVerifyEvent;
@@ -31,11 +30,11 @@ public class ServiceFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Service<T> create(Class<?> service, Class<?> requester) {
+    public <T> Service<T> create(Class<?> service, Class<?> requester, boolean required) {
         synchronized (this) {
-            if (!locator.get(service).isPresent()) {
+            if (required && !locator.get(service).isPresent()) {
                 if (!loaded) {
-                    required.put(service, requester);
+                    this.required.put(service, requester);
                 } else {
                     throw new NoProviderExistsException(createMissingProviderMessage(service, Lists.newArrayList(requester)));
                 }
