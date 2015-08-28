@@ -24,6 +24,7 @@ import net.minecraft.item.ItemStack;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -56,7 +57,7 @@ public class Plume {
     }
 
     @EventHandler
-    public void onPreInitialization(FMLPreInitializationEvent event) {
+    public void onPreInitialization(FMLPreInitializationEvent event) throws IOException {
         // Hack to redirect log messages
         Logger logger = Logger.getLogger("com.skcraft.plume");
         logger.setUseParentHandlers(false);

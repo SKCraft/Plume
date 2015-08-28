@@ -4,12 +4,14 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.sk89q.worldedit.util.eventbus.EventHandler.Priority;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.event.lifecycle.LoadConfigEvent;
 import com.skcraft.plume.common.util.module.AutoRegister;
 import lombok.Data;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
 
 import java.io.File;
 
@@ -25,7 +27,7 @@ public class ConfigFactory {
                 public Config<?> load(Key key) throws Exception {
                     File file = new File(dir, key.name + ".cfg");
                     file.getAbsoluteFile().getParentFile().mkdirs();
-                    return new HoconConfig<>(file, key.type);
+                    return new Config<>(createLoader(file), key.type);
                 }
             });
 
@@ -37,8 +39,39 @@ public class ConfigFactory {
         this.dir = dir;
     }
 
+    /**]
+     * Create a configuration loader.
+     *
+     * @param file The file
+     * @return The loader
+     */
+    public ConfigurationLoader<CommentedConfigurationNode> createLoader(File file) {
+        return HoconConfigurationLoader.builder().setFile(file).build();
+    }
+
+    /**]
+     * Create a configuration loader using a filename.
+     *
+     * @param name The filename
+     * @return The loader
+     */
+    public ConfigurationLoader<CommentedConfigurationNode> createLoader(String name) {
+        File file = new File(dir, name + ".cfg");
+        file.getAbsoluteFile().getParentFile().mkdirs();
+        return createLoader(file);
+    }
+
+    /**
+     * Create a new configuration object whose lifecycle is managed by
+     * the factory.
+     *
+     * @param name The filename or the configuration file
+     * @param type The class that will represent the loaded configuration
+     * @param <T> The type of the configuration class
+     * @return A configuration access object
+     */
     @SuppressWarnings("unchecked")
-    public <T> Config<T> create(String name, Class<T> type) {
+    public <T> Config<T> createMapping(String name, Class<T> type) {
         return (Config<T>) configs.getUnchecked(new Key(name, type));
     }
 

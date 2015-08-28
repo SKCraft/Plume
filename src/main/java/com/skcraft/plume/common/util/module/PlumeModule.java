@@ -62,7 +62,7 @@ class PlumeModule extends AbstractModule {
                                 try {
                                     field.setAccessible(true);
                                     ParameterizedType paramType = (ParameterizedType) field.getGenericType();
-                                    field.set(instance, configFactory.create(annotation.value(), (Class<?>) paramType.getActualTypeArguments()[0]));
+                                    field.set(instance, configFactory.createMapping(annotation.value(), (Class<?>) paramType.getActualTypeArguments()[0]));
                                 } catch (IllegalAccessException e) {
                                     throw new RuntimeException("Failed to set @InjectConfig", e);
                                 }
