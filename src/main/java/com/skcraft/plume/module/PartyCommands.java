@@ -60,7 +60,7 @@ public class PartyCommands {
                 }, tickExecutorService)
                 .fail(e -> {
                     if (e instanceof PartyExistsException) {
-                        sender.addChatMessage(Messages.error(tr("party.create.exists", name)));
+                        sender.addChatMessage(Messages.error(tr("party.create.existsAlready", name)));
                     } else {
                         sender.addChatMessage(Messages.error(tr("args.exception.unhandled", e.getMessage())));
                     }
@@ -82,11 +82,11 @@ public class PartyCommands {
                     Party party = partyMan.get(name);
 
                     if (party == null) {
-                        throw new CommandException(tr("party.exception.nonexistant"));
+                        throw new CommandException(tr("party.doesNotExist"));
                     } else if (!Parties.canManage(party, issuer)) {
-                        throw new CommandException(tr("party.exception.cannotmanage"));
+                        throw new CommandException(tr("party.notManager"));
                     } else if (userId.equals(issuer)) {
-                        throw new CommandException(tr("party.add.yourself"));
+                        throw new CommandException(tr("party.add.cannotAddSelf"));
                     } else {
                         partyMan.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MEMBER)));
                         partyMan.getManager().refreshParty(party);
@@ -125,11 +125,11 @@ public class PartyCommands {
                     Party party = partyMan.get(name);
 
                     if (party == null) {
-                        throw new CommandException(tr("party.exception.nonexistant"));
+                        throw new CommandException(tr("party.doesNotExist"));
                     } else if (!Parties.canManage(party, issuer)) {
-                        throw new CommandException(tr("party.exception.cannotmanage"));
+                        throw new CommandException(tr("party.notManager"));
                     } else if (userId.equals(issuer)) {
-                        throw new CommandException(tr("party.remove.yourself"));
+                        throw new CommandException(tr("party.remove.cannotAddSelf"));
                     } else {
                         partyMan.removeMembers(party, Sets.newHashSet(Parties.getMemberByUser(party, userId)));
                         partyMan.getManager().refreshParty(party);
@@ -168,11 +168,11 @@ public class PartyCommands {
                     Party party = partyMan.get(name);
 
                     if (party == null) {
-                        throw new CommandException(tr("party.exception.nonexistant"));
+                        throw new CommandException(tr("party.doesNotExist"));
                     } else if (!Parties.canManage(party, issuer)) {
-                        throw new CommandException(tr("party.exception.cannotmanage"));
+                        throw new CommandException(tr("party.notManager"));
                     } else if (userId.equals(issuer)) {
-                        throw new CommandException(tr("party.rank.yourself"));
+                        throw new CommandException(tr("party.rank.cannotChangeSelf"));
                     } else {
                         switch(rank.toLowerCase()) {
                             case "member":
@@ -220,13 +220,13 @@ public class PartyCommands {
                     Party party = partyMan.get(name);
 
                     if (party == null) {
-                        throw new CommandException(tr("party.exception.nonexistant"));
+                        throw new CommandException(tr("party.doesNotExist"));
                     } else {
                         Member member = Parties.getMemberByUser(party, issuer);
                         if (member == null) {
-                            throw new CommandException(tr("party.exception.nonmember"));
+                            throw new CommandException(tr("party.notMember"));
                         } else if (member.getRank().equals(Rank.OWNER)) {
-                            throw new CommandException(tr("party.exception.ownparty"));
+                            throw new CommandException(tr("party.cannotRemoveSelf"));
                         } else {
                             partyMan.removeMembers(party, Sets.newHashSet(Parties.getMemberByUser(party, issuer)));
                             partyMan.getManager().refreshParty(party);
@@ -265,9 +265,9 @@ public class PartyCommands {
                     Party party = partyMan.get(name);
 
                     if (party == null) {
-                        throw new CommandException(tr("party.exception.nonexistant"));
+                        throw new CommandException(tr("party.doesNotExist"));
                     } else if (!party.getMembers().contains(new Member(issuer, Rank.MEMBER))) { // rank doesn't matter here since contains() can't check rank
-                        throw new CommandException(tr("party.exception.nonmember"));
+                        throw new CommandException(tr("party.notMember"));
                     } else {
                         return party;
                     }
@@ -280,7 +280,7 @@ public class PartyCommands {
                 }, tickExecutorService)
                 .fail(e -> {
                     if (e instanceof CommandException) {
-                        sender.addChatMessage(Messages.error(tr("party.info.exception", e.getMessage())));
+                        sender.addChatMessage(Messages.error(tr("party.info.failed", e.getMessage())));
                     } else {
                         sender.addChatMessage(Messages.error(tr("args.exception.unhandled", ((ProfileLookupException) e).getName())));
                     }
@@ -301,7 +301,7 @@ public class PartyCommands {
                     Party party = partyMan.get(name);
 
                     if (party == null) {
-                        throw new CommandException(tr("party.exception.nonexistant"));
+                        throw new CommandException(tr("party.doesNotExist"));
                     } else {
                         partyMan.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MEMBER)));
                         partyMan.getManager().refreshParty(party);
@@ -339,9 +339,9 @@ public class PartyCommands {
                     Party party = partyMan.get(name);
 
                     if (party == null) {
-                        throw new CommandException(tr("party.exception.nonexistant"));
+                        throw new CommandException(tr("party.doesNotExist"));
                     } else if (userId.equals(Profiles.fromPlayer(sender))) {
-                        throw new CommandException(tr("party.remove.yourself"));
+                        throw new CommandException(tr("party.remove.cannotAddSelf"));
                     } else {
                         partyMan.removeMembers(party, Sets.newHashSet(Parties.getMemberByUser(party, userId)));
                         partyMan.getManager().refreshParty(party);
@@ -380,7 +380,7 @@ public class PartyCommands {
                     Party party = partyMan.get(name);
 
                     if (party == null) {
-                        throw new CommandException(tr("party.exception.nonexistant"));
+                        throw new CommandException(tr("party.doesNotExist"));
                     } else {
                         switch(rank.toLowerCase()) {
                             case "member":
@@ -429,9 +429,9 @@ public class PartyCommands {
                     Party party = partyMan.getManager().findPartyByName(name);
 
                     if (party == null) {
-                        throw new CommandException(tr("party.exception.nonexistant"));
+                        throw new CommandException(tr("party.doesNotExist"));
                     } else if (!Parties.canManage(party, issuer)) {
-                        throw new CommandException(tr("party.exception.cannotmanage"));
+                        throw new CommandException(tr("party.notManager"));
                     } else {
                         partyMan.removeMembers(party, party.getMembers());
                         partyMan.getManager().refreshParty(party);

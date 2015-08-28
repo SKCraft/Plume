@@ -20,15 +20,15 @@ public class NetherCoords {
     public void nethercoords(@Sender EntityPlayer sender) {
         switch (sender.getEntityWorld().provider.dimensionId) {
             case -1: //nether
-                sender.addChatMessage(Messages.info(tr("nethercoords.overworld",
+                sender.addChatMessage(Messages.info(tr("netherCoords.overworld",
                         Math.floor(sender.posX * 8), Math.floor(sender.posY), Math.floor(sender.posZ * 8))));
                 break;
             case 0: //overworld
-                sender.addChatMessage(Messages.info(tr("nethercoords.nether",
+                sender.addChatMessage(Messages.info(tr("netherCoords.nether",
                         Math.floor(sender.posX / 8), Math.floor(sender.posY), Math.floor(sender.posZ / 8))));
                 break;
             default: //any other
-                sender.addChatMessage(Messages.info(tr("nethercoords.nether",
+                sender.addChatMessage(Messages.info(tr("netherCoords.nether",
                         Math.floor(sender.posX / 8), Math.floor(sender.posY), Math.floor(sender.posZ / 8))));
                 break;
         }

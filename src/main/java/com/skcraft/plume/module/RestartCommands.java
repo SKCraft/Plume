@@ -10,7 +10,6 @@ import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.Server;
-import com.skcraft.plume.util.concurrent.BackgroundExecutor;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
 import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
@@ -53,11 +52,11 @@ public class RestartCommands {
 
                 if (restarting) {
                     tickExecutor.execute(() -> {
-                        sender.addChatMessage(Messages.error(tr("restart.alreadyinprogress")));
+                        sender.addChatMessage(Messages.error(tr("restart.alreadyInProgress")));
                     });
                 } else if (time > config.get().maxCountdown || time < 0) {
                     tickExecutor.execute(() -> {
-                        sender.addChatMessage(Messages.error(tr("restart.outofrange", config.get().maxCountdown)));
+                        sender.addChatMessage(Messages.error(tr("restart.outOfRange", config.get().maxCountdown)));
                     });
                 } else {
                     restarting = true;
@@ -81,7 +80,7 @@ public class RestartCommands {
                 }
             } catch (NumberFormatException e) {
                 tickExecutor.execute(() -> {
-                    sender.addChatMessage(Messages.error(tr("restart.invalidparam", e.getMessage())));
+                    sender.addChatMessage(Messages.error(tr("restart.invalidParameters", e.getMessage())));
                 });
             }
         }
@@ -113,7 +112,7 @@ public class RestartCommands {
                 timer = null;
                 tickExecutor.execute(() -> {
                     Messages.broadcastInfo(tr("restart.broadcast.imminent"));
-                    Server.shutdown(tr("restart.kickmessage"));
+                    Server.shutdown(tr("restart.kickMessage"));
                 });
             }
 

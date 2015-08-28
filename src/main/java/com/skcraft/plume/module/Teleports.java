@@ -27,7 +27,7 @@ public class Teleports {
                 sender.addChatMessage(new ChatComponentText(SharedLocale.tr("teleport.playerNotFound", name)));
             }
         } else {
-            sender.addChatMessage(new ChatComponentText(SharedLocale.tr("messages.playerRequired")));
+            sender.addChatMessage(new ChatComponentText(SharedLocale.tr("playerRequired")));
         }
     }
 
@@ -44,7 +44,7 @@ public class Teleports {
                 sender.addChatMessage(new ChatComponentText(SharedLocale.tr("teleport.playerNotFound", name)));
             }
         } else {
-            sender.addChatMessage(new ChatComponentText(SharedLocale.tr("messages.playerRequired")));
+            sender.addChatMessage(new ChatComponentText(SharedLocale.tr("playerRequired")));
         }
     }
 }

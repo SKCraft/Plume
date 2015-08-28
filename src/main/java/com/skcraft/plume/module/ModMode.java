@@ -39,13 +39,13 @@ public class ModMode {
                     modInv.putInventory(player);
                     MinecraftServer.getServer().getConfigurationManager().func_152605_a(player.getGameProfile());
                     player.setGameType(WorldSettings.GameType.CREATIVE);
-                    player.addChatMessage(new ChatComponentText(tr("modmode.enter")));
+                    player.addChatMessage(new ChatComponentText(tr("modMode.enter")));
                 } catch (IOException e) {
-                    player.addChatMessage(new ChatComponentText(tr("messages.exception")));
+                    player.addChatMessage(new ChatComponentText(tr("commandException")));
                     log.log(Level.WARNING, "Failed to enter mod mode", e);
                 }
             } else {
-                player.addChatMessage(new ChatComponentText(tr("modmode.alreadyEnabled")));
+                player.addChatMessage(new ChatComponentText(tr("modMode.alreadyEnabled")));
             }
         }
     }
@@ -68,11 +68,11 @@ public class ModMode {
                     player.fallDistance = 0;
                     player.setGameType(WorldSettings.GameType.SURVIVAL);
                 } catch (IOException e) {
-                    player.addChatMessage(new ChatComponentText(tr("messages.exception")));
+                    player.addChatMessage(new ChatComponentText(tr("commandException")));
                     log.log(Level.WARNING, "Failed to leave mod mode", e);
                 }
             } else {
-                player.addChatMessage(new ChatComponentText(tr("modmode.alreadyDisabled")));
+                player.addChatMessage(new ChatComponentText(tr("modMode.alreadyDisabled")));
             }
         }
     }

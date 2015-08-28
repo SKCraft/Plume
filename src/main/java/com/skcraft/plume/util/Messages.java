@@ -37,7 +37,7 @@ public final class Messages {
 
     public static ChatComponentText exception(Throwable throwable) {
         log.log(Level.SEVERE, "Error occurred during background processing", throwable);
-        ChatComponentText message = new ChatComponentText(tr("messages.exception"));
+        ChatComponentText message = new ChatComponentText(tr("commandException"));
         message.getChatStyle().setColor(EnumChatFormatting.RED);
         return message;
     }

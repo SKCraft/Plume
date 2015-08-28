@@ -26,7 +26,7 @@ public class ChatChannelCommands {
 
         // Check if player is already in a chat channel
         if (ChatChannelManager.getManager().isInChatChannel(sender)) {
-            sender.addChatMessage(Messages.error(tr("chatchannel.err.alreadymember.other")));
+            sender.addChatMessage(Messages.error(tr("chatChannel.alreadySubscribed")));
             return;
         }
 
@@ -42,17 +42,17 @@ public class ChatChannelCommands {
 
         // Does channel exist already?
         if (ch != null) {
-            ch.broadcastTo("§e", sender.getDisplayName(), " §6", tr("chatchannel.join.other"), " ", "§e", ch.getName(), "§6", ".");
+            ch.broadcastTo("§e", sender.getDisplayName(), " §6", tr("chatChannel.join.other"), " ", "§e", ch.getName(), "§6", ".");
             ChatChannelManager.getManager().addTo(sender, ch.getName());
 
-            sender.addChatMessage(ChatProcessor.chat("§6", tr("chatchannel.join.self"), " ", "§e", "#" + ch.getName(), "§6", "."));
+            sender.addChatMessage(ChatProcessor.chat("§6", tr("chatChannel.join.self"), " ", "§e", "#" + ch.getName(), "§6", "."));
         } else {
             ch = new ChatChannel(channel);
 
             ChatChannelManager.getManager().addChatChannel(ch);
             ChatChannelManager.getManager().addTo(sender, ch.getName());
 
-            sender.addChatMessage(ChatProcessor.chat("§6", tr("chatchannel.join.self"), " ", "§e", "#" + ch.getName(), "§6", "."));
+            sender.addChatMessage(ChatProcessor.chat("§6", tr("chatChannel.join.self"), " ", "§e", "#" + ch.getName(), "§6", "."));
         }
     }
 
@@ -65,15 +65,15 @@ public class ChatChannelCommands {
         EntityPlayerMP sender = (EntityPlayerMP) isender;
 
         if (!ChatChannelManager.getManager().isInChatChannel(sender)) {
-            sender.addChatMessage(ChatProcessor.chat(tr("chatchannel.leave.nochannel")));
+            sender.addChatMessage(ChatProcessor.chat(tr("chatChannel.leave.noChannel")));
             return;
         }
 
         ChatChannel ch = ChatChannelManager.getManager().getChatChannelOf(sender);
         ChatChannelManager.getManager().exitCC(sender);
 
-        ch.broadcastTo("§e", sender.getDisplayName(), " ", "§6", tr("chatchannel.leave.other"), " ", "§e", "#" + ch.getName(), "§6", ".");
+        ch.broadcastTo("§e", sender.getDisplayName(), " ", "§6", tr("chatChannel.leave.other"), " ", "§e", "#" + ch.getName(), "§6", ".");
 
-        sender.addChatMessage(ChatProcessor.chat("§6", tr("chatchannel.leave.self"), " ", "§e", "#" + ch.getName(), "§6", "."));
+        sender.addChatMessage(ChatProcessor.chat("§6", tr("chatChannel.leave.self"), " ", "§e", "#" + ch.getName(), "§6", "."));
     }
 }

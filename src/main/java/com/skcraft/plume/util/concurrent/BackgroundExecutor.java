@@ -31,7 +31,7 @@ public class BackgroundExecutor {
     private final ScheduledExecutorService timer = new ScheduledThreadPoolExecutor(1);
 
     public void notifyOnDelay(ListenableFuture<?> future, ICommandSender sender) {
-        ChatComponentText message = new ChatComponentText(tr("task.pleaseWaitProcessing"));
+        ChatComponentText message = new ChatComponentText(tr("pleaseWaitProcessing"));
         message.getChatStyle().setColor(EnumChatFormatting.GRAY);
         Future<?> messageFuture = timer.schedule(new MessageTask(sender, message), MESSAGE_DELAY, TimeUnit.MILLISECONDS);
         future.addListener(() -> messageFuture.cancel(false), MoreExecutors.newDirectExecutorService());

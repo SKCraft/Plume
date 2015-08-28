@@ -212,7 +212,7 @@ public class ClaimCommands {
                         }
                     }, claimExecutor)
                     .done(request -> {
-                        player.addChatMessage(Messages.info(tr("claims.purchaseSuccess", request.getUnclaimed().size())));
+                        player.addChatMessage(Messages.info(tr("claims.claim.success", request.getUnclaimed().size())));
                     }, tickExecutorService)
                     .fail(e -> {
                         if (e instanceof ClaimAttemptException) {
@@ -305,7 +305,7 @@ public class ClaimCommands {
                     return request;
                 }, claimExecutor)
                 .done(request -> {
-                    player.addChatMessage(Messages.info(tr("claims.unclaimSuccess", request.getAlreadyOwned().size())));
+                    player.addChatMessage(Messages.info(tr("claims.unclaim.success", request.getAlreadyOwned().size())));
                 }, tickExecutorService)
                 .fail(e -> {
                     if (e instanceof ClaimAttemptException) {
@@ -355,7 +355,7 @@ public class ClaimCommands {
                     return positions;
                 }, claimExecutor)
                 .done(positions -> {
-                    sender.addChatMessage(Messages.info(tr("claims.adminClaimSuccess", positions.size())));
+                    sender.addChatMessage(Messages.info(tr("claims.manage.claim.sauccess", positions.size())));
                 }, tickExecutorService)
                 .fail(e -> {
                     if (e instanceof ClaimAttemptException) {
@@ -400,7 +400,7 @@ public class ClaimCommands {
                     return positions;
                 }, claimExecutor)
                 .done(positions -> {
-                    player.addChatMessage(Messages.info(tr("claims.adminUnclaimSuccess", positions.size())));
+                    player.addChatMessage(Messages.info(tr("claims.manage.unclaim.success", positions.size())));
                 }, tickExecutorService)
                 .fail(e -> {
                     if (e instanceof ClaimAttemptException) {
