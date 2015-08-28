@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "motd")
+@Module(name = "motd", desc = "Configurable message that shows in players' chat area when they join")
 public class WelcomeMessage {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(0);

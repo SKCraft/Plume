@@ -20,7 +20,7 @@ import com.skcraft.plume.common.util.service.ServiceLocator;
 import lombok.Getter;
 import ninja.leaping.configurate.objectmapping.Setting;
 
-@Module(name = "mysql-services")
+@Module(name = "mysql-services", desc = "Provides MySQL-based hive, ban, party, and claim services")
 public class MySQLServices {
 
     @InjectConfig("mysql/services")

@@ -11,7 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
 
-@Module(name = "nethercoords")
+@Module(name = "nethercoords", desc = "Helpful commands for players to find where to place a Nether portal")
 @Log
 public class NetherCoords {
 

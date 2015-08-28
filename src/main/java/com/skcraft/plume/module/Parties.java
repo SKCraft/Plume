@@ -29,7 +29,7 @@ import java.util.Date;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "parties")
+@Module(name = "parties", desc = "Provides commands to manage parties [requires party service]")
 @Log
 public class Parties {
 

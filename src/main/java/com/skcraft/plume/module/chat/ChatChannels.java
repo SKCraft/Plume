@@ -11,7 +11,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "chat-channels")
+@Module(name = "chat-channels", desc = "Allow users to join private chat channels")
 public class ChatChannels {
 
     @Inject

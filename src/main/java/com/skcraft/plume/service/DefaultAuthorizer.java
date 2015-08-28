@@ -15,7 +15,7 @@ import com.skcraft.plume.common.util.service.ServiceLocator;
 import com.skcraft.plume.util.Server;
 import ninja.leaping.configurate.objectmapping.Setting;
 
-@Module(name = "default-authorizer")
+@Module(name = "default-authorizer", desc = "Lets other modules check permissions and optionally uses any loaded hive service")
 public class DefaultAuthorizer implements Authorizer {
 
     @Inject

@@ -12,7 +12,7 @@ import net.minecraft.server.management.ServerConfigurationManager;
 import ninja.leaping.configurate.objectmapping.Setting;
 
 @Log
-@Module(name = "operator-check")
+@Module(name = "operator-check", desc = "Configurable removal of operator status from all players when they join")
 public class OperatorCheck {
 
     @InjectConfig("operator_check")

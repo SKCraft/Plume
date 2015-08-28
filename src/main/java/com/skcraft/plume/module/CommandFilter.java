@@ -14,7 +14,7 @@ import java.util.Set;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "command-filter")
+@Module(name = "command-filter", desc = "Configurable blocking on commands")
 public class CommandFilter {
 
     @InjectConfig("command_filter")

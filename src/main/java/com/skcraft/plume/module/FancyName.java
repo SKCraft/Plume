@@ -5,7 +5,6 @@ import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import ninja.leaping.configurate.objectmapping.Setting;
@@ -13,7 +12,7 @@ import ninja.leaping.configurate.objectmapping.Setting;
 import java.util.List;
 import java.util.Random;
 
-@Module(name = "fancy-name", enabled = true)
+@Module(name = "fancy-name", desc = "Assigns users a random name color on join")
 public class FancyName {
 
     private final Random random = new Random();

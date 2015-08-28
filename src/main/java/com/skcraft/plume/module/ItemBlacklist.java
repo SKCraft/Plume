@@ -17,7 +17,7 @@ import ninja.leaping.configurate.objectmapping.Setting;
 
 import java.util.List;
 
-@Module(name = "item-blacklist")
+@Module(name = "item-blacklist", desc = "Simple blacklisting of items")
 public class ItemBlacklist {
 
     @InjectConfig("item_blacklist") private Config<ItemBanConfig> config;

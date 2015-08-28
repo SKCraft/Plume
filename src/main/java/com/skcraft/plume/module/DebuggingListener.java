@@ -18,7 +18,8 @@ import com.skcraft.plume.util.Location3i;
 import lombok.extern.java.Log;
 import net.minecraft.entity.Entity;
 
-@Module(name = "abstraction-events-debug", enabled = false)
+@Module(name = "abstraction-events-debug", enabled = false,
+        desc = "Shows, in the server console, intermediary events used for protection and logging")
 @Log
 public class DebuggingListener {
 

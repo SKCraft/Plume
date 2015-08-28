@@ -20,7 +20,7 @@ import java.util.TimerTask;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "restarts")
+@Module(name = "restarts", desc = "Adds a server shutdown or restart sequence complete with music")
 @Log
 public class Restarts {
 

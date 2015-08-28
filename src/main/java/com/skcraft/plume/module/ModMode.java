@@ -20,7 +20,7 @@ import java.util.logging.Level;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "mod-mode")
+@Module(name = "mod-mode", desc = "Allows moderators to enter a 'moderator mode' where their inventory and location are saved for later restore")
 @Log
 public class ModMode {
 
