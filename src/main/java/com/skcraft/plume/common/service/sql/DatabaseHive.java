@@ -177,6 +177,7 @@ public class DatabaseHive implements Hive {
                 }
 
                 for (User user : users.values()) {
+                    user.refresh();
                     map.put(user.getUserId(), user);
                 }
             }

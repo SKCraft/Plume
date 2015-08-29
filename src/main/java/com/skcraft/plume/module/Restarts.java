@@ -1,6 +1,5 @@
 package com.skcraft.plume.module;
 
-
 import com.google.inject.Inject;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
@@ -10,10 +9,10 @@ import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.Server;
-import com.skcraft.plume.util.concurrent.BackgroundExecutor;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
 import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 import ninja.leaping.configurate.objectmapping.Setting;
 
 import java.util.Timer;
@@ -21,74 +20,56 @@ import java.util.TimerTask;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "restart-commands")
+@Module(name = "restarts", desc = "Adds a server shutdown or restart sequence complete with music")
 @Log
-public class RestartCommands {
+public class Restarts {
 
     @Inject private TickExecutorService tickExecutor;
-    @InjectConfig("restart_commands") private Config<RestartConfig> config;
+    @InjectConfig("restarts") private Config<RestartConfig> config;
     private Timer timer;
     public boolean restarting = false;
 
-    @Command(aliases = "restart", desc = "Restarts the server with a countdown. /restart abort to cancel.")
+    @Command(aliases = {"restart", "shutdown"}, desc = "Restarts the server with a countdown. /restart abort to cancel.")
     @Require("plume.restart")
     public void restart(@Sender ICommandSender sender, String arg) {
-        if (arg.equals("abort") || arg.equals("cancel")) {
+        if (arg.equalsIgnoreCase("abort") || arg.equalsIgnoreCase("cancel")) {
             if (restarting) {
                 timer.cancel();
                 timer.purge();
                 timer = null;
                 restarting = false;
-                tickExecutor.execute(() -> {
-                    Messages.broadcastInfo(tr("restart.broadcast.canceled"));
-                });
+                Messages.broadcastInfo(tr("restart.broadcast.canceled"));
             } else {
-                tickExecutor.execute(() -> {
-                    sender.addChatMessage(Messages.error(tr("restart.cancel.failed")));
-                });
+                sender.addChatMessage(Messages.error(tr("restart.cancel.failed")));
             }
         } else {
             try {
                 int time = Integer.parseInt(arg);
 
                 if (restarting) {
-                    tickExecutor.execute(() -> {
-                        sender.addChatMessage(Messages.error(tr("restart.alreadyinprogress")));
-                    });
+                    sender.addChatMessage(Messages.error(tr("restart.alreadyInProgress")));
                 } else if (time > config.get().maxCountdown || time < 0) {
-                    tickExecutor.execute(() -> {
-                        sender.addChatMessage(Messages.error(tr("restart.outofrange", config.get().maxCountdown)));
-                    });
+                    sender.addChatMessage(Messages.error(tr("restart.outOfRange", config.get().maxCountdown)));
                 } else {
                     restarting = true;
                     timer = new Timer();
                     timer.scheduleAtFixedRate(new RestartTask(time), 1000, 1000);
-                    if (time % config.get().period != 0) {
-                        tickExecutor.execute(() -> {
-                            Messages.broadcastInfo(tr("restart.broadcast.first", time));
-                        });
-                    }
 
-                    /*
-                    for (String name : MinecraftServer.getServer().getAllUsernames()) {
-                        if (name != null) {
-                            EntityPlayerMP player = Server.findPlayer(name);
-                            //player.playSound("random.explode1", 1.0f, 1.0f); //skcraftshenanigans:shutdown
-                            player.worldObj.playSoundAtEntity(player, "random.explode", 1.0f, 1.0f);
-                        }
+                    Messages.broadcastInfo(tr("restart.broadcast.first", time));
+
+                    for (EntityPlayerMP player : Server.getOnlinePlayers()) {
+                        player.worldObj.playSoundAtEntity(player, config.get().shutdownSound, 1.0f, 1.0f);
                     }
-                    */
                 }
             } catch (NumberFormatException e) {
-                tickExecutor.execute(() -> {
-                    sender.addChatMessage(Messages.error(tr("restart.invalidparam", e.getMessage())));
-                });
+                sender.addChatMessage(Messages.error(tr("restart.invalidParameters", e.getMessage())));
             }
         }
     }
 
     private class RestartTask extends TimerTask {
         private int timeLeft;
+        private int lastMessage;
 
         public RestartTask(int countdownTime) {
             this.timeLeft = countdownTime;
@@ -96,13 +77,18 @@ public class RestartCommands {
 
         public void run() {
             if (timeLeft > 0) {
-                if (timeLeft % config.get().period == 0 && timeLeft >= 5) {
+                int left = timeLeft; // Copy variable because we're going to modify it in a second
+                if (timeLeft <= config.get().imminentThreshold) {
                     tickExecutor.execute(() -> {
-                        Messages.broadcastInfo(tr("restart.broadcast.in", timeLeft));
+                        Messages.broadcastInfo(tr("restart.broadcast.imminent", left));
                     });
-                } else if (timeLeft <= 5) {
+                } else if (timeLeft <= config.get().urgentThreshold) {
                     tickExecutor.execute(() -> {
-                        Messages.broadcastInfo(tr("restart.broadcast.in", timeLeft));
+                        Messages.broadcastInfo(tr("restart.broadcast.urgent", left));
+                    });
+                } else if (timeLeft % config.get().subtleInterval == 0) {
+                    tickExecutor.execute(() -> {
+                        Messages.broadcastInfo(tr("restart.broadcast.in", left));
                     });
                 }
                 timeLeft--;
@@ -112,8 +98,7 @@ public class RestartCommands {
                 timer.purge();
                 timer = null;
                 tickExecutor.execute(() -> {
-                    Messages.broadcastInfo(tr("restart.broadcast.imminent"));
-                    Server.shutdown(tr("restart.kickmessage"));
+                    Server.shutdown(tr("restart.kickMessage"));
                 });
             }
 
@@ -124,7 +109,16 @@ public class RestartCommands {
         @Setting(comment = "The max time that can be used for a shutdown/restart countdown")
         private int maxCountdown = 240;
 
-        @Setting(comment = "The rate at which shutdown/restart messages are shown")
-        private int period = 1;
+        @Setting(comment = "The time interval, in seconds, of the subtle background shutdown messages")
+        private int subtleInterval = 5;
+
+        @Setting(comment = "The time threshold, in seconds, when the frequent and obnoxious shutdown warnings are shown")
+        private int urgentThreshold = 10;
+
+        @Setting(comment = "The time threshold, in seconds, when the 'IMMINENT SHUTDOWN' messages are shown")
+        private int imminentThreshold = 2;
+
+        @Setting(comment = "The sound to play when shutting down")
+        public String shutdownSound = "records.stal";
     }
 }

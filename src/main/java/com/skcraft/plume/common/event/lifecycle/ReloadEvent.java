@@ -1,4 +1,4 @@
 package com.skcraft.plume.common.event.lifecycle;
 
-public class ReloadEvent {
+public class ReloadEvent extends ReloadConfigEvent {
 }

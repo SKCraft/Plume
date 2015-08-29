@@ -2,10 +2,10 @@ package com.skcraft.plume.common.module;
 
 import com.google.inject.Inject;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
-import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
 import com.skcraft.plume.common.event.lifecycle.ReloadEvent;
-import com.skcraft.plume.common.service.auth.*;
+import com.skcraft.plume.common.service.auth.Hive;
+import com.skcraft.plume.common.service.auth.UserCache;
 import com.skcraft.plume.common.service.ban.BanManager;
 import com.skcraft.plume.common.service.claim.ClaimCache;
 import com.skcraft.plume.common.service.claim.ClaimMap;
@@ -20,7 +20,7 @@ import com.skcraft.plume.common.util.service.ServiceLocator;
 import lombok.Getter;
 import ninja.leaping.configurate.objectmapping.Setting;
 
-@Module(name = "mysql-services")
+@Module(name = "mysql-services", desc = "Provides MySQL-based hive, ban, party, and claim services")
 public class MySQLServices {
 
     @InjectConfig("mysql/services")
@@ -64,8 +64,6 @@ public class MySQLServices {
         services.register(UserCache.class, userCache = new UserCache(hive));
         services.register(PartyCache.class, partyCache = new PartyCache(parties));
         services.register(ClaimCache.class, claimCache = new ClaimCache(claimMap, partyCache));
-
-        services.register(Authorizer.class, new HiveAuthorizer());
     }
 
     @Subscribe
@@ -73,18 +71,6 @@ public class MySQLServices {
         userCache.refreshAll();
         partyCache.refreshAll();
         claimCache.refreshAllClaims();
-    }
-
-    private class HiveAuthorizer implements Authorizer {
-        @Override
-        public Subject getSubject(UserId userId) {
-            User user = userCache.getIfPresent(userId);
-            if (user != null) {
-                return user.getSubject();
-            } else {
-                return NoAccessSubject.INSTANCE;
-            }
-        }
     }
 
     private static class ServicesConfig {

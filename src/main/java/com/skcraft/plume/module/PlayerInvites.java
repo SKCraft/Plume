@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "player-invites")
+@Module(name = "player-invites", desc = "Adds an /invite command so players can whitelist their friends and family")
 @Log
 public class PlayerInvites {
 

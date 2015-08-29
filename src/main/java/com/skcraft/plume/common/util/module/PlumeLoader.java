@@ -5,6 +5,7 @@ import com.google.inject.*;
 import com.google.inject.Module;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -26,7 +27,7 @@ public class PlumeLoader {
         return this;
     }
 
-    public Injector load() {
+    public Injector load() throws IOException {
         dataDir.mkdirs();
 
         List<Module> modules = Lists.newArrayList();

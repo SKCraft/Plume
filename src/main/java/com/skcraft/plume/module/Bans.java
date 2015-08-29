@@ -16,6 +16,7 @@ import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.common.util.service.InjectService;
 import com.skcraft.plume.common.util.service.Service;
+import com.skcraft.plume.event.network.PlayerAuthenticateEvent;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.Server;
 import com.skcraft.plume.util.concurrent.BackgroundExecutor;
@@ -24,6 +25,8 @@ import com.skcraft.plume.util.profile.ProfileLookupException;
 import com.skcraft.plume.util.profile.ProfileNotFoundException;
 import com.skcraft.plume.util.profile.ProfileService;
 import com.skcraft.plume.util.profile.Profiles;
+import cpw.mods.fml.common.eventhandler.EventPriority;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,20 +34,41 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import ninja.leaping.configurate.objectmapping.Setting;
 
 import java.util.Date;
+import java.util.List;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "ban-commands")
+@Module(name = "bans", desc = "Checks for bans and provides ban commands [requires ban services]")
 @Log
-public class BanCommands {
+public class Bans {
 
     @Inject private BackgroundExecutor executor;
     @Inject private ProfileService profileService;
     @InjectService private Service<BanManager> banManager;
     @Inject private TickExecutorService tickExecutorService;
     @Inject private Environment environment;
-    @InjectConfig("ban_commands") private Config<BansConfig> config;
+    @InjectConfig("bans") private Config<BansConfig> config;
 
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public void onAuthenticate(PlayerAuthenticateEvent event) {
+        BanManager banManager = this.banManager.provide();
+        List<Ban> bans = banManager.findActiveBans(new UserId(event.getProfile().getId()));
+        if(bans != null && !bans.isEmpty()) {
+            bans.sort((Ban ban1, Ban ban2) -> ban1.getExpireTime() == null ? 1 : ban2.getExpireTime() == null ? -1 : ban1.getExpireTime().compareTo(ban2.getExpireTime()));
+
+            Ban latest = bans.get(bans.size() - 1);
+            if (latest != null) {
+                StringBuilder builder = new StringBuilder();
+                builder.append("Your access has been suspended. To appeal, mention #");
+                builder.append(latest.getId());
+                if (latest.getExpireTime() != null) {
+                    builder.append("\nExpires: ");
+                    builder.append(latest.getExpireTime());
+                }
+                event.getNetHandler().func_147322_a(builder.toString());
+            }
+        }
+    }
 
     @Command(aliases = "ban", desc = "Ban a user")
     @Require("plume.bans.ban")

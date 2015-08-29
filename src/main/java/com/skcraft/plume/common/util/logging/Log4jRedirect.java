@@ -22,6 +22,7 @@ package com.skcraft.plume.common.util.logging;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
@@ -30,11 +31,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class Log4jRedirect extends Handler {
 
     private final Logger logger;
+    @Nullable
     private final String prefix;
 
-    public Log4jRedirect(Logger logger, String prefix) {
+    public Log4jRedirect(Logger logger, @Nullable String prefix) {
         checkNotNull(logger, "logger");
-        checkNotNull(prefix, "prefix");
         this.logger = logger;
         this.prefix = prefix;
     }
@@ -42,8 +43,10 @@ public final class Log4jRedirect extends Handler {
     @Override
     public void publish(LogRecord record) {
         String message = record.getMessage();
-        if (!message.startsWith(prefix + ": ") && !message.startsWith("[" + prefix + "] ")) {
-            message = prefix + ": " + message;
+        if (prefix != null) {
+            if (!message.startsWith(prefix + ": ") && !message.startsWith("[" + prefix + "] ")) {
+                message = prefix + ": " + message;
+            }
         }
         logger.log(toLog4J(record.getLevel()), message, record.getThrown());
     }

@@ -18,7 +18,7 @@ import net.minecraft.command.ICommandSender;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "plume-commands")
+@Module(name = "plume-commands", desc = "Commands to manage Plume, such as reloading config or data")
 public class PlumeCommands {
 
     @Inject

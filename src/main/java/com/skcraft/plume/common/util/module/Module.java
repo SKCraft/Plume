@@ -16,6 +16,8 @@ public @interface Module {
 
     String name();
 
+    String desc() default "";
+
     boolean enabled() default true;
 
     boolean hidden() default false;

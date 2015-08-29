@@ -1,9 +1,11 @@
 package com.skcraft.plume.util.concurrent;
 
-import com.google.common.util.concurrent.*;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.skcraft.plume.util.Messages;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
@@ -29,25 +31,10 @@ public class BackgroundExecutor {
     private final ScheduledExecutorService timer = new ScheduledThreadPoolExecutor(1);
 
     public void notifyOnDelay(ListenableFuture<?> future, ICommandSender sender) {
-        ChatComponentText message = new ChatComponentText(tr("task.pleaseWaitProcessing"));
+        ChatComponentText message = new ChatComponentText(tr("pleaseWaitProcessing"));
         message.getChatStyle().setColor(EnumChatFormatting.GRAY);
         Future<?> messageFuture = timer.schedule(new MessageTask(sender, message), MESSAGE_DELAY, TimeUnit.MILLISECONDS);
-        future.addListener(() -> messageFuture.cancel(false), MoreExecutors.sameThreadExecutor());
-    }
-
-    public void addCallbacks(ListenableFuture<?> future, ICommandSender sender) {
-        notifyOnDelay(future, sender);
-
-        Futures.addCallback(future, new FutureCallback<Object>() {
-            @Override
-            public void onSuccess(Object result) {
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                sender.addChatMessage(Messages.exception(t));
-            }
-        });
+        future.addListener(() -> messageFuture.cancel(false), MoreExecutors.newDirectExecutorService());
     }
 
     @RequiredArgsConstructor

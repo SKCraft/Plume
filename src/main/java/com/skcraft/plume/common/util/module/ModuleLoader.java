@@ -1,16 +1,17 @@
 package com.skcraft.plume.common.util.module;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.ConfigFactory;
 import lombok.extern.java.Log;
-import ninja.leaping.configurate.objectmapping.Setting;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.atteo.classindex.ClassFilter;
 import org.atteo.classindex.ClassIndex;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -26,25 +27,30 @@ class ModuleLoader {
         this.configFactory = configFactory;
     }
 
-    public void load() {
+    public void load() throws IOException {
         List<Class<?>> modules = Lists.newArrayList(ClassFilter.only().from(ClassIndex.getAnnotated(Module.class)));
         List<Class<?>> loadable = Lists.newArrayList();
 
-        Config<LoaderConfig> config = configFactory.create("modules", LoaderConfig.class);
-        config.load();
+        ConfigurationLoader<CommentedConfigurationNode> loader = configFactory.createLoader("modules");
+        CommentedConfigurationNode config = loader.load();
 
-        Map<String, Boolean> enabledMap = config.get().modules;
+        CommentedConfigurationNode enabledNode = config.getNode("modules");
+        enabledNode.setComment("List of modules to auto-load");
+        Map<?, ?> map = enabledNode.getChildrenMap();
 
         for (Class<?> module : modules) {
             Module annotation = module.getAnnotation(Module.class);
+            boolean enabled = annotation.enabled();
 
-            Boolean enabled = enabledMap.get(annotation.name());
+            if (map.containsKey(annotation.name()) || !annotation.hidden()) {
+                CommentedConfigurationNode moduleNode = enabledNode.getNode(annotation.name());
+                moduleNode.setComment(Strings.emptyToNull(annotation.desc()));
 
-            if (enabled == null) {
-                enabled = annotation.enabled();
-                if (!annotation.hidden()) {
-                    enabledMap.put(annotation.name(), enabled);
+                if (map.containsKey(annotation.name())) {
+                    enabled = moduleNode.getBoolean();
                 }
+
+                moduleNode.setValue(enabled);
             }
 
             if (enabled) {
@@ -52,17 +58,12 @@ class ModuleLoader {
             }
         }
 
-        config.save();
+        loader.save(config);
 
         for (Class<?> module : loadable) {
             log.info("Loading " + Modules.getModuleName(module) + "...");
             injector.getInstance(module);
         }
-    }
-
-    private static class LoaderConfig {
-        @Setting(value = "modules", comment = "List of modules to auto-load")
-        private Map<String, Boolean> modules = Maps.newHashMap();
     }
 
 }

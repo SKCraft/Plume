@@ -1,11 +1,11 @@
 package com.skcraft.plume.util;
 
-import net.minecraft.entity.player.EntityPlayer;
+import com.mojang.authlib.GameProfile;
+import com.skcraft.plume.common.UserId;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -14,6 +14,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class Server {
 
     private Server() {
+    }
+
+    public static boolean isOp(UserId userId) {
+        return isOp(new GameProfile(userId.getUuid(), userId.getName()));
+    }
+
+    public static boolean isOp(GameProfile gameProfile) {
+        return MinecraftServer.getServer().getConfigurationManager().func_152596_g(gameProfile);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<EntityPlayerMP> getOnlinePlayers() {
+        return MinecraftServer.getServer().getConfigurationManager().playerEntityList;
     }
 
     @Nullable
@@ -25,7 +38,7 @@ public final class Server {
     @Nullable
     public static EntityPlayerMP findPlayer(UUID uuid) {
         checkNotNull(uuid, "uuid");
-        for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList)
+        for (EntityPlayerMP player : getOnlinePlayers())
             if (player.getGameProfile().getId().equals(uuid))
                 return player;
 

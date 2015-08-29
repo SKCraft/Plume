@@ -11,7 +11,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 
-@Module(name = "teleports")
+@Module(name = "teleports", desc = "Convenience methods for teleporting from and to places")
 public class Teleports {
 
     @Command(aliases = "to", desc = "Teleport to the player specified")
@@ -27,7 +27,7 @@ public class Teleports {
                 sender.addChatMessage(new ChatComponentText(SharedLocale.tr("teleport.playerNotFound", name)));
             }
         } else {
-            sender.addChatMessage(new ChatComponentText(SharedLocale.tr("messages.playerRequired")));
+            sender.addChatMessage(new ChatComponentText(SharedLocale.tr("playerRequired")));
         }
     }
 
@@ -44,7 +44,7 @@ public class Teleports {
                 sender.addChatMessage(new ChatComponentText(SharedLocale.tr("teleport.playerNotFound", name)));
             }
         } else {
-            sender.addChatMessage(new ChatComponentText(SharedLocale.tr("messages.playerRequired")));
+            sender.addChatMessage(new ChatComponentText(SharedLocale.tr("playerRequired")));
         }
     }
 }

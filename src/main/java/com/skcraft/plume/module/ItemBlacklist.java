@@ -17,10 +17,10 @@ import ninja.leaping.configurate.objectmapping.Setting;
 
 import java.util.List;
 
-@Module(name = "item-bans")
-public class ItemBans {
+@Module(name = "item-blacklist", desc = "Simple blacklisting of items")
+public class ItemBlacklist {
 
-    @InjectConfig("item_bans") private Config<ItemBanConfig> config;
+    @InjectConfig("item_blacklist") private Config<ItemBanConfig> config;
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {

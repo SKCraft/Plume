@@ -1,6 +1,6 @@
 package com.skcraft.plume.module.chat;
 
-import com.skcraft.plume.common.util.module.Module;
+import com.skcraft.plume.common.util.module.AutoRegister;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -10,8 +10,9 @@ import net.minecraftforge.event.ServerChatEvent;
 
 import java.util.List;
 
-@Module(name = "chatchannel-listener")
+@AutoRegister
 public class ChatListener {
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPlayerChat(ServerChatEvent e) {
         // Is the sender in a chat channel AND not using the override prefix?
