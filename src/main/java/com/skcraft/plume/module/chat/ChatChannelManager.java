@@ -31,6 +31,7 @@ public class ChatChannelManager {
     }
 
     public void exitCC(EntityPlayerMP player) {
+        channels.get(users.get(Profiles.fromPlayer(player))).remMember(player);
         channels.remove(users.get(Profiles.fromPlayer(player)));
         users.remove(Profiles.fromPlayer(player));
     }

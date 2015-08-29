@@ -42,6 +42,8 @@ public class ChatListener {
             else
                 c = ChatProcessor.chat("§f", "<", "§r", e.player.getDisplayName(), "§f", "> " + e.message);
 
+            MinecraftServer.getServer().logInfo(c.getUnformattedTextForChat());
+
             for (EntityPlayerMP r : online) {
                 if (r.getGameProfile().getId().equals(e.player.getGameProfile().getId())) {
                     r.addChatMessage(c);
