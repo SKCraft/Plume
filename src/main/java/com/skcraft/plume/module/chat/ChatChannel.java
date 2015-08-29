@@ -19,7 +19,7 @@ public class ChatChannel {
     }
 
     public String getName() {
-        return this.name;
+        return this.name.toLowerCase();
     }
 
     public ArrayList<UserId> getMembers() {
