@@ -1,5 +1,93 @@
 # Plume
 
+Plume is a collection of "core" services for running a server and a port of the "Rebar"  plugin that was developed for SKCraft in early MC Beta. It continues Rebar's goals of supporting multiple servers, being performant, asynchronous, and fault-tolerant.
+
+However, Plume is still in development.
+
+## Status
+
+- [x] Module loading
+	- [x] Configuration
+	- [x] Services
+	- [ ] External modules
+- [x] User database
+	- [x] Multiple group inheritance
+	- [x] Whitelist support
+	- [x] /invite
+	- [ ] Management commands (not planned; web UI is preferred)
+- [x] Authorization and permissions
+	- [x] Server-specific permissions
+	- [x] World-specific permissions
+	- [ ] Temporary groups
+	- [ ] Arbitrary context value support
+	- [ ] Host key support
+- [x] Bans
+	- [x] Ban and pardon commands
+	- [ ] Ban lookup (planned but web UI is preferred)
+	- [ ] Broadcast to other servers to notify of new bans
+- [x] User-oriented chunk claiming
+	- [x] Protection
+	- [x] Management commands
+	- [x] Per-chunk claim costs
+	- [ ] Query tools
+	- [ ] Client-side UI
+- [x] Friend lists (parties)
+	- [x] Management commands
+	- [ ] Client side GUI
+- [ ] Block logger (planned to be abandoned in MC 1.9+)
+	- [ ] Logging
+		- [ ] Block break
+		- [ ] Block place
+		- [ ] Bucket empty
+		- [ ] Bucket fill
+		- [ ] Entity damage
+		- [ ] Entity spawn
+		- [ ] Explosion
+		- [ ] Item drop
+		- [ ] Item pickup
+		- [ ] Open container
+		- [ ] Player chat
+		- [ ] Player command
+		- [ ] Player death
+	- [ ] Search
+	- [ ] Rollback
+	- [ ] Replay
+	- [ ] Preview
+	- [ ] Pruning
+- [x] Command blocking
+	- [x] Server console-only commands
+- [ ] Locations
+	- [ ] Warps
+	- [ ] Homes
+- [ ] Cross-server chat
+- [ ] Chat channels
+- [ ] Chat name highlighting
+- [x] Colored player names
+- [x] Item blacklist
+- [x] Mod mode
+- [x] Message of the day
+- [x] Server restart countdown
+- [ ] World border (planned to be abandoned in MC 1.8+)
+- [ ] Profilers
+	- [ ] Tick profiler
+	- [ ] Java profiler
+- [x] Teleport commands
+	- [x] /to
+	- [x] /bring
+	- [ ] /return
+- [ ] Spawn commands
+	- [ ] /spawn
+	- [ ] /setspawn
+- [ ] Status commands
+	- [ ] /heal
+	- [ ] /feed
+	- [ ] /god
+- [ ] Speed commands
+	- [ ] /flight
+	- [ ] /walk
+- [ ] Enderpearl teleporting
+- [ ] BeanShell
+
 ## Development
 
 [JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html) required. [IntelliJ IDEA](https://www.jetbrains.com/idea/) recommended.
@@ -224,3 +312,15 @@ Deferred<?> deferred = Deferreds
 // a "please wait, processing" message gets sent
 executor.notifyOnDelay(deferred, sender);
 ```
+
+## License
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
