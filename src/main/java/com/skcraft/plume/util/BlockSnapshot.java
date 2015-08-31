@@ -53,7 +53,7 @@ public class BlockSnapshot {
 
     public void placeInWorld(WorldVector3i location, boolean applyPhysics) {
         try {
-            World world = Worlds.getWorldFromId(location.getWorldName());
+            World world = Worlds.getWorldFromId(location.getWorldId());
             boolean wasRestoringBlockSnapshots = world.restoringBlockSnapshots;
             world.restoringBlockSnapshots = true;
             try {

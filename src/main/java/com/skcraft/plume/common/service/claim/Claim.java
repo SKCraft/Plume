@@ -34,7 +34,7 @@ public class Claim {
 
     public Claim(String server, WorldVector3i position) {
         this.server = server;
-        this.world = position.getWorldName();
+        this.world = position.getWorldId();
         this.x = position.getX();
         this.z = position.getZ();
     }

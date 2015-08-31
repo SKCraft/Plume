@@ -22,17 +22,17 @@ public final class Vectors {
     }
 
     public static Location3d toCornerLocation3d(WorldVector3i position) throws NoSuchWorldException {
-        World world = Worlds.getWorldFromId(position.getWorldName());
+        World world = Worlds.getWorldFromId(position.getWorldId());
         return new Location3d(world, position.getX(), position.getY(), position.getZ());
     }
 
     public static Location3d toCenteredLocation3d(WorldVector3i position) throws NoSuchWorldException {
-        World world = Worlds.getWorldFromId(position.getWorldName());
+        World world = Worlds.getWorldFromId(position.getWorldId());
         return new Location3d(world, position.getX() + 0.5, position.getY(), position.getZ() + 0.5);
     }
 
     public static Location3i toLocation3i(WorldVector3i position) throws NoSuchWorldException {
-        World world = Worlds.getWorldFromId(position.getWorldName());
+        World world = Worlds.getWorldFromId(position.getWorldId());
         return new Location3i(world, position.getX(), position.getY(), position.getZ());
     }
 

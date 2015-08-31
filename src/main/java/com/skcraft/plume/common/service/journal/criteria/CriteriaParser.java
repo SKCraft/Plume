@@ -180,7 +180,7 @@ public class CriteriaParser {
         Vector min = Vectors.toVector(center).subtract(apothem, apothem, apothem);
         Vector max = Vectors.toVector(center).add(apothem, apothem, apothem);
         builder.setContainedWithin(new CuboidRegion(min, max));
-        builder.setWorldId(center.getWorldName());
+        builder.setWorldId(center.getWorldId());
     }
 
     private void setContainedWithin(Builder builder) throws ParseException {
@@ -189,7 +189,7 @@ public class CriteriaParser {
         }
         builder.setContainedWithin(selection);
         if (center != null) {
-            builder.setWorldId(center.getWorldName());
+            builder.setWorldId(center.getWorldId());
         }
     }
 

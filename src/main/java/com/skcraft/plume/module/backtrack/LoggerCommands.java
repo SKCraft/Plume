@@ -102,8 +102,8 @@ public class LoggerCommands {
                             ChatComponentText text = new ChatComponentText(String.format("(%d) ", page.getAbsoluteIndex(i) + 1));
                             text.getChatStyle().setColor(EnumChatFormatting.GREEN);
 
-                            if (!worldId.equals(record.getLocation().getWorldName())) {
-                                ChatComponentText worldText = new ChatComponentText("(" + record.getLocation().getWorldName() + ") ");
+                            if (!worldId.equals(record.getLocation().getWorldId())) {
+                                ChatComponentText worldText = new ChatComponentText("(" + record.getLocation().getWorldId() + ") ");
                                 worldText.getChatStyle().setColor(EnumChatFormatting.BLUE);
                                 text.appendSibling(worldText);
                             }
@@ -309,7 +309,7 @@ public class LoggerCommands {
     public void details(@Sender EntityPlayerMP sender, @Text String input) throws ActionReadException {
         processSingleRecord(sender, input, (record, action) -> {
             WorldVector3i loc = record.getLocation();
-            sender.addChatMessage(new ChatComponentText(tr("logger.details.location", loc.getX(), loc.getY(), loc.getZ(), loc.getWorldName())));
+            sender.addChatMessage(new ChatComponentText(tr("logger.details.location", loc.getX(), loc.getY(), loc.getZ(), loc.getWorldId())));
             sender.addChatMessage(new ChatComponentText(tr("logger.details.time", LONG_DATA_FORMAT.format(record.getTime()))));
             List<IChatComponent> messages = Lists.newArrayList();
             action.addDetailMessages(record, messages);
@@ -327,7 +327,7 @@ public class LoggerCommands {
                 TeleportHelper.teleport(sender, location);
                 sender.addChatMessage(Messages.info(tr("logger.teleport.teleported", location.getX(), location.getY(), location.getZ(), Worlds.getWorldId(location.getWorld()))));
             } catch (NoSuchWorldException e) {
-                sender.addChatMessage(Messages.error(tr("logger.worldNotLoaded", record.getLocation().getWorldName())));
+                sender.addChatMessage(Messages.error(tr("logger.worldNotLoaded", record.getLocation().getWorldId())));
             }
         });
     }

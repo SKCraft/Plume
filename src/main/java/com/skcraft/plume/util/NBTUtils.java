@@ -65,7 +65,7 @@ public final class NBTUtils {
     }
 
     public static void writeWorldVector3iToNBT(WorldVector3i position, NBTTagCompound tag) {
-        tag.setString("World", position.getWorldName());
+        tag.setString("World", position.getWorldId());
         tag.setInteger("X", position.getX());
         tag.setInteger("Y", position.getY());
         tag.setInteger("Z", position.getZ());

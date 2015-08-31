@@ -251,7 +251,7 @@ public class DatabaseJournal implements Journal {
                 if (record.getUserId() != null) {
                     userIds.add(record.getUserId());
                 }
-                worlds.add(record.getLocation().getWorldName().toLowerCase());
+                worlds.add(record.getLocation().getWorldId().toLowerCase());
             }
 
             // Insert user IDs
@@ -287,7 +287,7 @@ public class DatabaseJournal implements Journal {
                     boolean first = true;
                     for (Record record : partition) {
                         Integer userId = record.getUserId() != null ? resolvedUsers.get(record.getUserId()) : null;
-                        Short worldId = worldIds.get(record.getLocation().getWorldName().toLowerCase());
+                        Short worldId = worldIds.get(record.getLocation().getWorldId().toLowerCase());
                         WorldVector3i location = record.getLocation();
 
                         if (worldId == null) throw new IllegalStateException("World resolution failed for " + record.getLocation());

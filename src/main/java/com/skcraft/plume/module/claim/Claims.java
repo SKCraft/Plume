@@ -170,7 +170,7 @@ public class Claims {
             EntityPlayer player = cause.getFirstPlayer();
             ClaimCache claimCache = Claims.this.claimCache.provide();
             WorldVector3i chunkPosition = input.toWorldVector();
-            chunkPosition = new WorldVector3i(chunkPosition.getWorldName(), chunkPosition.getX() >> 4, 0, chunkPosition.getZ() >> 4);
+            chunkPosition = new WorldVector3i(chunkPosition.getWorldId(), chunkPosition.getX() >> 4, 0, chunkPosition.getZ() >> 4);
             ClaimEntry entry = claimCache.getClaimIfPresent(chunkPosition);
 
             if (entry != null) {
