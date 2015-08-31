@@ -52,7 +52,7 @@ public class Bans {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onAuthenticate(PlayerAuthenticateEvent event) {
         BanManager banManager = this.banManager.provide();
-        List<Ban> bans = banManager.findActiveBans(new UserId(event.getProfile().getId()));
+        List<Ban> bans = banManager.findActiveBans(Profiles.fromProfile(event.getProfile()));
         if(bans != null && !bans.isEmpty()) {
             bans.sort((Ban ban1, Ban ban2) -> ban1.getExpireTime() == null ? 1 : ban2.getExpireTime() == null ? -1 : ban1.getExpireTime().compareTo(ban2.getExpireTime()));
 
