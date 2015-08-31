@@ -2,8 +2,12 @@ package com.skcraft.plume.common.util;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public final class WorldVector3i {
+public final class WorldVector3i implements Serializable {
+
+    private static final long serialVersionUID = 2952075843661465400L;
 
     private final String worldName;
     private final int x;

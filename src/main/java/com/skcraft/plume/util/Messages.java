@@ -6,7 +6,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
 
+import java.util.Collection;
 import java.util.logging.Level;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
@@ -14,12 +16,20 @@ import static com.skcraft.plume.common.util.SharedLocale.tr;
 @Log
 public final class Messages {
 
+    public static final int LINES_PER_PAGE = 10;
+
     private Messages() {
     }
 
     public static void sendMessage(ICommandSender sender, String message) {
         for (String line : message.split("\\r?\\n")) {
             sender.addChatMessage(new ChatComponentText(line));
+        }
+    }
+
+    public static void sendMessages(ICommandSender sender, Collection<IChatComponent> messages) {
+        for (IChatComponent line : messages) {
+            sender.addChatMessage(line);
         }
     }
 
@@ -32,6 +42,12 @@ public final class Messages {
     public static ChatComponentText error(String message) {
         ChatComponentText msg = new ChatComponentText(message);
         msg.getChatStyle().setColor(EnumChatFormatting.RED);
+        return msg;
+    }
+
+    public static ChatComponentText subtle(String message) {
+        ChatComponentText msg = new ChatComponentText(message);
+        msg.getChatStyle().setColor(EnumChatFormatting.GRAY);
         return msg;
     }
 
@@ -50,4 +66,5 @@ public final class Messages {
             }
         }
     }
+
 }

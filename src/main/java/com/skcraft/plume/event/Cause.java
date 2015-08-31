@@ -2,6 +2,8 @@ package com.skcraft.plume.event;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
+import com.skcraft.plume.common.UserId;
+import com.skcraft.plume.util.profile.Profiles;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.passive.EntityAnimal;
@@ -85,6 +87,17 @@ public final class Cause {
     public Object getRootCause() {
         if (!causes.isEmpty()) {
             return causes.get(0);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public UserId getFirstUserId() {
+        for (Object object : causes) {
+            if (object instanceof UserId) {
+                return (UserId) object;
+            }
         }
 
         return null;
@@ -176,7 +189,9 @@ public final class Cause {
 
                     seen.add(o);
 
-                    if (o instanceof EntityTNTPrimed) {
+                    if (o instanceof EntityPlayer) {
+                        addAll(Profiles.fromPlayer((EntityPlayer) o));
+                    } else if (o instanceof EntityTNTPrimed) {
                         addAll(((EntityTNTPrimed) o).getTntPlacedBy());
                     } else if (o instanceof EntityArrow) {
                         addAll(((EntityArrow) o).shootingEntity);

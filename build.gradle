@@ -55,6 +55,7 @@ dependencies {
     compile 'ninja.leaping.configurate:configurate-hocon:2.0'
     compile 'com.sk89q.intake:intake:4.1-SNAPSHOT'
     compile 'com.sk89q:squirrelid:0.1.0'
+    compile 'joda-time:joda-time:2.8.2'
     compile 'li.cil.oc:OpenComputers:MC1.7.10-1.5.15.720-dev:api'
     runtime 'mysql:mysql-connector-java:5.1.36'
 

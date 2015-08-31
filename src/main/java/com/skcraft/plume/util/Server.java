@@ -1,9 +1,11 @@
 package com.skcraft.plume.util;
 
+import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.skcraft.plume.common.UserId;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -27,6 +29,20 @@ public final class Server {
     @SuppressWarnings("unchecked")
     public static List<EntityPlayerMP> getOnlinePlayers() {
         return MinecraftServer.getServer().getConfigurationManager().playerEntityList;
+    }
+
+    public static List<EntityPlayerMP> getNearbyPlayers(World world, double x, double y, double z, int radius) {
+        List<EntityPlayerMP> players = Lists.newArrayList();
+        int radiusSq = radius * radius;
+        for (EntityPlayerMP player : getOnlinePlayers()) {
+            double xd = x - player.posX;
+            double yd = y - player.posY;
+            double zd = z - player.posZ;
+            if (player.worldObj == world && xd * xd + yd * yd + zd * zd < radiusSq) {
+                players.add(player);
+            }
+        }
+        return players;
     }
 
     @Nullable

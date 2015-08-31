@@ -7,14 +7,16 @@ import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.service.journal.*;
 import com.skcraft.plume.common.service.journal.Record;
+import com.skcraft.plume.common.service.journal.criteria.Criteria;
 import com.skcraft.plume.common.service.sql.model.log.tables.records.LogWorldRecord;
-import com.skcraft.plume.common.util.Order;
-import com.skcraft.plume.common.util.WorldVector3i;
+import com.skcraft.plume.common.util.*;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import org.jooq.*;
+import org.jooq.Cursor;
 import org.jooq.impl.DSL;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
@@ -32,19 +34,15 @@ public class DatabaseJournal implements Journal {
     private static final int UPDATE_BATCH_SIZE = 100;
     private ConcurrentMap<String, Short> worldIds = Maps.newConcurrentMap();
     @Getter private final DatabaseManager database;
-    @Getter private final ActionMap actionMap;
 
     /**
      * Create a new instance.
      *
      * @param database The database
-     * @param actionMap The action map
      */
-    public DatabaseJournal(DatabaseManager database, ActionMap actionMap) {
+    public DatabaseJournal(DatabaseManager database) {
         checkNotNull(database, "database");
-        checkNotNull(actionMap, "actionMap");
         this.database = database;
-        this.actionMap = actionMap;
     }
 
     @Override
@@ -110,12 +108,12 @@ public class DatabaseJournal implements Journal {
      * @return The final condition
      */
     private Condition buildCondition(Criteria criteria, Condition condition) {
-        String world = criteria.getWorldName();
+        String world = criteria.getWorldId();
         if (world != null) {
             condition = condition.and(LOG_WORLD.NAME.eq(world));
         }
 
-        Region region = criteria.getContainedWith();
+        Region region = criteria.getContainedWithin();
         if (region != null) {
             Vector min = region.getMinimumPoint();
             Vector max = region.getMaximumPoint();
@@ -142,46 +140,91 @@ public class DatabaseJournal implements Journal {
             condition = condition.and(USER_ID.UUID.eq(userId.getUuid().toString()));
         }
 
+        List<Short> actions = criteria.getActions();
+        if (actions != null) {
+            condition = condition.and(LOG.ACTION.in(actions));
+        }
+
+        List<Short> excludeActions = criteria.getExcludeActions();
+        if (excludeActions != null) {
+            condition = condition.and(LOG.ACTION.notIn(excludeActions));
+        }
+
         return condition;
     }
 
+    private Record mapJooqRecord(org.jooq.Record result) {
+        if (result == null) {
+            return null;
+        }
+        Record record = new Record();
+        record.setId(result.getValue(LOG.ID));
+        record.setLocation(new WorldVector3i(result.getValue(LOG_WORLD.NAME), result.getValue(LOG.X), result.getValue(LOG.Y), result.getValue(LOG.Z)));
+        record.setTime(result.getValue(LOG.TIME));
+        record.setUserId(database.getUserIdCache().fromRecord(result, USER_ID));
+        record.setAction(result.getValue(LOG.ACTION));
+        record.setData(result.getValue(LOG.DATA));
+        return record;
+    }
+
+    public Cursor<org.jooq.Record> getRecordsCursor(Criteria criteria, Order order, int limit) {
+        checkNotNull(criteria, "criteria");
+        checkNotNull(order, "order");
+
+        try {
+            DSLContext create = database.create();
+
+            Condition condition = buildCondition(criteria, LOG.WORLD_ID.eq(LOG_WORLD.ID));
+
+            SelectLimitStep<org.jooq.Record> query = create.select(LOG.fields())
+                    .select(LOG_WORLD.fields())
+                    .select(USER_ID.fields())
+                    .from(LOG)
+                    .crossJoin(LOG_WORLD)
+                    .leftOuterJoin(USER_ID).on(LOG.USER_ID.eq(USER_ID.ID))
+                    .where(condition)
+                    .orderBy(order == Order.ASC ? LOG.ID.asc() : LOG.ID.desc());
+
+            Cursor<org.jooq.Record> cursor;
+
+            if (limit > 1) {
+                cursor = query.limit(limit).fetchLazy();
+            } else {
+                cursor = query.fetchLazy();
+            }
+
+            return cursor;
+        } catch (org.jooq.exception.DataAccessException e) {
+            throw new DataAccessException("Failed to retrieve records", e);
+        }
+    }
+
     @Override
-    public List<Record> queryRecords(Criteria criteria, Order order, int limit) {
+    public com.skcraft.plume.common.util.Cursor<Record> findRecords(Criteria criteria, Order order) {
+        checkNotNull(criteria, "criteria");
+        checkNotNull(order, "order");
+
+        try {
+            return new RecordCursor(getRecordsCursor(criteria, order, -1));
+        } catch (org.jooq.exception.DataAccessException e) {
+            throw new DataAccessException("Failed to retrieve records", e);
+        }
+    }
+
+    @Override
+    public List<Record> findRecords(Criteria criteria, Order order, int limit) {
         checkNotNull(criteria, "criteria");
         checkNotNull(order, "order");
         checkArgument(limit >= 1, "limit >= 1");
 
         try {
-            DSLContext create = database.create();
-
-            Condition condition = buildCondition(criteria, LOG.WORLD_ID.eq(LOG_WORLD.ID).and(LOG.USER_ID.eq(USER_ID.ID)));
-
             List<Record> records = Lists.newArrayList();
 
-            Cursor<org.jooq.Record> cursor = create.select(LOG.fields())
-                    .select(LOG_WORLD.fields())
-                    .select(USER_ID.fields())
-                    .from(LOG)
-                    .crossJoin(LOG_WORLD)
-                    .crossJoin(USER_ID)
-                    .where(condition)
-                    .orderBy(order == Order.ASC ? LOG.ID.asc() : LOG.ID.desc())
-                    .limit(limit)
-                    .fetchLazy();
+            Cursor<org.jooq.Record> cursor = getRecordsCursor(criteria, order, limit);
 
             try {
                 while (cursor.hasNext()) {
-                    org.jooq.Record result = cursor.fetchOne();
-                    Action action = actionMap.parse(result.getValue(LOG.ACTION), result.getValue(LOG.DATA));
-                    if (action != null) {
-                        Record record = new Record();
-                        record.setId(result.getValue(LOG.ID));
-                        record.setLocation(new WorldVector3i(result.getValue(LOG_WORLD.NAME), result.getValue(LOG.X), result.getValue(LOG.Y), result.getValue(LOG.Z)));
-                        record.setTime(result.getValue(LOG.TIME));
-                        record.setUserId(database.getUserIdCache().fromRecord(result, USER_ID));
-                        record.setAction(action);
-                        records.add(record);
-                    } // TODO: Do something about actions that fail?
+                    records.add(mapJooqRecord(cursor.fetchOne()));
                 }
 
                 return records;
@@ -205,7 +248,9 @@ public class DatabaseJournal implements Journal {
 
             // Collect user IDs and world IDs for separate insertion
             for (Record record : records) {
-                userIds.add(record.getUserId());
+                if (record.getUserId() != null) {
+                    userIds.add(record.getUserId());
+                }
                 worlds.add(record.getLocation().getWorldName().toLowerCase());
             }
 
@@ -232,7 +277,7 @@ public class DatabaseJournal implements Journal {
                     builder.append(ctx.render(LOG.TIME)).append(", ");
                     builder.append(ctx.render(LOG.USER_ID)).append(", ");
                     builder.append(ctx.render(LOG.WORLD_ID)).append(", ");
-                    builder.append(ctx.render(LOG.Z)).append(", ");
+                    builder.append(ctx.render(LOG.X)).append(", ");
                     builder.append(ctx.render(LOG.Y)).append(", ");
                     builder.append(ctx.render(LOG.Z)).append(", ");
                     builder.append(ctx.render(LOG.ACTION)).append(", ");
@@ -241,34 +286,27 @@ public class DatabaseJournal implements Journal {
 
                     boolean first = true;
                     for (Record record : partition) {
-                        Integer userId = resolvedUsers.get(record.getUserId());
+                        Integer userId = record.getUserId() != null ? resolvedUsers.get(record.getUserId()) : null;
                         Short worldId = worldIds.get(record.getLocation().getWorldName().toLowerCase());
                         WorldVector3i location = record.getLocation();
-                        Action action = record.getAction();
-                        Short actionId = actionMap.getId(action);
 
-                        if (userId == null) throw new IllegalStateException("User ID resolution failed for " + record.getUserId());
                         if (worldId == null) throw new IllegalStateException("World resolution failed for " + record.getLocation());
 
-                        if (actionId != null) {
-                            if (first) {
-                                first = false;
-                            } else {
-                                builder.append(", ");
-                            }
-                            builder.append("(?, ?, ?, ?, ?, ?, ?, ?)");
-
-                            values.add(record.getTime());
-                            values.add(userId);
-                            values.add(worldId);
-                            values.add(location.getX());
-                            values.add((short) location.getY());
-                            values.add(location.getZ());
-                            values.add(actionId);
-                            values.add(action.writeData());
+                        if (first) {
+                            first = false;
                         } else {
-                            log.warning("Don't know how to store the action " + action.getClass().getName());
+                            builder.append(", ");
                         }
+                        builder.append("(?, ?, ?, ?, ?, ?, ?, ?)");
+
+                        values.add(new Timestamp(record.getTime().getTime()));
+                        values.add(userId);
+                        values.add(worldId);
+                        values.add(location.getX());
+                        values.add((short) location.getY());
+                        values.add(location.getZ());
+                        values.add(record.getAction());
+                        values.add(record.getData());
                     }
 
                     create.execute(builder.toString(), values.toArray(new Object[values.size()]));
@@ -279,4 +317,26 @@ public class DatabaseJournal implements Journal {
         }
     }
 
+    private class RecordCursor implements com.skcraft.plume.common.util.Cursor<Record> {
+        private final Cursor<org.jooq.Record> cursor;
+
+        public RecordCursor(Cursor<org.jooq.Record> cursor) {
+            this.cursor = cursor;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return cursor.hasNext();
+        }
+
+        @Override
+        public Record next() {
+            return mapJooqRecord(cursor.fetchOne());
+        }
+
+        @Override
+        public void close() throws IOException {
+            cursor.close();
+        }
+    }
 }

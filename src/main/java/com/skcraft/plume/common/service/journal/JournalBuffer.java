@@ -2,12 +2,13 @@ package com.skcraft.plume.common.service.journal;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
-import org.mapdb.DB;
 import org.mapdb.DBMaker;
+import org.mapdb.TxMaker;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -21,8 +22,8 @@ public class JournalBuffer {
 
     @Getter
     private final Journal journal;
-    private final DB db;
-    private final BlockingQueue<Record> queue;
+    private final TxMaker dbTxMaker;
+    private final BlockingDeque<Record> queue = new LinkedBlockingDeque<>();
     private final RecordSaveWorker worker;
 
     /**
@@ -38,15 +39,14 @@ public class JournalBuffer {
 
         this.journal = journal;
 
-        db = DBMaker.fileDB(file)
+        dbTxMaker = DBMaker.fileDB(file)
                 .fileChannelEnable()
                 .asyncWriteEnable()
                 .executorEnable()
                 .closeOnJvmShutdown()
-                .make();
-        queue = db.getCircularQueue("entries");
+                .makeTxMaker();
 
-        this.worker = new RecordSaveWorker(journal, queue);
+        this.worker = new RecordSaveWorker(journal, queue, dbTxMaker);
 
         Thread thread = new Thread(worker);
         thread.setName("Plume Journal Buffer");
@@ -60,9 +60,8 @@ public class JournalBuffer {
      */
     public void shutdown() {
         worker.shutdown();
-        log.info("Shutting down journal buffer worker with approximately " + queue.size() + " uncommitted records");
-        db.commit();
-        db.close();
+        log.info("Shutting down journal buffer worker...");
+        dbTxMaker.close();
     }
 
     /**
