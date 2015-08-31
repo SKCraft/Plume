@@ -14,7 +14,7 @@ public class ServiceLocator {
     private final ConcurrentMap<Class<?>, Object> providers = Maps.newConcurrentMap();
 
     @SuppressWarnings("unchecked")
-    public <T> void register(Class<?> service, T implementation) {
+    public <T> void register(Class<T> service, T implementation) {
         checkNotNull(service, "service");
         checkNotNull(implementation, "implementation");
         T previous;
