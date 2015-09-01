@@ -32,6 +32,8 @@ public class MySQLPool {
                 hikariConfig.setJdbcUrl(config.get().url);
                 hikariConfig.setUsername(config.get().username);
                 hikariConfig.setPassword(config.get().password);
+                hikariConfig.addDataSourceProperty("characterEncoding", "utf8");
+                hikariConfig.addDataSourceProperty("useUnicode", "true");
                 hikariConfig.addDataSourceProperty("serverTimezone", "UTC");
                 hikariConfig.addDataSourceProperty("useLegacyDatetimeCode", "false");
                 DataSource dataSource = new HikariDataSource(hikariConfig);
