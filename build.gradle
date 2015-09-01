@@ -37,28 +37,33 @@ repositories {
 }
 
 dependencies {
-    compile 'com.google.guava:guava:18.0'
-    compile 'com.google.code.findbugs:jsr305:3.0.0'
-    compile 'com.google.inject:guice:4.0'
-    compile 'org.javatuples:javatuples:1.2'
-    compile "org.atteo.classindex:classindex:3.3"
-    compile 'org.projectlombok:lombok:1.12.2'
-    compile 'com.github.rholder:guava-retrying:2.0.0'
-    compile 'org.mapdb:mapdb:2.0-beta5'
-    compile 'net.sf.trove4j:trove4j:3.0.3'
-    compile 'org.jooq:jooq:3.6.2'
-    compile 'org.modelmapper:modelmapper:0.7.4'
-    compile 'org.modelmapper.extensions:modelmapper-jooq:0.7.4'
-    compile 'com.zaxxer:HikariCP:2.4.0'
-    compile 'com.googlecode.json-simple:json-simple:1.1.1'
-    compile 'com.sk89q.worldedit:worldedit-forge-mc1.7.10:6.1.1-SNAPSHOT:dev'
+    // Core libraries
+    compile 'com.google.guava:guava:18.0' // Library of assorted things
+    compile 'com.google.code.findbugs:jsr305:3.0.0' // @Nullable
+    compile 'com.google.inject:guice:4.0' // Dependency injection
+    compile 'org.javatuples:javatuples:1.2' // Tuples (2+)
+    compile "org.atteo.classindex:classindex:3.3" // Builds index of classes with selected @Annotations
+    compile 'org.projectlombok:lombok:1.12.2' // @Getter @Setter etc.
+    compile 'org.mapdb:mapdb:2.0-beta5' // Used to persist the block logger queue on save failure
+    compile 'net.sf.trove4j:trove4j:3.0.3' // Collections, notably used for chunk claims
     compile 'ninja.leaping.configurate:configurate-hocon:2.0'
-    compile 'com.sk89q.intake:intake:4.1-SNAPSHOT'
-    compile 'com.sk89q:squirrelid:0.1.0'
-    compile 'joda-time:joda-time:2.8.2'
-    compile 'li.cil.oc:OpenComputers:MC1.7.10-1.5.15.720-dev:api'
-    runtime 'mysql:mysql-connector-java:5.1.36'
+    compile 'com.sk89q.intake:intake:4.1-SNAPSHOT' // Command registration library
+    compile 'com.sk89q:squirrelid:0.1.0' // Mojang name -> UUID
+    compile 'joda-time:joda-time:2.8.2' // Time library; used for period matcher not found in Java 8+
+    compile 'com.googlecode.json-simple:json-simple:1.1.1' // JSON parsing and emitting
 
+    // SQL and JDBC
+    compile 'org.jooq:jooq:3.6.2' // SQL DSL
+    compile 'org.modelmapper:modelmapper:0.7.4' // Used to map jOOQ records -> objects
+    compile 'org.modelmapper.extensions:modelmapper-jooq:0.7.4'
+    compile 'com.zaxxer:HikariCP:2.4.0' // JDBC connection pool
+    runtime 'mysql:mysql-connector-java:5.1.36' // MySQL driver
+
+    // Mods
+    compile 'com.sk89q.worldedit:worldedit-forge-mc1.7.10:6.1.1-SNAPSHOT:dev' // Selection API
+    compile 'li.cil.oc:OpenComputers:MC1.7.10-1.5.15.720-dev:api' // Robot hooks
+
+    // Tests
     testCompile('junit:junit:4.12') {
         exclude module: 'hamcrest'
         exclude module: 'hamcrest-core'

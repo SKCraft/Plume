@@ -31,7 +31,7 @@ class DeferredImpl<I> implements Deferred<I> {
 
     @Override
     public <O> Deferred<O> thenRun(final Callable<O> task, ListeningExecutorService executor) {
-        return new DeferredImpl<>(Futures.transformAsync(future, input -> Futures.immediateFuture(task.call()), executor), defaultExecutor);
+        return new DeferredImpl<>(Futures.transform(future,  (AsyncFunction<I, O>) input -> Futures.immediateFuture(task.call()), executor), defaultExecutor);
     }
 
     @Override
@@ -57,7 +57,7 @@ class DeferredImpl<I> implements Deferred<I> {
 
     @Override
     public Deferred<Void> then(Callback<I> task, ListeningExecutorService executor) {
-        return new DeferredImpl<>(Futures.transformAsync(future, input -> {
+        return new DeferredImpl<>(Futures.transform(future, (AsyncFunction<I, Void>) input -> {
             task.handle(input);
             return Futures.immediateFuture(null);
         }, executor), defaultExecutor);
@@ -83,7 +83,7 @@ class DeferredImpl<I> implements Deferred<I> {
 
     @Override
     public <O> Deferred<O> filter(Filter<I, O> function, ListeningExecutorService executor) {
-        return new DeferredImpl<O>(Futures.transformAsync(future, input -> Futures.immediateFuture(function.apply(input)), executor), defaultExecutor);
+        return new DeferredImpl<O>(Futures.transform(future, (AsyncFunction<I, O>) input -> Futures.immediateFuture(function.apply(input)), executor), defaultExecutor);
     }
 
     @Override
