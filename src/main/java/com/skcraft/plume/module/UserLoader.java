@@ -1,5 +1,6 @@
 package com.skcraft.plume.module;
 
+import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
@@ -37,42 +38,50 @@ public class UserLoader {
     private final Map<UserId, User> online = Maps.newHashMap();
 
     @InjectConfig("users") private Config<UsersConfig> config;
-    @InjectService private Service<UserCache> userCache;
+    @InjectService(required = false) private Service<UserCache> userCache;
     @Inject private Environment environment;
 
     @SubscribeEvent
     public void onAuthenticate(PlayerAuthenticateEvent event) {
-        UserCache userCache = this.userCache.provide();
-        Date now = new Date();
-        UserId userId = Profiles.fromProfile(event.getProfile());
-        User user = userCache.load(userId);
+        Optional<UserCache> optional = this.userCache.get();
 
-        if (user != null) {
-            // Keep a strong reference so the user cache keeps the object long enough
-            // for us to reach PlayerLoggedInEvent
-            expireCache.put(user, true);
+        if (optional.isPresent()) {
+            UserCache userCache = optional.get();
+            Date now = new Date();
+            UserId userId = Profiles.fromProfile(event.getProfile());
+            User user = userCache.load(userId);
 
-            if (user.getSubject().hasPermission("whitelist", environment.update(new Context.Builder()).build())) {
-                user.setLastOnline(now);
-                userCache.getHive().saveUser(user, false);
+            if (user != null) {
+                // Keep a strong reference so the user cache keeps the object long enough
+                // for us to reach PlayerLoggedInEvent
+                expireCache.put(user, true);
+
+                if (user.getSubject().hasPermission("whitelist", environment.update(new Context.Builder()).build())) {
+                    user.setLastOnline(now);
+                    userCache.getHive().saveUser(user, false);
+                } else {
+                    event.getNetHandler().func_147322_a(config.get().notWhitelistedMessage);
+                }
             } else {
-                event.getNetHandler().func_147322_a(config.get().notWhitelistedMessage);
+                // TODO: Allow user creation via config
+                event.getNetHandler().func_147322_a(config.get().noUserMessage);
             }
-        } else {
-            // TODO: Allow user creation via config
-            event.getNetHandler().func_147322_a(config.get().noUserMessage);
         }
     }
 
     @SubscribeEvent
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        UserCache userCache = this.userCache.provide();
-        UserId userId = Profiles.fromPlayer(event.player);
-        User user = userCache.getIfPresent(userId);
-        if (user != null) {
-            online.put(userId, user);
-        } else if (!config.get().allowLoginWithoutLoadedUser) {
-            Server.kick((EntityPlayerMP) event.player, tr("users.profileNotLoaded"));
+        Optional<UserCache> optional = this.userCache.get();
+
+        if (optional.isPresent()) {
+            UserCache userCache = optional.get();
+            UserId userId = Profiles.fromPlayer(event.player);
+            User user = userCache.getIfPresent(userId);
+            if (user != null) {
+                online.put(userId, user);
+            } else if (!config.get().allowLoginWithoutLoadedUser) {
+                Server.kick((EntityPlayerMP) event.player, tr("users.profileNotLoaded"));
+            }
         }
     }
 
