@@ -33,7 +33,7 @@ public class Status {
     @Require("plume.status.heal")
     public void heal(@Sender ICommandSender sender, @Optional EntityPlayerMP target, @Switch('a') Integer amount) {
         if (!(sender instanceof EntityPlayerMP) && target == null) {
-            System.out.println("nope..");
+            sender.addChatMessage(Messages.error(tr("playerRequired")));
             return;
         }
 
@@ -48,7 +48,7 @@ public class Status {
     @Require("plume.status.feed")
     public void feed(@Sender ICommandSender sender, @Optional EntityPlayerMP target, @Switch('a') Integer amount) {
         if (!(sender instanceof EntityPlayerMP) && target == null) {
-            System.out.println("nope..");
+            sender.addChatMessage(Messages.error(tr("playerRequired")));
             return;
         }
 
@@ -63,15 +63,17 @@ public class Status {
     @Require("plume.status.god")
     public void god(@Sender ICommandSender sender, @Optional EntityPlayerMP target) {
         if (!(sender instanceof EntityPlayerMP) && target == null) {
-            System.out.println("nope..");
+            sender.addChatMessage(Messages.error(tr("playerRequired")));
             return;
         }
 
-        if (!gods.contains(target.getUniqueID())) {
-            gods.add(target.getUniqueID());
-            sender.addChatMessage(Messages.info(tr("status.god.on", target.getDisplayName())));
+        EntityPlayerMP player = target != null ? target : (EntityPlayerMP) sender;
+
+        if (!gods.contains(player.getUniqueID())) {
+            gods.add(player.getUniqueID());
+            sender.addChatMessage(Messages.info(tr("status.god.on", player.getDisplayName())));
         } else {
-            sender.addChatMessage(Messages.error(tr("status.god.already", target.getDisplayName())));
+            sender.addChatMessage(Messages.error(tr("status.god.already", player.getDisplayName())));
         }
     }
 
@@ -79,15 +81,17 @@ public class Status {
     @Require("plume.status.god")
     public void ungod(@Sender ICommandSender sender, @Optional EntityPlayerMP target) {
         if (!(sender instanceof EntityPlayerMP) && target == null) {
-            System.out.println("nope..");
+            sender.addChatMessage(Messages.error(tr("playerRequired")));
             return;
         }
 
-        if (gods.contains(target.getUniqueID())) {
-            gods.remove(target.getUniqueID());
-            sender.addChatMessage(Messages.info(tr("status.god.off", target.getDisplayName())));
+        EntityPlayerMP player = target != null ? target : (EntityPlayerMP) sender;
+
+        if (gods.contains(player.getUniqueID())) {
+            gods.remove(player.getUniqueID());
+            sender.addChatMessage(Messages.info(tr("status.god.off", player.getDisplayName())));
         } else {
-            sender.addChatMessage(Messages.error(tr("status.god.not", target.getDisplayName())));
+            sender.addChatMessage(Messages.error(tr("status.god.not", player.getDisplayName())));
         }
     }
 
