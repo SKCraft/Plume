@@ -51,7 +51,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
-import org.javatuples.Pair;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -149,9 +148,7 @@ public class LoggerCommands {
                             List<Record> data = results.getData();
                             int index = id - 1;
                             if (index >= 0 && index < data.size()) {
-                                Record record = data.get(index);
-                                Action action = actionMap.readRecord(record);
-                                return new Pair<>(record, action);
+                                return data.get(index);
                             } else {
                                 throw new CommandException(tr("logger.noSuchRecord", id));
                             }
@@ -164,13 +161,12 @@ public class LoggerCommands {
                         if (records.isEmpty()) {
                             throw new CommandException(tr("logger.noResults", input.trim()));
                         }
-                        Record record = records.get(0);
-                        Action action = actionMap.readRecord(record);
-                        return new Pair<>(record, action);
+                        return records.get(0);
                     }
                 }, backgroundExecutor.getExecutor())
-                .done(pair -> {
-                    callable.accept(pair.getValue0(), pair.getValue1());
+                .done(record -> {
+                    Action action = actionMap.readRecord(record);
+                    callable.accept(record, action);
                 }, tickExecutor)
                 .fail(e -> {
                     if (e instanceof CommandException) {
