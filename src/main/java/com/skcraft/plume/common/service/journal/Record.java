@@ -4,7 +4,9 @@ import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.util.WorldVector3i;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -12,29 +14,19 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(of = "id")
-public class Record {
+@ToString(exclude = "data")
+public class Record implements Serializable {
+
+    private static final long serialVersionUID = -4088435914925644178L;
 
     private int id;
     private UserId userId;
     private WorldVector3i location;
-    private Action action;
+    private short action;
+    private byte[] data;
     private Date time = new Date();
 
     public Record() {
     }
 
-    public Record(int id, UserId userId, WorldVector3i location, Action action) {
-        this.id = id;
-        this.userId = userId;
-        this.location = location;
-        this.action = action;
-    }
-
-    public Record(int id, UserId userId, WorldVector3i location, Action action, Date time) {
-        this.id = id;
-        this.userId = userId;
-        this.location = location;
-        this.action = action;
-        this.time = time;
-    }
 }

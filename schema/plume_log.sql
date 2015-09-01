@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `log` (
   `y` smallint(5) unsigned NOT NULL,
   `z` int(11) NOT NULL,
   `action` smallint(5) unsigned NOT NULL,
-  `data` text NOT NULL,
+  `data` BLOB NULL,
   PRIMARY KEY (`id`),
   KEY `world_id_x_y_z` (`world_id`,`x`,`y`,`z`),
   KEY `user_id` (`user_id`),

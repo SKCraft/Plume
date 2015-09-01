@@ -39,7 +39,7 @@ public class DatabaseClaimsTest {
         Claim claim = claims.findClaimByPosition(SK_OWNED);
         assertThat(claim, notNullValue());
         assertThat(claim.getServer(), equalTo(MockDatabase.MOCK_SERVER));
-        assertThat(claim.getWorld(), equalTo(SK_OWNED.getWorldName()));
+        assertThat(claim.getWorld(), equalTo(SK_OWNED.getWorldId()));
         assertThat(claim.getOwner().getUuid(), equalTo(MockDatabase.SK_USER.getUuid()));
         assertThat(claim.getOwner().getName(), equalTo(MockDatabase.SK_USER.getName()));
         assertThat(claim.getParty(), equalTo("friends"));
@@ -52,7 +52,7 @@ public class DatabaseClaimsTest {
         Claim claim = claims.findClaimByPosition(SK_OWNED2);
         assertThat(claim, notNullValue());
         assertThat(claim.getServer(), equalTo(MockDatabase.MOCK_SERVER));
-        assertThat(claim.getWorld(), equalTo(SK_OWNED2.getWorldName()));
+        assertThat(claim.getWorld(), equalTo(SK_OWNED2.getWorldId()));
         assertThat(claim.getOwner().getUuid(), equalTo(MockDatabase.SK_USER.getUuid()));
         assertThat(claim.getOwner().getName(), equalTo(MockDatabase.SK_USER.getName()));
         assertThat(claim.getParty(), nullValue());
@@ -65,7 +65,7 @@ public class DatabaseClaimsTest {
         Claim claim = claims.findClaimByPosition(VINCENT_OWNED);
         assertThat(claim, notNullValue());
         assertThat(claim.getServer(), equalTo(MockDatabase.MOCK_SERVER));
-        assertThat(claim.getWorld(), equalTo(VINCENT_OWNED.getWorldName()));
+        assertThat(claim.getWorld(), equalTo(VINCENT_OWNED.getWorldId()));
         assertThat(claim.getOwner().getUuid(), equalTo(MockDatabase.VINCENT_USER.getUuid()));
         assertThat(claim.getOwner().getName(), equalTo(MockDatabase.VINCENT_USER.getName()));
         assertThat(claim.getParty(), equalTo("guests"));
@@ -78,7 +78,7 @@ public class DatabaseClaimsTest {
         Claim claim = claims.findClaimByPosition(VINCENT_OWNED2);
         assertThat(claim, notNullValue());
         assertThat(claim.getServer(), equalTo(MockDatabase.MOCK_SERVER));
-        assertThat(claim.getWorld(), equalTo(VINCENT_OWNED2.getWorldName()));
+        assertThat(claim.getWorld(), equalTo(VINCENT_OWNED2.getWorldId()));
         assertThat(claim.getOwner().getUuid(), equalTo(MockDatabase.VINCENT_USER.getUuid()));
         assertThat(claim.getOwner().getName(), equalTo(MockDatabase.VINCENT_USER.getName()));
         assertThat(claim.getParty(), equalTo("friends"));
@@ -135,7 +135,7 @@ public class DatabaseClaimsTest {
         claim = claims.findClaimByPosition(SK_OWNED);
         assertThat(claim, notNullValue());
         assertThat(claim.getServer(), equalTo(MockDatabase.MOCK_SERVER));
-        assertThat(claim.getWorld(), equalTo(SK_OWNED.getWorldName()));
+        assertThat(claim.getWorld(), equalTo(SK_OWNED.getWorldId()));
         assertThat(claim.getOwner().getUuid(), equalTo(MockDatabase.VINCENT_USER.getUuid()));
         assertThat(claim.getOwner().getName(), equalTo(MockDatabase.VINCENT_USER.getName()));
         assertThat(claim.getParty(), equalTo("guests"));
@@ -145,7 +145,7 @@ public class DatabaseClaimsTest {
         claim = claims.findClaimByPosition(SK_OWNED2);
         assertThat(claim, notNullValue());
         assertThat(claim.getServer(), equalTo(MockDatabase.MOCK_SERVER));
-        assertThat(claim.getWorld(), equalTo(SK_OWNED2.getWorldName()));
+        assertThat(claim.getWorld(), equalTo(SK_OWNED2.getWorldId()));
         assertThat(claim.getOwner().getUuid(), equalTo(MockDatabase.VINCENT_USER.getUuid()));
         assertThat(claim.getOwner().getName(), equalTo(MockDatabase.VINCENT_USER.getName()));
         assertThat(claim.getParty(), equalTo("guests"));
@@ -173,7 +173,7 @@ public class DatabaseClaimsTest {
         claim = claims.findClaimByPosition(VINCENT_OWNED);
         assertThat(claim, notNullValue());
         assertThat(claim.getServer(), equalTo(MockDatabase.MOCK_SERVER));
-        assertThat(claim.getWorld(), equalTo(VINCENT_OWNED.getWorldName()));
+        assertThat(claim.getWorld(), equalTo(VINCENT_OWNED.getWorldId()));
         assertThat(claim.getOwner().getUuid(), equalTo(MockDatabase.VINCENT_USER.getUuid()));
         assertThat(claim.getOwner().getName(), equalTo(MockDatabase.VINCENT_USER.getName()));
         assertThat(claim.getParty(), equalTo("guests"));
@@ -185,7 +185,7 @@ public class DatabaseClaimsTest {
         claim = claims.findClaimByPosition(UNOWNED);
         assertThat(claim, notNullValue());
         assertThat(claim.getServer(), equalTo(MockDatabase.MOCK_SERVER));
-        assertThat(claim.getWorld(), equalTo(UNOWNED.getWorldName()));
+        assertThat(claim.getWorld(), equalTo(UNOWNED.getWorldId()));
         assertThat(claim.getOwner().getUuid(), equalTo(MockDatabase.VINCENT_USER.getUuid()));
         assertThat(claim.getOwner().getName(), equalTo(MockDatabase.VINCENT_USER.getName()));
         assertThat(claim.getParty(), equalTo("guests"));
@@ -211,7 +211,7 @@ public class DatabaseClaimsTest {
         claim = claims.findClaimByPosition(UNOWNED);
         assertThat(claim, notNullValue());
         assertThat(claim.getServer(), equalTo(MockDatabase.MOCK_SERVER));
-        assertThat(claim.getWorld(), equalTo(UNOWNED.getWorldName()));
+        assertThat(claim.getWorld(), equalTo(UNOWNED.getWorldId()));
         assertThat(claim.getOwner().getUuid(), equalTo(MockDatabase.VINCENT_USER.getUuid()));
         assertThat(claim.getOwner().getName(), equalTo(MockDatabase.VINCENT_USER.getName()));
         assertThat(claim.getParty(), equalTo("guests"));

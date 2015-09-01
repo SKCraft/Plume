@@ -52,7 +52,7 @@ public class DatabaseClaims implements ClaimMap {
             // Collect Row3s (world, x, z) that will be used in the jOOQ query
             List<Row3<String, Integer, Integer>> coordRows = Lists.newArrayList();
             for (WorldVector3i position : positions) {
-                coordRows.add(row(position.getWorldName(), position.getX(), position.getZ()));
+                coordRows.add(row(position.getWorldId(), position.getX(), position.getZ()));
             }
 
             Result<Record> claimRecords = create
@@ -93,7 +93,7 @@ public class DatabaseClaims implements ClaimMap {
     private static List<Row3<String, Integer, Integer>> rowsFromPositions(Collection<WorldVector3i> positions) {
         List<Row3<String, Integer, Integer>> rows = Lists.newArrayList();
         for (WorldVector3i position : positions) {
-            rows.add(row(position.getWorldName(), position.getX(), position.getZ()));
+            rows.add(row(position.getWorldId(), position.getX(), position.getZ()));
         }
         return rows;
     }
@@ -222,7 +222,7 @@ public class DatabaseClaims implements ClaimMap {
                     builder.append("(?, ?, ?, ?, ?, ?, ?)");
 
                     values.add(server);
-                    values.add(position.getWorldName());
+                    values.add(position.getWorldId());
                     values.add(position.getX());
                     values.add(position.getZ());
                     values.add(ownerId);
@@ -231,7 +231,7 @@ public class DatabaseClaims implements ClaimMap {
 
                     Claim claim = new Claim();
                     claim.setServer(server);
-                    claim.setWorld(position.getWorldName());
+                    claim.setWorld(position.getWorldId());
                     claim.setX(position.getX());
                     claim.setZ(position.getZ());
                     claim.setOwner(owner);

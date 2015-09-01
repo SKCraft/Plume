@@ -122,7 +122,7 @@ public class ClaimCache {
         Lock lock = stateLock.writeLock();
         try {
             lock.lock();
-            TLongObjectHashMap<ChunkState> states = statesByWorld.getUnchecked(position.getWorldName());
+            TLongObjectHashMap<ChunkState> states = statesByWorld.getUnchecked(position.getWorldId());
             long key = toLong(position);
             ChunkState state = states.get(key);
             if (state == null) {
@@ -145,7 +145,7 @@ public class ClaimCache {
         Lock lock = stateLock.writeLock();
         try {
             lock.lock();
-            TLongObjectHashMap<ChunkState> states = statesByWorld.getUnchecked(position.getWorldName());
+            TLongObjectHashMap<ChunkState> states = statesByWorld.getUnchecked(position.getWorldId());
             states.remove(toLong(position));
         } finally {
             lock.unlock();
@@ -183,7 +183,7 @@ public class ClaimCache {
         Lock lock = stateLock.readLock();
         try {
             lock.lock();
-            TLongObjectHashMap<ChunkState> states = statesByWorld.getUnchecked(position.getWorldName());
+            TLongObjectHashMap<ChunkState> states = statesByWorld.getUnchecked(position.getWorldId());
             long key = toLong(position);
             ChunkState state = states.get(key);
             if (state == null) {
@@ -233,7 +233,7 @@ public class ClaimCache {
             for (Claim claim : claims) {
                 if (claim != null) {
                     WorldVector3i position = new WorldVector3i(claim.getWorld(), claim.getX(), 0, claim.getZ());
-                    TLongObjectHashMap<ChunkState> states = statesByWorld.getUnchecked(position.getWorldName());
+                    TLongObjectHashMap<ChunkState> states = statesByWorld.getUnchecked(position.getWorldId());
 
                     String partyName = claim.getParty();
                     Party party = null;
@@ -265,7 +265,7 @@ public class ClaimCache {
             lock.lock();
             for (WorldVector3i position : positions) {
                 if (position != null) {
-                    TLongObjectHashMap<ChunkState> states = statesByWorld.getUnchecked(position.getWorldName());
+                    TLongObjectHashMap<ChunkState> states = statesByWorld.getUnchecked(position.getWorldId());
                     ChunkState state = new ChunkState(position);
                     state.setLoaded(true);
                     states.put(toLong(position), state);

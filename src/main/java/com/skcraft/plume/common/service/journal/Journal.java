@@ -1,6 +1,8 @@
 package com.skcraft.plume.common.service.journal;
 
 import com.skcraft.plume.common.DataAccessException;
+import com.skcraft.plume.common.service.journal.criteria.Criteria;
+import com.skcraft.plume.common.util.Cursor;
 import com.skcraft.plume.common.util.Order;
 
 import java.util.Collection;
@@ -20,6 +22,15 @@ public interface Journal {
     default void load() {}
 
     /**
+     * Fetch a cursor to retrieve records matching the given criteria.
+     *
+     * @param criteria The criteria to match
+     * @param order The order by which the records should be sorted in regards to time
+     * @return A list of records
+     */
+    Cursor<Record> findRecords(Criteria criteria, Order order);
+
+    /**
      * Fetch a list of records matching the given criteria.
      *
      * @param criteria The criteria to match
@@ -27,7 +38,7 @@ public interface Journal {
      * @param limit The maximum number of entries to return
      * @return A list of records
      */
-    List<Record> queryRecords(Criteria criteria, Order order, int limit);
+    List<Record> findRecords(Criteria criteria, Order order, int limit);
 
     /**
      * Add the given records to the journal.

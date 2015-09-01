@@ -77,7 +77,7 @@ public class ClaimCommands {
         PartyCache partyCache = this.partyCache.provide();
         Region selection;
         UserId owner = Profiles.fromPlayer(player);
-        String worldName = Worlds.getWorldName(player.worldObj);
+        String worldName = Worlds.getWorldId(player.worldObj);
 
         try {
             selection = WorldEditAPI.getSelection(player);
@@ -91,7 +91,7 @@ public class ClaimCommands {
                     // First grab a list of chunks from the player's selection
                     ClaimEnumerator enumerator = new ClaimEnumerator(config.get());
                     enumerator.setLimited(true);
-                    List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.fromVector2D(worldName, input));
+                    List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.toWorldVector3i(worldName, input));
 
                     if (partyName != null) {
                         Party party = partyCache.get(partyName);
@@ -246,7 +246,7 @@ public class ClaimCommands {
     @Require("plume.claims.owner")
     public void owner(@Sender EntityPlayer player) {
         ClaimCache claimCache = this.claimCache.provide();
-        WorldVector3i chunkPosition = new WorldVector3i(Worlds.getWorldName(player.worldObj), (int) player.posX >> 4, 0, (int) player.posZ >> 4);
+        WorldVector3i chunkPosition = new WorldVector3i(Worlds.getWorldId(player.worldObj), (int) player.posX >> 4, 0, (int) player.posZ >> 4);
         ClaimEntry entry = claimCache.getClaimIfPresent(chunkPosition);
         if (entry != null) {
             Claim claim = entry.getClaim();
@@ -275,7 +275,7 @@ public class ClaimCommands {
         ClaimCache claimCache = this.claimCache.provide();
         Region selection;
         UserId owner = Profiles.fromPlayer(player);
-        String worldName = Worlds.getWorldName(player.worldObj);
+        String worldName = Worlds.getWorldId(player.worldObj);
 
         try {
             selection = WorldEditAPI.getSelection(player);
@@ -289,7 +289,7 @@ public class ClaimCommands {
                     // First grab a list of chunks from the player's selection
                     ClaimEnumerator enumerator = new ClaimEnumerator(config.get());
                     enumerator.setLimited(true);
-                    List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.fromVector2D(worldName, input));
+                    List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.toWorldVector3i(worldName, input));
 
                     // Filter chunks
                     ClaimRequest request = new ClaimRequest(claimCache, owner, null);
@@ -325,7 +325,7 @@ public class ClaimCommands {
         ClaimCache claimCache = this.claimCache.provide();
         PartyCache partyCache = this.partyCache.provide();
         Region selection;
-        String worldName = Worlds.getWorldName(sender.worldObj);
+        String worldName = Worlds.getWorldId(sender.worldObj);
 
         try {
             selection = WorldEditAPI.getSelection(sender);
@@ -340,7 +340,7 @@ public class ClaimCommands {
 
                     ClaimEnumerator enumerator = new ClaimEnumerator(config.get());
                     enumerator.setLimited(false);
-                    List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.fromVector2D(worldName, input));
+                    List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.toWorldVector3i(worldName, input));
 
                     if (partyName != null) {
                         Party party = partyCache.get(partyName);
@@ -379,7 +379,7 @@ public class ClaimCommands {
         ClaimCache claimCache = this.claimCache.provide();
         Region selection;
         UserId owner = Profiles.fromPlayer(player);
-        String worldName = Worlds.getWorldName(player.worldObj);
+        String worldName = Worlds.getWorldId(player.worldObj);
 
         try {
             selection = WorldEditAPI.getSelection(player);
@@ -392,7 +392,7 @@ public class ClaimCommands {
                 .when(() -> {
                     ClaimEnumerator enumerator = new ClaimEnumerator(config.get());
                     enumerator.setLimited(true);
-                    List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.fromVector2D(worldName, input));
+                    List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.toWorldVector3i(worldName, input));
 
                     claimCache.getClaimMap().removeClaims(positions);
                     claimCache.putAsUnclaimed(positions);

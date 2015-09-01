@@ -24,7 +24,7 @@ public class Teleports {
                 TeleportHelper.teleport(player, target);
                 sender.addChatMessage(new ChatComponentText(SharedLocale.tr("teleport.success")));
             } else {
-                sender.addChatMessage(new ChatComponentText(SharedLocale.tr("teleport.playerNotFound", name)));
+                sender.addChatMessage(new ChatComponentText(SharedLocale.tr("playerNotFound", name)));
             }
         } else {
             sender.addChatMessage(new ChatComponentText(SharedLocale.tr("playerRequired")));
@@ -41,7 +41,7 @@ public class Teleports {
                 TeleportHelper.teleport(target, player);
                 sender.addChatMessage(new ChatComponentText(SharedLocale.tr("teleport.success")));
             } else {
-                sender.addChatMessage(new ChatComponentText(SharedLocale.tr("teleport.playerNotFound", name)));
+                sender.addChatMessage(new ChatComponentText(SharedLocale.tr("playerNotFound", name)));
             }
         } else {
             sender.addChatMessage(new ChatComponentText(SharedLocale.tr("playerRequired")));

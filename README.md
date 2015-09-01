@@ -7,58 +7,60 @@ However, Plume is still in development.
 ## Status
 
 - [x] Module loading
-	- [x] Configuration
-	- [x] Services
-	- [ ] External modules
+    - [x] Configuration
+    - [x] Services
+    - [ ] External modules
 - [x] User database
-	- [x] Multiple group inheritance
-	- [x] Whitelist support
-	- [x] /invite
-	- [ ] Management commands (not planned; web UI is preferred)
+    - [x] Multiple group inheritance
+    - [x] Whitelist support
+    - [x] /invite
+    - [ ] Management commands (not planned; web UI is preferred)
 - [x] Authorization and permissions
-	- [x] Server-specific permissions
-	- [x] World-specific permissions
-	- [ ] Temporary groups
-	- [ ] Arbitrary context value support
-	- [ ] Host key support
+    - [x] Server-specific permissions
+    - [x] World-specific permissions
+    - [ ] Temporary groups
+    - [ ] Arbitrary context value support
+    - [ ] Host key support
 - [x] Bans
-	- [x] Ban and pardon commands
-	- [ ] Ban lookup (planned but web UI is preferred)
-	- [ ] Broadcast to other servers to notify of new bans
+    - [x] Ban and pardon commands
+    - [ ] Ban lookup (planned but web UI is preferred)
+    - [ ] Broadcast to other servers to notify of new bans
 - [x] User-oriented chunk claiming
-	- [x] Protection
-	- [x] Management commands
-	- [x] Per-chunk claim costs
-	- [ ] Query tools
-	- [ ] Client-side UI
+    - [x] Protection
+    - [x] Management commands
+    - [x] Per-chunk claim costs
+    - [ ] Query tools
+    - [ ] Client-side UI
 - [x] Friend lists (parties)
-	- [x] Management commands
-	- [ ] Client side GUI
-- [ ] Block logger (planned to be abandoned in MC 1.9+)
-	- [ ] Logging
-		- [ ] Block break
-		- [ ] Block place
-		- [ ] Bucket empty
-		- [ ] Bucket fill
-		- [ ] Entity damage
-		- [ ] Entity spawn
-		- [ ] Explosion
-		- [ ] Item drop
-		- [ ] Item pickup
-		- [ ] Open container
-		- [ ] Player chat
-		- [ ] Player command
-		- [ ] Player death
-	- [ ] Search
-	- [ ] Rollback
-	- [ ] Replay
-	- [ ] Preview
-	- [ ] Pruning
+    - [x] Management commands
+    - [ ] Client side GUI
+- [x] Block logger
+    - [x] Logging
+        - [x] Block break
+        - [x] Block place
+        - [ ] Bucket empty
+        - [x] Bucket fill
+        - [x] Entity damage
+        - [ ] Entity spawn
+        - [x] Explosion
+        - [x] Item drop
+        - [x] Item pickup
+        - [ ] Open container
+        - [x] Player chat
+        - [x] Player command
+        - [x] Player death
+    - [x] Search
+    - [x] Rollback
+    - [x] Replay
+    - [ ] Preview
+    - [ ] Pruning
+    - [x] Watson support
+    - [ ] Wand
 - [x] Command blocking
-	- [x] Server console-only commands
+    - [x] Server console-only commands
 - [ ] Locations
-	- [ ] Warps
-	- [ ] Homes
+    - [ ] Warps
+    - [ ] Homes
 - [ ] Cross-server chat
 - [ ] Chat channels
 - [ ] Chat name highlighting
@@ -69,22 +71,22 @@ However, Plume is still in development.
 - [x] Server restart countdown
 - [ ] World border (planned to be abandoned in MC 1.8+)
 - [ ] Profilers
-	- [ ] Tick profiler
-	- [ ] Java profiler
+    - [ ] Tick profiler
+    - [ ] Java profiler
 - [x] Teleport commands
-	- [x] /to
-	- [x] /bring
-	- [ ] /return
+    - [x] /to
+    - [x] /bring
+    - [ ] /return
 - [ ] Spawn commands
-	- [ ] /spawn
-	- [ ] /setspawn
+    - [ ] /spawn
+    - [ ] /setspawn
 - [ ] Status commands
-	- [ ] /heal
-	- [ ] /feed
-	- [ ] /god
+    - [ ] /heal
+    - [ ] /feed
+    - [ ] /god
 - [ ] Speed commands
-	- [ ] /flight
-	- [ ] /walk
+    - [ ] /flight
+    - [ ] /walk
 - [ ] Enderpearl teleporting
 - [ ] BeanShell
 
@@ -148,7 +150,7 @@ To listen for FML state events, use `@Subscribe` from WorldEdit.
 public class ExampleModule {
     @Subscribe
     public void onServerStarted(FMLServerStartedEvent event) {
-	}
+    }
 
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
@@ -164,8 +166,8 @@ All classes (module or not) are loaded using the Guice library, which allows aut
 
 ```java
 public class ExampleModule {
-	@Inject
-	private OtherClass otherClass;
+    @Inject
+    private OtherClass otherClass;
 }
 ```
 
@@ -173,9 +175,9 @@ Or if constructor injection is preferred:
 
 ```java
 public class ExampleModule {
-	@Inject
-	public ExampleModule(OtherClass otherClass) {
-	}
+    @Inject
+    public ExampleModule(OtherClass otherClass) {
+    }
 }
 ```
 
@@ -204,7 +206,7 @@ public class ClaimConfig {
         @Setting(comment = "The item required to buy a chunk")
         public SingleItemMatcher item = Inventories.typeDamageMatcher(new ItemStack(Items.coal));
 
-	}
+    }
 ```
 
 And then injected:
@@ -253,7 +255,7 @@ Below is an example of `/debug tell <name> <age>`. The parameters to the method 
 @Group(@At("debug"))
 @Require("plume.party.create")
 public void create(@Sender EntityPlayer sender, String name, int age) {
-	sender.addChatMessage(Messages.info(name + " is " + age));
+    sender.addChatMessage(Messages.info(name + " is " + age));
 }
 ```
 
@@ -290,7 +292,7 @@ Plume contains a simple API for working with ListenableFutures, which comes in h
 ```java
 Deferred<?> deferred = Deferreds
         .when(() -> {
-			// This would block due to the HTTP request
+            // This would block due to the HTTP request
             UserId userId = profileService.findUserId(name);
 
             return userId; // Passed onto the next handler

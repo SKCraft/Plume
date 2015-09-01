@@ -53,7 +53,7 @@ public class Claims {
         for (WorldServer world : MinecraftServer.getServer().worldServers) {
             for (Object object : world.theChunkProviderServer.loadedChunks) {
                 Chunk chunk = (Chunk) object;
-                claimCache.provide().queueChunk(new WorldVector3i(Worlds.getWorldName(world), chunk.xPosition, 0, chunk.zPosition));
+                claimCache.provide().queueChunk(new WorldVector3i(Worlds.getWorldId(world), chunk.xPosition, 0, chunk.zPosition));
             }
         }
     }
@@ -62,25 +62,25 @@ public class Claims {
     public void onWorldLoad(WorldEvent.Load event) {
         for (Object object : ((WorldServer) event.world).theChunkProviderServer.loadedChunks) {
             Chunk chunk = (Chunk) object;
-            claimCache.provide().queueChunk(new WorldVector3i(Worlds.getWorldName(event.world), chunk.xPosition, 0, chunk.zPosition));
+            claimCache.provide().queueChunk(new WorldVector3i(Worlds.getWorldId(event.world), chunk.xPosition, 0, chunk.zPosition));
         }
     }
 
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event) {
-        claimCache.provide().invalidateChunksInWorld(Worlds.getWorldName(event.world));
+        claimCache.provide().invalidateChunksInWorld(Worlds.getWorldId(event.world));
     }
 
     @SubscribeEvent
     public void onChunkLoad(ChunkEvent.Load event) {
         Chunk chunk = event.getChunk();
-        claimCache.provide().queueChunk(new WorldVector3i(Worlds.getWorldName(event.world), chunk.xPosition, 0, chunk.zPosition));
+        claimCache.provide().queueChunk(new WorldVector3i(Worlds.getWorldId(event.world), chunk.xPosition, 0, chunk.zPosition));
     }
 
     @SubscribeEvent
     public void onChunkUnload(ChunkEvent.Unload event) {
         Chunk chunk = event.getChunk();
-        claimCache.provide().invalidateChunk(new WorldVector3i(Worlds.getWorldName(event.world), chunk.xPosition, 0, chunk.zPosition));
+        claimCache.provide().invalidateChunk(new WorldVector3i(Worlds.getWorldId(event.world), chunk.xPosition, 0, chunk.zPosition));
     }
 
     public boolean mayAccess(Cause cause, ClaimEntry entry) {
@@ -170,7 +170,7 @@ public class Claims {
             EntityPlayer player = cause.getFirstPlayer();
             ClaimCache claimCache = Claims.this.claimCache.provide();
             WorldVector3i chunkPosition = input.toWorldVector();
-            chunkPosition = new WorldVector3i(chunkPosition.getWorldName(), chunkPosition.getX() >> 4, 0, chunkPosition.getZ() >> 4);
+            chunkPosition = new WorldVector3i(chunkPosition.getWorldId(), chunkPosition.getX() >> 4, 0, chunkPosition.getZ() >> 4);
             ClaimEntry entry = claimCache.getClaimIfPresent(chunkPosition);
 
             if (entry != null) {

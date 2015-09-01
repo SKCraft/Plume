@@ -71,7 +71,7 @@ public class UserLoader {
         User user = userCache.getIfPresent(userId);
         if (user != null) {
             online.put(userId, user);
-        } else {
+        } else if (!config.get().allowLoginWithoutLoadedUser) {
             Server.kick((EntityPlayerMP) event.player, tr("users.profileNotLoaded"));
         }
     }
@@ -83,6 +83,9 @@ public class UserLoader {
     }
 
     private static class UsersConfig {
+        @Setting(comment = "Set to true to permit players who don't have his or her user information loaded to login anyway")
+        private boolean allowLoginWithoutLoadedUser = false;
+
         @Setting(comment = "The message the user gets disconnected with if the user is not in the database")
         private String noUserMessage = "You are not whitelisted. Ask a friend to /invite you.";
 

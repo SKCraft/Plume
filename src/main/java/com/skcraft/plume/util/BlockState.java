@@ -29,7 +29,7 @@ public abstract class BlockState {
      *
      * @param tag The tag
      */
-    public abstract void writeToTag(NBTTagCompound tag);
+    public abstract void writeDataToTag(NBTTagCompound tag);
 
     @Override
     public String toString() {
@@ -62,13 +62,13 @@ public abstract class BlockState {
         private final Block block;
         private final int meta;
         @Nullable
-        private final NBTTagCompound nbt;
+        private final NBTTagCompound data;
 
-        public SimpleState(Block block, int meta, @Nullable NBTTagCompound nbt) {
+        public SimpleState(Block block, int meta, @Nullable NBTTagCompound data) {
             checkNotNull(block, "block");
             this.block = block;
             this.meta = meta;
-            this.nbt = nbt;
+            this.data = data;
         }
 
         @Override
@@ -83,12 +83,10 @@ public abstract class BlockState {
 
         @SuppressWarnings("unchecked")
         @Override
-        public void writeToTag(NBTTagCompound tag) {
+        public void writeDataToTag(NBTTagCompound tag) {
             checkNotNull(tag, "tag");
-            if (nbt != null) {
-                for (String key : (Iterable<String>) nbt.func_150296_c()) {
-                    tag.setTag(key, tag.getTag(key).copy());
-                }
+            if (data != null) {
+                NBTUtils.copy(data, tag);
             }
         }
     }
@@ -112,7 +110,7 @@ public abstract class BlockState {
         }
 
         @Override
-        public void writeToTag(NBTTagCompound tag) {
+        public void writeDataToTag(NBTTagCompound tag) {
             checkNotNull(tag, "tag");
             snapshot.writeToNBT(tag);
         }

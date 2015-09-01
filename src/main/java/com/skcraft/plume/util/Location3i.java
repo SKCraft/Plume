@@ -25,7 +25,7 @@ public class Location3i {
     }
 
     public WorldVector3i toWorldVector() {
-        return new WorldVector3i(Worlds.getWorldName(world), x, y, z);
+        return new WorldVector3i(Worlds.getWorldId(world), x, y, z);
     }
 
     @Override
