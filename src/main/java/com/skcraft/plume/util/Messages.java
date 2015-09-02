@@ -59,6 +59,7 @@ public final class Messages {
     }
 
     public static void broadcastInfo(String message) {
+        log.info("BROADCAST: " + message);
         for (String name : MinecraftServer.getServer().getAllUsernames()) {
             if (name != null) {
                 EntityPlayerMP player = Server.findPlayer(name);
