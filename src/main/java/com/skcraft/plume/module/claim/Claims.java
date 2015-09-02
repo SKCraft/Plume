@@ -5,11 +5,14 @@ import com.google.inject.Inject;
 import com.sk89q.worldedit.util.eventbus.EventHandler.Priority;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.UserId;
+import com.skcraft.plume.common.service.auth.Authorizer;
+import com.skcraft.plume.common.service.auth.Context;
 import com.skcraft.plume.common.service.claim.Claim;
 import com.skcraft.plume.common.service.claim.ClaimCache;
 import com.skcraft.plume.common.service.claim.ClaimEntry;
 import com.skcraft.plume.common.service.party.Parties;
 import com.skcraft.plume.common.service.party.Party;
+import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.common.util.WorldVector3i;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
@@ -44,6 +47,8 @@ public class Claims {
 
     @InjectConfig("claims") private Config<ClaimConfig> config;
     @InjectService private Service<ClaimCache> claimCache;
+    @InjectService private Service<Authorizer> authorizer;
+    @Inject private Environment environment;
 
     // Submodules
     @Inject private ClaimCommands commands;
@@ -98,6 +103,14 @@ public class Claims {
         if (rootCause instanceof UserId) {
             UserId userId = (UserId) rootCause;
             Claim claim = entry.getClaim();
+
+            Context.Builder builder = new Context.Builder();
+            environment.update(builder);
+            // TODO: Add player too
+            if (authorizer.provide().getSubject(userId).hasPermission("plume.claims.bypass", builder.build())) {
+                return true;
+            }
+
             if (claim.getOwner().equals(userId)) {
                 return true;
             }
