@@ -14,7 +14,7 @@
 CREATE TABLE IF NOT EXISTS `log` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `time` datetime NOT NULL,
-  `user_id` int(11) unsigned NOT NULL,
+  `user_id` int(11) unsigned NULL,
   `world_id` smallint(6) unsigned NOT NULL,
   `x` int(11) NOT NULL,
   `y` smallint(5) unsigned NOT NULL,
