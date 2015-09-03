@@ -33,6 +33,7 @@ class RecordSaveWorker implements Runnable {
     @Getter private int batchMaxSize = 100;
     @Getter private int diskCommitSizeThreshold = 20;
     @Getter private int diskCommitTimeThreshold = 1000 * 10;
+    @Getter private long retryWaitTime = 1000 * 30;
 
     RecordSaveWorker(Journal journal, BlockingDeque<Record> pending, TxMaker diskDb) {
         checkNotNull(journal, "journal");
@@ -96,6 +97,7 @@ class RecordSaveWorker implements Runnable {
                 }
 
                 if (!batch.isEmpty()) {
+                    long start = System.currentTimeMillis();
                     try {
                         journal.addRecords(batch);
                         tx.commit(); // Commit removal of items from the disk queue
@@ -105,6 +107,13 @@ class RecordSaveWorker implements Runnable {
                         }
                         tx.rollback();
                         log.log(Level.WARNING, "Failed to add records to the journal; will re-attempt", e);
+
+                        // Wait a bit before retrying
+                        // TODO: Make it wait longer each failure
+                        long wait = retryWaitTime - (System.currentTimeMillis() - start);
+                        if (wait > 0) {
+                            Thread.sleep(wait);
+                        }
                     }
 
                     batch.clear();
