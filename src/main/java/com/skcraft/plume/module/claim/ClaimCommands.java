@@ -61,6 +61,8 @@ import static com.skcraft.plume.common.util.SharedLocale.tr;
 @AutoRegister
 public class ClaimCommands {
 
+    public static final String SYSTEM_OWNER = "~system";
+
     @InjectConfig("claims") private Config<ClaimConfig> config;
     @InjectService private Service<ClaimCache> claimCache;
     @InjectService private Service<PartyCache> partyCache;
@@ -336,7 +338,12 @@ public class ClaimCommands {
 
         Deferred<?> deferred = Deferreds
                 .when(() -> {
-                    UserId owner = profileService.findUserId(ownerName);
+                    UserId owner;
+                    if (ownerName.equalsIgnoreCase(SYSTEM_OWNER)) {
+                        owner = new UserId(config.get().systemOwnerUuid, SYSTEM_OWNER);
+                    } else {
+                        owner = profileService.findUserId(ownerName);
+                    }
 
                     ClaimEnumerator enumerator = new ClaimEnumerator(config.get());
                     enumerator.setLimited(false);

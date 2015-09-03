@@ -7,7 +7,12 @@ import net.minecraft.item.ItemStack;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
+import java.util.UUID;
+
 public class ClaimConfig {
+
+    @Setting(comment = "The UUID for the special '~system' chunk owner")
+    public UUID systemOwnerUuid = UUID.fromString("99a9d31c-635e-4f18-b1b5-c61b3d2e00a7");
 
     @Setting
     public Cost cost = new Cost();

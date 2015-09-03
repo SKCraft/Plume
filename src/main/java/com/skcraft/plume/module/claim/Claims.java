@@ -129,28 +129,28 @@ public class Claims {
     @Subscribe(priority = Priority.VERY_LATE)
     public void onPlaceBlock(PlaceBlockEvent event) {
         if (!event.isCancelled()) {
-            event.filterLocations(new LocationFilter(event.getCause()), true);
+            event.filterLocations(new LocationFilter(event.getCause(), false), true);
         }
     }
 
     @Subscribe(priority = Priority.VERY_LATE)
     public void onBreakBlock(BreakBlockEvent event) {
         if (!event.isCancelled()) {
-            event.filterLocations(new LocationFilter(event.getCause()), true);
+            event.filterLocations(new LocationFilter(event.getCause(), false), true);
         }
     }
 
     @Subscribe(priority = Priority.VERY_LATE)
     public void onUseBlock(UseBlockEvent event) {
         if (!event.isCancelled()) {
-            event.filterLocations(new LocationFilter(event.getCause()), true);
+            event.filterLocations(new LocationFilter(event.getCause(), true), true);
         }
     }
 
     @Subscribe(priority = Priority.VERY_LATE)
     public void onDestroyEntity(DestroyEntityEvent event) {
         if (!event.isCancelled()) {
-            LocationFilter filter = new LocationFilter(event.getCause());
+            LocationFilter filter = new LocationFilter(event.getCause(), false);
             event.filterEntities(input -> filter.apply(new Location3i(input.worldObj, (int) input.posX, (int) input.posY, (int) input.posZ)), true);
         }
     }
@@ -158,7 +158,7 @@ public class Claims {
     @Subscribe(priority = Priority.VERY_LATE)
     public void onUseEntity(UseEntityEvent event) {
         if (!event.isCancelled()) {
-            LocationFilter filter = new LocationFilter(event.getCause());
+            LocationFilter filter = new LocationFilter(event.getCause(), true);
             event.filterEntities(input -> filter.apply(new Location3i(input.worldObj, (int) input.posX, (int) input.posY, (int) input.posZ)), true);
         }
     }
@@ -166,16 +166,18 @@ public class Claims {
     @Subscribe(priority = Priority.VERY_LATE)
     public void onDamageEntity(DamageEntityEvent event) {
         if (!event.isCancelled()) {
-            LocationFilter filter = new LocationFilter(event.getCause());
+            LocationFilter filter = new LocationFilter(event.getCause(), false);
             event.filterEntities(input -> filter.apply(new Location3i(input.worldObj, (int) input.posX, (int) input.posY, (int) input.posZ)), true);
         }
     }
 
     private class LocationFilter implements Predicate<Location3i> {
         private final Cause cause;
+        private final boolean usage;
 
-        private LocationFilter(Cause cause) {
+        private LocationFilter(Cause cause, boolean usage) {
             this.cause = cause;
+            this.usage = usage;
         }
 
         @Override
@@ -194,8 +196,20 @@ public class Claims {
                 } else if (mayAccess(cause, entry)) {
                     return true;
                 } else {
+                    UserId owner = claim.getOwner();
+                    boolean systemOwned = owner.getUuid().equals(config.get().systemOwnerUuid);
+
+                    // Allow usage for system owned claims
+                    if (systemOwned && usage) {
+                        return true;
+                    }
+
                     if (player != null) {
-                        player.addChatMessage(Messages.error(tr("claims.protection.noAccess", claim.getOwner().getName())));
+                        if (systemOwned) {
+                            player.addChatMessage(Messages.error(tr("claims.protection.noAccessSystem")));
+                        } else {
+                            player.addChatMessage(Messages.error(tr("claims.protection.noAccess", claim.getOwner().getName())));
+                        }
                     }
                     return false;
                 }
