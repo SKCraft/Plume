@@ -34,7 +34,7 @@ public class BackgroundExecutor {
         ChatComponentText message = new ChatComponentText(tr("pleaseWaitProcessing"));
         message.getChatStyle().setColor(EnumChatFormatting.GRAY);
         Future<?> messageFuture = timer.schedule(new MessageTask(sender, message), MESSAGE_DELAY, TimeUnit.MILLISECONDS);
-        future.addListener(() -> messageFuture.cancel(false), MoreExecutors.newDirectExecutorService());
+        future.addListener(() -> messageFuture.cancel(false), MoreExecutors.sameThreadExecutor());
     }
 
     @RequiredArgsConstructor
