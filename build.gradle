@@ -13,6 +13,7 @@ buildscript {
 
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
         classpath 'org.jooq:jooq-codegen:3.6.2'
         classpath 'mysql:mysql-connector-java:5.1.36'
     }
@@ -21,10 +22,11 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'forge'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 version = "1.0.0"
 group = "com.skcraft.plume"
-archivesBaseName = "Plume"
+archivesBaseName = "plume"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -82,6 +84,8 @@ minecraft {
     replace "%VERSION%", project.version
 }
 
+project.archivesBaseName = "${project.archivesBaseName}-mc${minecraft.version}"
+
 processResources {
     from (sourceSets.main.resources.srcDirs) {
         expand 'version': project.version, 'mcversion': project.minecraft.version, 'forgeVersion': project.minecraft.forgeVersion
@@ -118,10 +122,55 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+shadowJar {
+    dependencies {
+        include(dependency('org.slf4j:slf4j-api:.*'))
+        include(dependency('com.zaxxer:HikariCP:.*'))
+        include(dependency('aopalliance:aopalliance:.*'))
+        include(dependency('javax.inject:javax.inject:.*'))
+        include(dependency('com.google.inject:guice:.*'))
+        include(dependency('org.javatuples:javatuples:.*'))
+        include(dependency('org.atteo.classindex:classindex:.*'))
+        include(dependency('org.mapdb:mapdb:.*'))
+        include(dependency('net.sf.trove4j:trove4j:.*'))
+        include(dependency('ninja.leaping.configurate:configurate-core:.*'))
+        include(dependency('ninja.leaping.configurate:configurate-hocon:.*'))
+        include(dependency('com.sk89q.intake:intake:.*'))
+        include(dependency('com.sk89q:squirrelid:.*'))
+        include(dependency('joda-time:joda-time:.*'))
+        include(dependency('com.googlecode.json-simple:json-simple:.*'))
+        include(dependency('org.jooq:jooq:.*'))
+        include(dependency('org.modelmapper:modelmapper:.*'))
+        include(dependency('org.modelmapper.extensions:modelmapper-jooq:.*'))
+        include(dependency('com.zaxxer:HikariCP:.*'))
+
+        relocate 'com.sk89q.intake', 'com.skcraft.plume.internal.intake'
+        relocate 'com.google.inject', 'com.skcraft.plume.internal.inject'
+        relocate 'com.sk89q.squirrelid', 'com.skcraft.plume.internal.squirrelid'
+        relocate 'com.zaxxer.hikari', 'com.skcraft.plume.internal.hikari'
+        relocate 'org.joda.time', 'com.skcraft.plume.internal.joda'
+        relocate 'gnu.trove4j', 'com.skcraft.plume.internal.trove4j'
+        relocate 'ninja.leaping.configurate', 'com.skcraft.plume.internal.configurate'
+        relocate 'org.atteo', 'com.skcraft.plume.internal.classindex'
+        relocate 'org.mapdb', 'com.skcraft.plume.internal.mapdb'
+        relocate 'org.modelmapper', 'com.skcraft.plume.internal.modelmapper'
+    }
+}
+
+reobf.reobf(shadowJar) { spec ->
+    spec.classpath = sourceSets.main.compileClasspath;
+}
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'dev'
+}
+
 artifacts {
     archives jar
     archives sourcesJar
     archives javadocJar
+    archives deobfJar
 }
 
 processResources {
@@ -178,3 +227,5 @@ task('generateSchema') << {
 
     GenerationTool.generate(JAXB.unmarshal(new StringReader(writer.toString()), org.jooq.util.jaxb.Configuration.class))
 }
+
+build.dependsOn(shadowJar)
