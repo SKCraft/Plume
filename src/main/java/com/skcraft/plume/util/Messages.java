@@ -67,4 +67,12 @@ public final class Messages {
         }
     }
 
+    public static void broadcastAlert(String message) {
+        for (String name : MinecraftServer.getServer().getAllUsernames()) {
+            if (name != null) {
+                EntityPlayerMP player = Server.findPlayer(name);
+                player.addChatMessage(Messages.error(message));
+            }
+        }
+    }
 }
