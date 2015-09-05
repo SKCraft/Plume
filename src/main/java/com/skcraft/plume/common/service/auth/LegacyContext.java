@@ -16,6 +16,7 @@ public final class LegacyContext {
         if (server != null) permissions.add("server." + server + "." + permission);
         if (world != null) permissions.add("world." + world + "." + permission);
         if (server != null && world != null) permissions.add("server." + server + ".world." + world + "." + permission);
+        permissions.add(permission);
         return permissions;
     }
 
