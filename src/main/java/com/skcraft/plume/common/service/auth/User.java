@@ -20,6 +20,7 @@ public class User {
 
     private UserId userId;
     @Nullable private UserId referrer;
+    @Nullable private Date createDate;
     @Nullable private Date joinDate;
     @Nullable private Date lastOnline;
     @Nullable private String hostKey;

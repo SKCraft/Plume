@@ -35,7 +35,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class User extends TableImpl<UserRecord> {
 
-	private static final long serialVersionUID = 614707135;
+	private static final long serialVersionUID = 707773408;
 
 	/**
 	 * The reference instance of <code>data.user</code>
@@ -59,6 +59,11 @@ public class User extends TableImpl<UserRecord> {
 	 * The column <code>data.user.referrer_id</code>.
 	 */
 	public final TableField<UserRecord, Integer> REFERRER_ID = createField("referrer_id", org.jooq.impl.SQLDataType.INTEGER, this, "");
+
+	/**
+	 * The column <code>data.user.create_date</code>.
+	 */
+	public final TableField<UserRecord, Timestamp> CREATE_DATE = createField("create_date", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
 	/**
 	 * The column <code>data.user.join_date</code>.

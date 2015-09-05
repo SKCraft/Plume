@@ -57,6 +57,9 @@ public class UserLoader {
                 expireCache.put(user, true);
 
                 if (user.getSubject().hasPermission("whitelist", environment.update(new Context.Builder()).build())) {
+                    if (user.getJoinDate() == null && user.getCreateDate() != null) {
+                        user.setJoinDate(now);
+                    }
                     user.setLastOnline(now);
                     userCache.getHive().saveUser(user, false);
                 } else {

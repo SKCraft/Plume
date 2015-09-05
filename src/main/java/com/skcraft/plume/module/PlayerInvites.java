@@ -69,7 +69,8 @@ public class PlayerInvites {
 
                         user = new User();
                         user.setUserId(userId);
-                        user.setJoinDate(new Date());
+                        user.setCreateDate(new Date());
+                        user.setJoinDate(null);
                         user.setReferrer(referrer);
                         user.setGroups(groups);
                         userCache.getHive().saveUser(user, true);

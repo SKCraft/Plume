@@ -110,6 +110,7 @@ CREATE TABLE IF NOT EXISTS `party_member` (
 CREATE TABLE IF NOT EXISTS `user` (
   `user_id` int(11) unsigned NOT NULL,
   `referrer_id` int(11) unsigned DEFAULT NULL,
+  `create_date` datetime DEFAULT NULL,
   `join_date` datetime DEFAULT NULL,
   `last_online` datetime DEFAULT NULL,
   `host_key` varchar(70) DEFAULT NULL,
