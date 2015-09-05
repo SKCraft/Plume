@@ -4,6 +4,7 @@ import logging
 import configparser
 import argparse
 import os.path
+from functools import wraps
 
 log = logging.getLogger(__name__)
 
@@ -75,6 +76,49 @@ class UserIdCache:
             return cache_id
 
 
+def retry(exception, tries=4, delay=3, backoff=2, logger=None):
+    """Retry calling the decorated function using an exponential backoff.
+
+    http://www.saltycrane.com/blog/2009/11/trying-out-retry-decorator-python/
+    original from: http://wiki.python.org/moin/PythonDecoratorLibrary#Retry
+
+    :param exception: the exception to check. may be a tuple of
+        exceptions to check
+    :type exception: Exception or tuple
+    :param tries: number of times to try (not retry) before giving up
+    :type tries: int
+    :param delay: initial delay between retries in seconds
+    :type delay: int
+    :param backoff: backoff multiplier e.g. value of 2 will double the delay
+        each retry
+    :type backoff: int
+    :param logger: logger to use. If None, print
+    :type logger: logging.Logger instance
+    """
+    def deco_retry(f):
+
+        @wraps(f)
+        def f_retry(*args, **kwargs):
+            mtries, mdelay = tries, delay
+            while mtries > 1:
+                try:
+                    return f(*args, **kwargs)
+                except exception as e:
+                    msg = "{0}, Retrying in {1} seconds...".format(str(e), mdelay)
+                    if logger:
+                        logger.warning(msg)
+                    else:
+                        print(msg)
+                    time.sleep(mdelay)
+                    mtries -= 1
+                    mdelay *= backoff
+            return f(*args, **kwargs)
+
+        return f_retry  # true decorator
+
+    return deco_retry
+
+
 def rate_limit(max_per_period, period=60):
     """
     Rate limits a function call, sleeping until the function can be called.
@@ -98,7 +142,8 @@ def rate_limit(max_per_period, period=60):
     return decorator
 
 
-@rate_limit(60, period=60)
+@retry(exception=KeyError, tries=4, delay=60, backoff=2, logger=log)
+@rate_limit(25, period=30)
 def fetch_uuid_for_name(username, t=0):
     """Attempt to grab the UUID for a name at T time, otherwise direct UUID to name,
     otherwise throw NoSuchMojangUser()
@@ -147,7 +192,7 @@ def convert(old, new):
         try:
             return user_ids.get_or_create(name, add_uuid_dashes(uuid), int(time.timestamp()) if time else 0)
         except NoSuchMojangUser:
-            log.warning("Can't find user with name '{0}'".format(user['name']))
+            log.warning("Can't find user with name '{0}'".format(name))
 
     # ######################################################
     # Clear data
@@ -170,7 +215,7 @@ def convert(old, new):
     # Populate the user_id table and ID cache
     # ######################################################
 
-    old_cur.execute("SELECT * FROM `users` ORDER BY `join_date` ASC")
+    old_cur.execute("SELECT * FROM `users` WHERE expiration_date IS NULL ORDER BY `join_date` ASC")
     users = old_cur.fetchall()
 
     log.info("Building user_id table of name <-> uuid...")
