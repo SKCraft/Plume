@@ -1,5 +1,6 @@
 package com.skcraft.plume.asm;
 
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
 import org.objectweb.asm.ClassReader;
@@ -13,11 +14,12 @@ import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.ASM5;
 
+@SortingIndex(value = -999)
 public class PlumeTransformer implements IClassTransformer {
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] data) {
-        if(name.equals("net.minecraft.server.network.NetHandlerLoginServer$1") || name.equals("no")) {
+        if(transformedName.equals("net.minecraft.server.network.NetHandlerLoginServer$1")) {
             ClassReader cr = new ClassReader(data);
             ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
             cr.accept(new LoginServerVisitor(cw), ClassReader.EXPAND_FRAMES);
@@ -63,6 +65,24 @@ public class PlumeTransformer implements IClassTransformer {
                 mv.visitInsn(POP);
             }
             super.visitFieldInsn(opcode, owner, name, desc);
+        }
+
+        @Override
+        public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+            if (opcode == INVOKESTATIC && owner.equals("nn") && name.equals("a") && desc.equals("(Lnn;Lnp;)Lnp;")) {
+                mv.visitFieldInsn(GETSTATIC, "net/minecraftforge/common/MinecraftForge", "EVENT_BUS", "Lcpw/mods/fml/common/eventhandler/EventBus;");
+                mv.visitTypeInsn(NEW, "com/skcraft/plume/event/network/PlayerAuthenticateEvent");
+                mv.visitInsn(DUP);
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitFieldInsn(GETFIELD, ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer$1"), "this$0", "L" + ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer") + ";");
+                mv.visitFieldInsn(GETFIELD, ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer"), "field_147337_i", "Lcom/mojang/authlib/GameProfile;");
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitFieldInsn(GETFIELD, ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer$1"), "this$0", "L" + ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer") + ";");
+                mv.visitMethodInsn(INVOKESPECIAL, "com/skcraft/plume/event/network/PlayerAuthenticateEvent", "<init>", "(Lcom/mojang/authlib/GameProfile;L" + ObfMappings.get("net/minecraft/server/network/NetHandlerLoginServer") + ";)V", false);
+                mv.visitMethodInsn(INVOKEVIRTUAL, "cpw/mods/fml/common/eventhandler/EventBus", "post", "(Lcpw/mods/fml/common/eventhandler/Event;)Z", false);
+                mv.visitInsn(POP);
+            }
+            super.visitMethodInsn(opcode, owner, name, desc, itf);
         }
     }
 
