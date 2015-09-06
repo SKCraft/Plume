@@ -398,7 +398,7 @@ public class ClaimCommands {
         Deferred<?> deferred = Deferreds
                 .when(() -> {
                     ClaimEnumerator enumerator = new ClaimEnumerator(config.get());
-                    enumerator.setLimited(true);
+                    enumerator.setLimited(false);
                     List<WorldVector3i> positions = enumerator.enumerate(selection, input -> Vectors.toWorldVector3i(worldName, input));
 
                     claimCache.getClaimMap().removeClaims(positions);
