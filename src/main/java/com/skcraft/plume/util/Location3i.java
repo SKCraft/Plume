@@ -24,6 +24,18 @@ public class Location3i {
         this.z = z;
     }
 
+    public Location3i add(Location3i other) {
+        return new Location3i(world, x + other.getX(), y + other.getY(), z + other.getZ());
+    }
+
+    public Location3i subtract(Location3i other) {
+        return new Location3i(world, x - other.getX(), y - other.getY(), z - other.getZ());
+    }
+
+    public Location3i multiply(int m) {
+        return new Location3i(world, x * m, y * m, z * m);
+    }
+
     public WorldVector3i toWorldVector() {
         return new WorldVector3i(Worlds.getWorldId(world), x, y, z);
     }

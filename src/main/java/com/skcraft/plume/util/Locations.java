@@ -2,6 +2,8 @@ package com.skcraft.plume.util;
 
 import com.skcraft.plume.common.util.WorldVector3i;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.world.World;
 
 public final class Locations {
 
@@ -20,4 +22,11 @@ public final class Locations {
         return getLocation3i(entity).toWorldVector();
     }
 
+    public static Location3i getLocation3i(World world, ChunkCoordinates coords) {
+        return new Location3i(world, coords.posX, coords.posY, coords.posZ);
+    }
+
+    public static Location3d getLocation3d(World world, ChunkCoordinates coords) {
+        return new Location3d(world, coords.posX, coords.posY, coords.posZ);
+    }
 }

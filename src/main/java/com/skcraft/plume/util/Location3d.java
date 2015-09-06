@@ -33,6 +33,39 @@ public final class Location3d {
         return z;
     }
 
+    public Location3d setX(int x) {
+        return new Location3d(world, x, y, z);
+    }
+
+    public Location3d setY(int y) {
+        return new Location3d(world, x, y, z);
+    }
+
+    public Location3d setZ(int z) {
+        return new Location3d(world, x, y, z);
+    }
+
+    public Location3d add(Location3d other) {
+        return new Location3d(world, x + other.getX(), y + other.getY(), z + other.getZ());
+    }
+
+    public Location3d subtract(Location3d other) {
+        return new Location3d(world, x - other.getX(), y - other.getY(), z - other.getZ());
+    }
+
+    public Location3d multiply(int m) {
+        return new Location3d(world, x * m, y * m, z * m);
+    }
+
+    public double length() {
+        return Math.sqrt(x * x + y * y + z * z);
+    }
+
+    public Location3d unit() {
+        double length = length();
+        return new Location3d(world, x / length, y / length, z / length);
+    }
+
     @Override
     public String toString() {
         return "{" + world.getWorldInfo().getWorldName() + ":" + x + "," + y + "," + z + "}";
