@@ -14,6 +14,12 @@ public class ClaimConfig {
     @Setting(comment = "The UUID for the special '~system' chunk owner")
     public UUID systemOwnerUuid = UUID.fromString("99a9d31c-635e-4f18-b1b5-c61b3d2e00a7");
 
+    @Setting(comment = "Let players 'use' blocks and entities in system chunks")
+    public boolean systemChunksPermitUse = false;
+
+    @Setting(comment = "Have system-owned chunks prevent monster spawns")
+    public boolean systemChunksBlockMonsters = true;
+
     @Setting
     public Cost cost = new Cost();
 

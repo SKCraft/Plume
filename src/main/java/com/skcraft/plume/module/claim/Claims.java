@@ -31,12 +31,17 @@ import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.Worlds;
 import com.skcraft.plume.util.profile.Profiles;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
+import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityMob;
+import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent.CheckSpawn;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 
@@ -171,6 +176,35 @@ public class Claims {
         }
     }
 
+    @SubscribeEvent
+    public void onCheckSpawn(CheckSpawn event) {
+        EntityLivingBase entity = event.entityLiving;
+
+        if (config.get().systemChunksBlockMonsters && (entity instanceof EntityMob || entity instanceof EntitySlime)) {
+            ClaimEntry entry = getClaimEntry(new Location3i(entity.worldObj, (int) entity.posX, (int) entity.posY, (int) entity.posZ));
+
+            if (entry != null) {
+                Claim claim = entry.getClaim();
+
+                if (claim != null) {
+                    UserId owner = claim.getOwner();
+                    boolean systemOwned = owner.getUuid().equals(config.get().systemOwnerUuid);
+
+                    if (systemOwned) {
+                        event.setResult(Result.DENY);
+                    }
+                }
+            }
+        }
+    }
+
+    private ClaimEntry getClaimEntry(Location3i location) {
+        ClaimCache claimCache = Claims.this.claimCache.provide();
+        WorldVector3i chunkPosition = location.toWorldVector();
+        chunkPosition = new WorldVector3i(chunkPosition.getWorldId(), chunkPosition.getX() >> 4, 0, chunkPosition.getZ() >> 4);
+        return claimCache.getClaimIfPresent(chunkPosition);
+    }
+
     private class LocationFilter implements Predicate<Location3i> {
         private final Cause cause;
         private final boolean usage;
@@ -183,10 +217,7 @@ public class Claims {
         @Override
         public boolean apply(Location3i input) {
             EntityPlayer player = cause.getFirstPlayer();
-            ClaimCache claimCache = Claims.this.claimCache.provide();
-            WorldVector3i chunkPosition = input.toWorldVector();
-            chunkPosition = new WorldVector3i(chunkPosition.getWorldId(), chunkPosition.getX() >> 4, 0, chunkPosition.getZ() >> 4);
-            ClaimEntry entry = claimCache.getClaimIfPresent(chunkPosition);
+            ClaimEntry entry = getClaimEntry(input);
 
             if (entry != null) {
                 Claim claim = entry.getClaim();
@@ -200,7 +231,7 @@ public class Claims {
                     boolean systemOwned = owner.getUuid().equals(config.get().systemOwnerUuid);
 
                     // Allow usage for system owned claims
-                    if (systemOwned && usage) {
+                    if (systemOwned && usage && config.get().systemChunksPermitUse) {
                         return true;
                     }
 
