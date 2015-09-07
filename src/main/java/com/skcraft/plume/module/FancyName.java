@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
@@ -18,7 +19,7 @@ public class FancyName {
     private final Random random = new Random();
     @InjectConfig("fancy_name") private Config<FancyNameConfig> config;
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onNameFormat(NameFormat event) {
         List<EnumChatFormatting> colors = config.get().colors;
         if (colors.size() > 0) {
