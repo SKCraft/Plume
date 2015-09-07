@@ -53,6 +53,7 @@ dependencies {
     compile 'com.sk89q:squirrelid:0.1.0' // Mojang name -> UUID
     compile 'joda-time:joda-time:2.8.2' // Time library; used for period matcher not found in Java 8+
     compile 'com.googlecode.json-simple:json-simple:1.1.1' // JSON parsing and emitting
+    compile 'org.beanshell:bsh:2.0b5' // BeanShell REPL
 
     // SQL and JDBC
     compile 'org.jooq:jooq:3.6.2' // SQL DSL
