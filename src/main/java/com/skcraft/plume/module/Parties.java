@@ -267,8 +267,6 @@ public class Parties {
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
-                    } else if (!party.getMembers().contains(new Member(issuer, Rank.MEMBER))) { // rank doesn't matter here since contains() can't check rank
-                        throw new CommandException(tr("party.notMember"));
                     } else {
                         return party;
                     }
