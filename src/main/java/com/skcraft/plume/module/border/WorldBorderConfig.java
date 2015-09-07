@@ -16,10 +16,10 @@ public class WorldBorderConfig {
         public int borderSize = 10000;
 
         @Setting(comment = "The radius of the buffer zone, in blocks, from the spawn point")
-        public int bufferSize = 9090;
+        public int bufferSize = 9990;
 
         @Setting(comment = "The radius of the snapback zone, in blocks, from the spawn point")
-        public int snapBackSize = 9080;
+        public int snapBackSize = 9970;
 
         @Setting(comment = "The type of border, can currently only be CIRCLE")
         public BorderType borderType = BorderType.CIRCLE;
