@@ -1,0 +1,27 @@
+package com.skcraft.plume.module.patch;
+
+import com.skcraft.plume.common.util.module.Module;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import lombok.extern.java.Log;
+import net.minecraft.world.biome.BiomeGenBase.SpawnListEntry;
+import net.minecraftforge.event.world.WorldEvent;
+
+import java.util.Iterator;
+
+@Module(name = "potential-spawn-validator")
+@Log
+public class PotentialSpawnValidator {
+
+    @SubscribeEvent
+    public void onPotentialSpawns(WorldEvent.PotentialSpawns event) {
+        Iterator<SpawnListEntry> it = event.list.iterator();
+        while (it.hasNext()) {
+            SpawnListEntry entry = it.next();
+            if (entry.itemWeight <= 0) {
+                log.warning("itemWeight = " + entry.itemWeight + " for " + entry.entityClass + " -> removed from list");
+                it.remove();
+            }
+        }
+    }
+
+}

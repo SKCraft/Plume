@@ -10,15 +10,12 @@ import com.skcraft.plume.module.border.WorldBorderConfig;
 import com.skcraft.plume.module.border.WorldBorderConfig.Border;
 import com.skcraft.plume.module.border.WorldBorderConfig.Border.BorderType;
 import com.skcraft.plume.module.border.WorldBorderConfig.Border.Threshold;
-import com.skcraft.plume.util.Location3d;
-import com.skcraft.plume.util.Locations;
-import com.skcraft.plume.util.Messages;
-import com.skcraft.plume.util.TeleportHelper;
+import com.skcraft.plume.util.*;
+import com.skcraft.plume.util.SafeBlockFinder.NoSafeLocationException;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.world.World;
 
 import java.util.UUID;
 
@@ -56,13 +53,8 @@ public class WorldBorder {
                     session.nearBorder = true;
                 }
             } else if (threshold == Threshold.ESCAPED) {
-                Location3d snapBackLocation;
-                if (session.lastValidLocation != null) {
-                    snapBackLocation = session.lastValidLocation;
-                } else {
-                    snapBackLocation = borderType.getSnapBackLocation(location, spawn, border.snapBackSize);
-                }
-                TeleportHelper.teleport(player, findSafeLocation(snapBackLocation));
+                Location3d snapBackLocation = borderType.getSnapBackLocation(location, spawn, border.snapBackSize);
+                TeleportHelper.teleport(player, getSnapBackLocation(snapBackLocation.toFloorLocation3i()).toCenteredLocation3d());
                 player.addChatMessage(Messages.error(tr("worldBorder.borderHit")));
             }
         }
@@ -73,11 +65,13 @@ public class WorldBorder {
         sessions.invalidate(event.player.getGameProfile().getId());
     }
 
-    private Location3d findSafeLocation(Location3d location) {
-        World world = location.getWorld();
-        int y = world.getHeightValue((int) location.getX(), (int) location.getZ());
-        // TODO: Check for lava and other problems
-        return location.setY(y);
+    private Location3i getSnapBackLocation(Location3i location) {
+        try {
+            SafeBlockFinder finder = new SafeBlockFinder();
+            return finder.getWeightedLocations(location).get(0).getEntry();
+        } catch (NoSafeLocationException e) {
+            return Locations.getLocation3i(location.getWorld(), location.getWorld().getSpawnPoint());
+        }
     }
 
     private static class BorderSession {
