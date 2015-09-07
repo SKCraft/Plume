@@ -32,6 +32,8 @@ import static com.skcraft.plume.common.service.sql.model.log.tables.LogWorld.LOG
 public class DatabaseJournal implements Journal {
 
     private static final int UPDATE_BATCH_SIZE = 100;
+    private static final int MIN_Y = 0;
+    private static final int MAX_Y = 255;
     private ConcurrentMap<String, Short> worldIds = Maps.newConcurrentMap();
     @Getter private final DatabaseManager database;
 
@@ -303,7 +305,7 @@ public class DatabaseJournal implements Journal {
                         values.add(userId);
                         values.add(worldId);
                         values.add(location.getX());
-                        values.add((short) location.getY());
+                        values.add(Math.max(Math.min((short) location.getY(), MAX_Y), MIN_Y));
                         values.add(location.getZ());
                         values.add(record.getAction());
                         values.add(record.getData());
