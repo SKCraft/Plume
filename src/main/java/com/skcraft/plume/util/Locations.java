@@ -29,4 +29,5 @@ public final class Locations {
     public static Location3d getLocation3d(World world, ChunkCoordinates coords) {
         return new Location3d(world, coords.posX, coords.posY, coords.posZ);
     }
+
 }

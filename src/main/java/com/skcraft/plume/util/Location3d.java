@@ -33,28 +33,44 @@ public final class Location3d {
         return z;
     }
 
-    public Location3d setX(int x) {
+    public Location3d setX(double x) {
         return new Location3d(world, x, y, z);
     }
 
-    public Location3d setY(int y) {
+    public Location3d setY(double y) {
         return new Location3d(world, x, y, z);
     }
 
-    public Location3d setZ(int z) {
+    public Location3d setZ(double z) {
         return new Location3d(world, x, y, z);
+    }
+
+    public Location3d add(double x1, double y1, double z1) {
+        return new Location3d(world, x + x1, y + y1, z + z1);
     }
 
     public Location3d add(Location3d other) {
         return new Location3d(world, x + other.getX(), y + other.getY(), z + other.getZ());
     }
 
+    public Location3d subtract(double x1, double y1, double z1) {
+        return new Location3d(world, x - x1, y - y1, z - z1);
+    }
+
     public Location3d subtract(Location3d other) {
         return new Location3d(world, x - other.getX(), y - other.getY(), z - other.getZ());
     }
 
-    public Location3d multiply(int m) {
+    public Location3d multiply(double m) {
         return new Location3d(world, x * m, y * m, z * m);
+    }
+
+    public double distanceSq(Location3d other) {
+        return Math.pow(getX() - other.getX(), 2) + Math.pow(getY() - other.getY(), 2) + Math.pow(getZ() - other.getZ(), 2);
+    }
+
+    public double distance(Location3d other) {
+        return Math.sqrt(distanceSq(other));
     }
 
     public double length() {
@@ -73,6 +89,10 @@ public final class Location3d {
 
     public static Location3d fromEntity(Entity entity) {
         return new Location3d(entity.worldObj, entity.posX, entity.posY, entity.posZ);
+    }
+
+    public Location3i toFloorLocation3i() {
+        return new Location3i(world, (int) x, (int) y, (int) z);
     }
 
 }
