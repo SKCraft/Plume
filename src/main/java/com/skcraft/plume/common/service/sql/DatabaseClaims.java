@@ -67,6 +67,7 @@ public class DatabaseClaims implements ClaimMap {
 
             for (Record record : claimRecords) {
                 Claim claim = database.getModelMapper().map(record, Claim.class);
+                claim.setParty(record.getValue(CLAIM.PARTY_NAME));
                 UserId owner = new UserId(UUID.fromString(record.getValue(USER_ID.UUID)), record.getValue(USER_ID.NAME));
                 claim.setOwner(owner);
                 claims.put(new WorldVector3i(claim.getWorld(), claim.getX(), 0, claim.getZ()), claim);
