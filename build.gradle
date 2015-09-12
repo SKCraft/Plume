@@ -144,6 +144,7 @@ shadowJar {
         include(dependency('org.modelmapper:modelmapper:.*'))
         include(dependency('org.modelmapper.extensions:modelmapper-jooq:.*'))
         include(dependency('com.zaxxer:HikariCP:.*'))
+        include(dependency('org.beanshell:bsh:.*'))
 
         relocate 'com.sk89q.intake', 'com.skcraft.plume.internal.intake'
         relocate 'com.google.inject', 'com.skcraft.plume.internal.inject'
