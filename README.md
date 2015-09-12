@@ -35,6 +35,7 @@ However, Plume is still in development.
     - [x] Management commands
     - [ ] Client side GUI
 - [x] Block logger
+    - [x] NBT support
     - [x] Logging
         - [x] Block break
         - [x] Block place
@@ -69,7 +70,7 @@ However, Plume is still in development.
 - [x] Mod mode
 - [x] Message of the day
 - [x] Server restart countdown
-- [ ] World border (planned to be abandoned in MC 1.8+)
+- [x] World border (planned to be abandoned in MC 1.8+)
 - [ ] Profilers
     - [ ] Tick profiler
     - [ ] Java profiler
@@ -77,18 +78,18 @@ However, Plume is still in development.
     - [x] /to
     - [x] /bring
     - [ ] /return
-- [ ] Spawn commands
-    - [ ] /spawn
-    - [ ] /setspawn
-- [ ] Status commands
-    - [ ] /heal
-    - [ ] /feed
-    - [ ] /god
+- [x] Spawn commands
+    - [x] /spawn
+    - [x] /setspawn
+- [x] Status commands
+    - [x] /heal
+    - [x] /feed
+    - [x] /god
 - [ ] Speed commands
     - [ ] /flight
     - [ ] /walk
 - [ ] Enderpearl teleporting
-- [ ] BeanShell
+- [x] BeanShell
 
 ## Development
 
