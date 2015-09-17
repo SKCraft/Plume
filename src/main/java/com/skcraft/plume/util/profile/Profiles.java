@@ -34,4 +34,8 @@ public final class Profiles {
         }
     }
 
+    public static GameProfile toProfile(UserId userId) {
+        return new GameProfile(userId.getUuid(), userId.getName());
+    }
+
 }

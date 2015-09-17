@@ -1,17 +1,22 @@
 package com.skcraft.plume.util;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
+import com.sk89q.intake.argument.ArgumentParseException;
 import com.skcraft.plume.common.UserId;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
+import net.minecraft.world.storage.SaveHandler;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.skcraft.plume.common.util.SharedLocale.tr;
 
 public final class Server {
 
@@ -61,6 +66,30 @@ public final class Server {
         return null;
     }
 
+    public static EntityPlayerMP findBestPlayer(String test) throws ArgumentParseException {
+        test = test.toLowerCase();
+
+        List<EntityPlayerMP> candidates = Lists.newArrayList();
+
+        for (EntityPlayerMP player : getOnlinePlayers()) {
+            String name = player.getGameProfile().getName().toLowerCase();
+            if (name.equalsIgnoreCase(test)) {
+                return player;
+            } else if (name.startsWith(test)) {
+                candidates.add(player);
+            }
+        }
+
+        if (candidates.isEmpty()) {
+            throw new ArgumentParseException(tr("args.noPlayersMatched", test));
+        } else if (candidates.size() == 1) {
+            return candidates.get(0);
+        } else {
+            Joiner joiner = Joiner.on(tr("listSeparator"));
+            throw new ArgumentParseException(tr("args.didYouMean", joiner.join(candidates)));
+        }
+    }
+
     public static void kick(EntityPlayerMP player, String message) {
         checkNotNull(player, "player");
         checkNotNull(message, "message");
@@ -78,4 +107,10 @@ public final class Server {
 
         MinecraftServer.getServer().initiateShutdown();
     }
+
+    public static File getPlayerDataFile(UserId userId) {
+        SaveHandler saveHandler = (SaveHandler) MinecraftServer.getServer().getConfigurationManager().playerNBTManagerObj;
+        return new File(saveHandler.playersDirectory, userId.getUuid().toString() + ".dat");
+    }
+
 }

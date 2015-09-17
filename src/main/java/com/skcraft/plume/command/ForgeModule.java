@@ -1,8 +1,6 @@
 package com.skcraft.plume.command;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
 import com.sk89q.intake.argument.ArgumentException;
@@ -12,6 +10,7 @@ import com.sk89q.intake.parametric.AbstractModule;
 import com.sk89q.intake.parametric.Key;
 import com.sk89q.intake.parametric.Provider;
 import com.sk89q.intake.parametric.ProvisionException;
+import com.skcraft.plume.util.OptionalPlayer;
 import com.skcraft.plume.util.Server;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,8 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import static com.skcraft.plume.common.util.SharedLocale.tr;
-
 public class ForgeModule extends AbstractModule {
 
     private final NamespaceProvider<ICommandSender> senderProvider = new NamespaceProvider<>(ICommandSender.class);
@@ -34,33 +31,39 @@ public class ForgeModule extends AbstractModule {
         bind(ICommandSender.class).annotatedWith(Sender.class).toProvider(senderProvider);
         bind(EntityPlayer.class).annotatedWith(Sender.class).toProvider(new PlayerSenderProvider<>());
         bind(EntityPlayerMP.class).annotatedWith(Sender.class).toProvider(new PlayerSenderProvider<>());
+        bind(OptionalPlayer.class).toProvider(new OptionalPlayerProvider());
         bind(EntityPlayer.class).toProvider(new PlayerProvider<>());
         bind(EntityPlayerMP.class).toProvider(new PlayerProvider<>());
         bind(Key.<Set<EntityPlayer>>get(new TypeToken<Set<EntityPlayer>>(){}.getType())).toProvider(new PlayerSetProvider<>());
         bind(Key.<Set<EntityPlayerMP>>get(new TypeToken<Set<EntityPlayerMP>>(){}.getType())).toProvider(new PlayerSetProvider<>());
     }
 
-    private static EntityPlayerMP findPlayer(String test) throws ArgumentParseException {
-        test = test.toLowerCase();
+    private class OptionalPlayerProvider implements Provider<OptionalPlayer> {
+        @Override
+        public boolean isProvided() {
+            return false;
+        }
 
-        List<EntityPlayerMP> candidates = Lists.newArrayList();
-
-        for (EntityPlayerMP player : Server.getOnlinePlayers()) {
-            String name = player.getGameProfile().getName().toLowerCase();
-            if (name.equalsIgnoreCase(test)) {
-                return player;
-            } else if (name.startsWith(test)) {
-                candidates.add(player);
+        @Nullable
+        @Override
+        public OptionalPlayer get(CommandArgs arguments, List<? extends Annotation> modifiers) throws ArgumentException, ProvisionException {
+            String test = arguments.next();
+            if (test.startsWith("$")) {
+                test = test.substring(1);
+                EntityPlayerMP player = Server.findPlayer(test);
+                if (player != null) {
+                    return new OptionalPlayer(test, player);
+                } else {
+                    return new OptionalPlayer(test, null);
+                }
+            } else {
+                return new OptionalPlayer(test, Server.findBestPlayer(test));
             }
         }
 
-        if (candidates.isEmpty()) {
-            throw new ArgumentParseException(tr("args.noPlayersMatched", test));
-        } else if (candidates.size() == 1) {
-            return candidates.get(0);
-        } else {
-            Joiner joiner = Joiner.on(tr("listSeparator"));
-            throw new ArgumentParseException(tr("args.didYouMean", joiner.join(candidates)));
+        @Override
+        public List<String> getSuggestions(String prefix) {
+            return ImmutableList.of();
         }
     }
 
@@ -74,7 +77,7 @@ public class ForgeModule extends AbstractModule {
         @Nullable
         @Override
         public T get(CommandArgs arguments, List<? extends Annotation> modifiers) throws ArgumentException, ProvisionException {
-            return (T) findPlayer(arguments.next());
+            return (T) Server.findBestPlayer(arguments.next());
         }
 
         @Override
@@ -107,17 +110,15 @@ public class ForgeModule extends AbstractModule {
         }
     }
 
-    private class PlayerSetProvider<T extends EntityPlayer> implements Provider<Set<T>> {
-        @Override
-        public boolean isProvided() {
-            return false;
-        }
+    private abstract class SetAdapter<T> implements Provider<Set<T>> {
+        protected abstract Collection<? extends T> getAll() throws ArgumentParseException;
 
-        @SuppressWarnings("unchecked")
+        protected abstract T find(String token) throws ArgumentParseException;
+
         @Nullable
         @Override
         public Set<T> get(CommandArgs arguments, List<? extends Annotation> modifiers) throws ArgumentException, ProvisionException {
-            Set<T> players = Sets.newHashSet();
+            Set<T> entries = Sets.newHashSet();
             String input;
 
             do {
@@ -126,19 +127,37 @@ public class ForgeModule extends AbstractModule {
                 for (String token : tokens) {
                     token = token.trim();
                     if (token.equals("*")) {
-                        players.addAll((Collection<? extends T>) Server.getOnlinePlayers());
+                        entries.addAll(getAll());
                     } else {
-                        players.add((T) findPlayer(token));
+                        entries.add(find(token));
                     }
                 }
             } while (!input.isEmpty() && input.charAt(input.length() - 1) == ',');
 
-            return players;
+            return entries;
         }
 
         @Override
         public List<String> getSuggestions(String prefix) {
             return ImmutableList.of();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private class PlayerSetProvider<T extends EntityPlayer> extends SetAdapter<T> {
+        @Override
+        protected Collection<? extends T> getAll() {
+            return (Collection<? extends T>) Server.getOnlinePlayers();
+        }
+
+        @Override
+        protected T find(String token) throws ArgumentParseException {
+            return (T) Server.findBestPlayer(token);
+        }
+
+        @Override
+        public boolean isProvided() {
+            return false;
         }
     }
 

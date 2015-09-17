@@ -5,6 +5,7 @@ import com.skcraft.plume.util.Items;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
 
@@ -47,6 +48,13 @@ public final class Inventories {
         }
 
         return items;
+    }
+
+    public static void copyDirectly(IInventory from, IInventory to) {
+        for (int i = 0; i < from.getSizeInventory(); i++) {
+            ItemStack fromItem = from.getStackInSlot(i);
+            to.setInventorySlotContents(i, fromItem != null ? fromItem.copy() : null);
+        }
     }
 
     public static void openVirtualInventory(String name, EntityPlayerMP player, List<ItemStack> items) {
