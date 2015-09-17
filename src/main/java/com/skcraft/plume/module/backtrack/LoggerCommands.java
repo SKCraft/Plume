@@ -124,7 +124,7 @@ public class LoggerCommands {
                     }
 
                     return messages;
-                }, backgroundExecutor.getExecutor())
+                }, tickExecutor)
                 .done(messages -> {
                     Messages.sendMessages(sender, messages);
                 }, tickExecutor)
@@ -163,7 +163,7 @@ public class LoggerCommands {
                         }
                         return records.get(0);
                     }
-                }, backgroundExecutor.getExecutor())
+                }, loggerExecutor)
                 .done(record -> {
                     Action action = actionMap.readRecord(record);
                     callable.accept(record, action);
