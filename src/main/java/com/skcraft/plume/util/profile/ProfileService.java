@@ -1,18 +1,24 @@
 package com.skcraft.plume.util.profile;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import com.google.inject.Singleton;
 import com.sk89q.squirrelid.Profile;
 import com.sk89q.squirrelid.resolver.HttpRepositoryService;
 import com.skcraft.plume.common.UserId;
 
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Singleton
 public class ProfileService {
@@ -31,6 +37,23 @@ public class ProfileService {
                         return Optional.absent();
                     }
                 }
+
+                @SuppressWarnings("unchecked")
+                @Override
+                public Map<String, Optional<UserId>> loadAll(Iterable<? extends String> keys) throws Exception {
+                    ImmutableList<Profile> profiles = resolver.findAllByName((Iterable<String>) keys);
+                    Map<String, Optional<UserId>> entries = Maps.newHashMap();
+                    for (Profile profile : profiles) {
+                        // Lowercase here is ugly
+                        entries.put(profile.getName().toLowerCase(), Optional.fromNullable(new UserId(profile.getUniqueId(), profile.getName())));
+                    }
+                    for (String key : keys) {
+                        if (!entries.containsKey(key)) {
+                            entries.put(key, Optional.absent());
+                        }
+                    }
+                    return entries;
+                }
             });
 
     @Nullable
@@ -44,6 +67,14 @@ public class ProfileService {
             }
         } catch (ExecutionException e) {
             throw new ProfileLookupException(e.getCause(), name);
+        }
+    }
+
+    public Map<String, Optional<UserId>> findUserIds(List<String> names) throws ProfileLookupException, ProfileNotFoundException {
+        try {
+            return cache.getAll(names.stream().map(String::toLowerCase).collect(Collectors.toList()));
+        } catch (ExecutionException e) {
+            throw new ProfileLookupException(e.getCause(), Joiner.on(", ").join(names));
         }
     }
 

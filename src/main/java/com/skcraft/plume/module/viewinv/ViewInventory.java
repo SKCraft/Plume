@@ -16,6 +16,7 @@ import com.skcraft.plume.util.Server;
 import com.skcraft.plume.util.concurrent.BackgroundExecutor;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
 import com.skcraft.plume.util.inventory.Inventories;
+import com.skcraft.plume.util.playerdata.OfflinePlayerLookup;
 import com.skcraft.plume.util.profile.ProfileLookupException;
 import com.skcraft.plume.util.profile.ProfileNotFoundException;
 import com.skcraft.plume.util.profile.ProfileService;
@@ -29,7 +30,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent.LoadFromFile;
 import net.minecraftforge.event.entity.player.PlayerEvent.SaveToFile;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
@@ -106,14 +106,7 @@ public class ViewInventory {
             sender.displayGUIChest(getInventoryAdapter(Profiles.fromPlayer(target.getPlayerEntity()), target.getPlayerEntity()));
         } else {
             Deferred<?> deferred = Deferreds
-                    .when(() -> {
-                        UserId userId = profileService.findUserId(target.getName());
-                        File saveFile = Server.getPlayerDataFile(userId);
-                        if (!saveFile.exists()) {
-                            throw new CommandException(tr("args.noPlayerDataFile", target.getName()));
-                        }
-                        return userId;
-                    }, backgroundExecutor.getExecutor())
+                    .when(new OfflinePlayerLookup(profileService, target.getName()), backgroundExecutor.getExecutor())
                     .filter(userId -> {
                         EntityPlayer player = Server.findPlayer(userId.getUuid());
                         sender.displayGUIChest(getInventoryAdapter(userId, player));
