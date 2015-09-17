@@ -24,6 +24,7 @@ import com.skcraft.plume.util.profile.Profiles;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import lombok.extern.java.Log;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.player.PlayerEvent.LoadFromFile;
@@ -67,6 +68,19 @@ public class ViewInventory {
     @SubscribeEvent
     public void onPlayedLoggedOut(PlayerLoggedOutEvent event) {
         online.remove(Profiles.fromPlayer(event.player));
+    }
+
+    @SubscribeEvent
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        ViewInventoryAdapter adapter = openInventories.get(Profiles.fromProfile(event.player.getGameProfile()));
+        if (adapter != null) {
+            try {
+                adapter.setPlayerEntity(event.player);
+                adapter.markDirty();
+            } catch (IOException e) {
+                log.log(Level.SEVERE, "This should not have happened", e);
+            }
+        }
     }
 
     @SubscribeEvent
