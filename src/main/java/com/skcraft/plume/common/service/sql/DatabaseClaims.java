@@ -1,10 +1,13 @@
 package com.skcraft.plume.common.service.sql;
 
 import com.google.common.collect.*;
+import com.google.inject.Inject;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
+import com.skcraft.plume.common.module.MySQLPool;
 import com.skcraft.plume.common.service.claim.Claim;
 import com.skcraft.plume.common.service.claim.ClaimMap;
+import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.common.util.WorldVector3i;
 import org.jooq.*;
 import org.jooq.impl.DSL;
@@ -26,6 +29,11 @@ public class DatabaseClaims implements ClaimMap {
     private static final int UPDATE_BATCH_SIZE = 100;
     private final DatabaseManager database;
     private final String server;
+
+    @Inject
+    public DatabaseClaims(MySQLPool pool, Environment environment) {
+        this(pool.getDatabase(), environment.getServerId());
+    }
 
     public DatabaseClaims(DatabaseManager database, String server) {
         checkNotNull(database, "database");

@@ -13,8 +13,6 @@ import com.skcraft.plume.common.service.auth.UserCache;
 import com.skcraft.plume.common.util.concurrent.Deferred;
 import com.skcraft.plume.common.util.concurrent.Deferreds;
 import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.common.util.service.InjectService;
-import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.concurrent.BackgroundExecutor;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
@@ -39,14 +37,12 @@ public class PlayerInvites {
 
     @Inject private BackgroundExecutor executor;
     @Inject private ProfileService profileService;
-    @InjectService private Service<UserCache> userCache;
+    @Inject private UserCache userCache;
     @Inject private TickExecutorService tickExecutorService;
 
     @Command(aliases = "invite", desc = "Invite a user")
     @Require("plume.invite")
     public void invite(@Sender ICommandSender sender, String name) {
-        UserCache userCache = this.userCache.provide();
-
         UserId referrer;
         if (sender instanceof EntityPlayer) {
             referrer = Profiles.fromPlayer((EntityPlayer) sender);

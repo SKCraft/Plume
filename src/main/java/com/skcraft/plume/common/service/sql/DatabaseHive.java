@@ -1,10 +1,20 @@
 package com.skcraft.plume.common.service.sql;
 
 import com.google.common.base.Function;
-import com.google.common.collect.*;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
+import com.google.common.collect.UnmodifiableIterator;
+import com.google.inject.Inject;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
+import com.skcraft.plume.common.module.MySQLPool;
 import com.skcraft.plume.common.service.auth.Group;
 import com.skcraft.plume.common.service.auth.Hive;
 import com.skcraft.plume.common.service.auth.User;
@@ -43,6 +53,11 @@ public class DatabaseHive implements Hive {
     private final DatabaseManager database;
     private ImmutableMap<Integer, Group> groups = ImmutableMap.of();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
+
+    @Inject
+    public DatabaseHive(MySQLPool pool) {
+        this(pool.getDatabase());
+    }
 
     public DatabaseHive(DatabaseManager database) {
         checkNotNull(database, "database");

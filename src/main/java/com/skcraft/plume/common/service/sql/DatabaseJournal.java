@@ -1,10 +1,12 @@
 package com.skcraft.plume.common.service.sql;
 
 import com.google.common.collect.*;
+import com.google.inject.Inject;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.regions.Region;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
+import com.skcraft.plume.common.module.MySQLPool;
 import com.skcraft.plume.common.service.journal.*;
 import com.skcraft.plume.common.service.journal.Record;
 import com.skcraft.plume.common.service.journal.criteria.Criteria;
@@ -36,6 +38,11 @@ public class DatabaseJournal implements Journal {
     private static final int MAX_Y = 255;
     private ConcurrentMap<String, Short> worldIds = Maps.newConcurrentMap();
     @Getter private final DatabaseManager database;
+
+    @Inject
+    public DatabaseJournal(MySQLPool pool) {
+        this(pool.getDatabase());
+    }
 
     /**
      * Create a new instance.

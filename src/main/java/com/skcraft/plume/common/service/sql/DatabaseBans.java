@@ -1,8 +1,10 @@
 package com.skcraft.plume.common.service.sql;
 
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
+import com.skcraft.plume.common.module.MySQLPool;
 import com.skcraft.plume.common.service.ban.Ban;
 import com.skcraft.plume.common.service.ban.BanManager;
 import com.skcraft.plume.common.service.sql.model.data.tables.records.BanRecord;
@@ -18,7 +20,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.skcraft.plume.common.service.sql.model.data.tables.Ban.BAN;
 import static com.skcraft.plume.common.service.sql.model.data.tables.UserId.USER_ID;
@@ -27,6 +28,11 @@ public class DatabaseBans implements BanManager {
 
     @Getter
     private final DatabaseManager database;
+
+    @Inject
+    public DatabaseBans(MySQLPool pool) {
+        this(pool.getDatabase());
+    }
 
     public DatabaseBans(DatabaseManager database) {
         checkNotNull(database, "database");

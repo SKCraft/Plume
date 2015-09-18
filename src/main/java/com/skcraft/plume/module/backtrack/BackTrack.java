@@ -5,8 +5,6 @@ import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.event.lifecycle.PostInitializationEvent;
 import com.skcraft.plume.common.service.journal.Journal;
 import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.common.util.service.InjectService;
-import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.module.backtrack.action.*;
 
 @Module(name = "backtrack", desc = "Logs block changes for later query [requires journal service]")
@@ -15,7 +13,7 @@ public class BackTrack {
     @Inject private LoggerCommands commands;
     @Inject private LoggerListener listener;
     @Inject private ActionMap actionMap;
-    @InjectService private Service<Journal> journal;
+    @Inject private Journal journal;
 
     @Subscribe
     public void onPostInitialization(PostInitializationEvent event) {

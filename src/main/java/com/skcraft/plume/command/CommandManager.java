@@ -17,8 +17,6 @@ import com.skcraft.plume.common.service.auth.Authorizer;
 import com.skcraft.plume.common.service.auth.Context.Builder;
 import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.common.util.service.InjectService;
-import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.util.Contexts;
 import com.skcraft.plume.util.profile.Profiles;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
@@ -48,7 +46,7 @@ public class CommandManager {
     private final Environment environment;
 
     @Getter private final Injector injector;
-    @InjectService private Service<Authorizer> authorizer;
+    @Inject private Authorizer authorizer;
     private final SimpleDispatcher dispatcher;
     private final ParametricBuilder builder;
 
@@ -164,7 +162,6 @@ public class CommandManager {
     private class AuthorizerAdapter implements com.sk89q.intake.util.auth.Authorizer {
         @Override
         public boolean testPermission(Namespace namespace, String permission) {
-            Authorizer authorizer = CommandManager.this.authorizer.provide();
             ICommandSender sender = checkNotNull(namespace.get(ICommandSender.class), "ICommandSender");
             if (sender instanceof MinecraftServer || sender instanceof RConConsoleSource) {
                 return true;

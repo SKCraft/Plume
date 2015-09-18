@@ -13,8 +13,6 @@ import com.skcraft.plume.common.service.party.*;
 import com.skcraft.plume.common.util.concurrent.Deferred;
 import com.skcraft.plume.common.util.concurrent.Deferreds;
 import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.common.util.service.InjectService;
-import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.profile.ProfileLookupException;
 import com.skcraft.plume.util.profile.ProfileNotFoundException;
@@ -36,13 +34,12 @@ public class Parties {
     @Inject private BackgroundExecutor executor;
     @Inject private ProfileService profileService;
     @Inject private TickExecutorService tickExecutorService;
-    @InjectService private Service<PartyCache> partyCache;
+    @Inject private PartyCache partyCache;
 
     @Command(aliases = "create", usage = "/party create [name]", desc = "Create a new party")
     @Group(@At("party"))
     @Require("plume.party.create")
     public void create(@Sender EntityPlayer sender, String name) {
-        PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
 
         Deferred<?> deferred = Deferreds
@@ -51,8 +48,8 @@ public class Parties {
                     party.setName(name);
                     party.setCreateTime(new Date());
                     party.setMembers(Sets.newHashSet(new Member(issuer, Rank.OWNER)));
-                    partyMan.add(party);
-                    partyMan.getManager().refreshParty(party);
+                    partyCache.add(party);
+                    partyCache.getManager().refreshParty(party);
 
                     return party;
                 }, executor.getExecutor())
@@ -74,13 +71,12 @@ public class Parties {
     @Group(@At("party"))
     @Require("plume.party.add")
     public void add(@Sender EntityPlayer sender, String name, String invitee) {
-        PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
 
         Deferred<?> deferred = Deferreds
                 .when(() -> {
                     UserId userId = profileService.findUserId(invitee);
-                    Party party = partyMan.get(name);
+                    Party party = partyCache.get(name);
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
@@ -89,8 +85,8 @@ public class Parties {
                     } else if (userId.equals(issuer)) {
                         throw new CommandException(tr("party.add.cannotAddSelf"));
                     } else {
-                        partyMan.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MEMBER)));
-                        partyMan.getManager().refreshParty(party);
+                        partyCache.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MEMBER)));
+                        partyCache.getManager().refreshParty(party);
 
                         return userId.getName();
                     }
@@ -117,13 +113,12 @@ public class Parties {
     @Group(@At("party"))
     @Require("plume.party.remove")
     public void remove(@Sender EntityPlayer sender, String name, String removee) {
-        PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
 
         Deferred<?> deferred = Deferreds
                 .when(() -> {
                     UserId userId = profileService.findUserId(removee);
-                    Party party = partyMan.get(name);
+                    Party party = partyCache.get(name);
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
@@ -132,8 +127,8 @@ public class Parties {
                     } else if (userId.equals(issuer)) {
                         throw new CommandException(tr("party.remove.cannotAddSelf"));
                     } else {
-                        partyMan.removeMembers(party, Sets.newHashSet(com.skcraft.plume.common.service.party.Parties.getMemberByUser(party, userId)));
-                        partyMan.getManager().refreshParty(party);
+                        partyCache.removeMembers(party, Sets.newHashSet(com.skcraft.plume.common.service.party.Parties.getMemberByUser(party, userId)));
+                        partyCache.getManager().refreshParty(party);
 
                         return userId.getName();
                     }
@@ -160,13 +155,12 @@ public class Parties {
     @Group(@At("party"))
     @Require("plume.party.rank")
     public void rank(@Sender EntityPlayer sender, String name, String target, String rank) {
-        PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
 
         Deferred<?> deferred = Deferreds
                 .when(() -> {
                     UserId userId = profileService.findUserId(target);
-                    Party party = partyMan.get(name);
+                    Party party = partyCache.get(name);
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
@@ -177,12 +171,12 @@ public class Parties {
                     } else {
                         switch(rank.toLowerCase()) {
                             case "member":
-                                partyMan.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MEMBER)));
-                                partyMan.getManager().refreshParty(party);
+                                partyCache.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MEMBER)));
+                                partyCache.getManager().refreshParty(party);
                                 break;
                             case "manager":
-                                partyMan.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MANAGER)));
-                                partyMan.getManager().refreshParty(party);
+                                partyCache.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MANAGER)));
+                                partyCache.getManager().refreshParty(party);
                                 break;
                             default:
                                 throw new CommandException("Invalid rank argument - Use member or manager.");
@@ -213,12 +207,11 @@ public class Parties {
     @Group(@At("party"))
     @Require("plume.party.leave")
     public void leave(@Sender EntityPlayer sender, String name) {
-        PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
 
         Deferred<?> deferred = Deferreds
                 .when(() -> {
-                    Party party = partyMan.get(name);
+                    Party party = partyCache.get(name);
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
@@ -229,8 +222,8 @@ public class Parties {
                         } else if (member.getRank().equals(Rank.OWNER)) {
                             throw new CommandException(tr("party.cannotRemoveSelf"));
                         } else {
-                            partyMan.removeMembers(party, Sets.newHashSet(com.skcraft.plume.common.service.party.Parties.getMemberByUser(party, issuer)));
-                            partyMan.getManager().refreshParty(party);
+                            partyCache.removeMembers(party, Sets.newHashSet(com.skcraft.plume.common.service.party.Parties.getMemberByUser(party, issuer)));
+                            partyCache.getManager().refreshParty(party);
 
                             return null;
                         }
@@ -258,12 +251,11 @@ public class Parties {
     @Group(@At("party"))
     @Require("plume.party.info")
     public void info(@Sender EntityPlayer sender, String name) {
-        PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
 
         Deferred<?> deferred = Deferreds
                 .when(() -> {
-                    Party party = partyMan.get(name);
+                    Party party = partyCache.get(name);
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
@@ -292,18 +284,16 @@ public class Parties {
     @Group(@At("partymanage"))
     @Require("plume.partymanage.add")
     public void manageadd(@Sender EntityPlayer sender, String name, String invitee) {
-        PartyCache partyMan = this.partyCache.provide();
-
         Deferred<?> deferred = Deferreds
                 .when(() -> {
                     UserId userId = profileService.findUserId(invitee);
-                    Party party = partyMan.get(name);
+                    Party party = partyCache.get(name);
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
                     } else {
-                        partyMan.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MEMBER)));
-                        partyMan.getManager().refreshParty(party);
+                        partyCache.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MEMBER)));
+                        partyCache.getManager().refreshParty(party);
 
                         return userId.getName();
                     }
@@ -330,20 +320,18 @@ public class Parties {
     @Group(@At("partymanage"))
     @Require("plume.partymanage.remove")
     public void manageremove(@Sender EntityPlayer sender, String name, String removee) {
-        PartyCache partyMan = this.partyCache.provide();
-
         Deferred<?> deferred = Deferreds
                 .when(() -> {
                     UserId userId = profileService.findUserId(removee);
-                    Party party = partyMan.get(name);
+                    Party party = partyCache.get(name);
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
                     } else if (userId.equals(Profiles.fromPlayer(sender))) {
                         throw new CommandException(tr("party.remove.cannotAddSelf"));
                     } else {
-                        partyMan.removeMembers(party, Sets.newHashSet(com.skcraft.plume.common.service.party.Parties.getMemberByUser(party, userId)));
-                        partyMan.getManager().refreshParty(party);
+                        partyCache.removeMembers(party, Sets.newHashSet(com.skcraft.plume.common.service.party.Parties.getMemberByUser(party, userId)));
+                        partyCache.getManager().refreshParty(party);
 
                         return userId.getName();
                     }
@@ -370,25 +358,24 @@ public class Parties {
     @Group(@At("partymanage"))
     @Require("plume.partymanage.rank")
     public void managerank(@Sender EntityPlayer sender, String name, String target, String rank) {
-        PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
 
         Deferred<?> deferred = Deferreds
                 .when(() -> {
                     UserId userId = profileService.findUserId(target);
-                    Party party = partyMan.get(name);
+                    Party party = partyCache.get(name);
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
                     } else {
                         switch(rank.toLowerCase()) {
                             case "member":
-                                partyMan.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MEMBER)));
-                                partyMan.getManager().refreshParty(party);
+                                partyCache.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MEMBER)));
+                                partyCache.getManager().refreshParty(party);
                                 break;
                             case "manager":
-                                partyMan.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MANAGER)));
-                                partyMan.getManager().refreshParty(party);
+                                partyCache.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MANAGER)));
+                                partyCache.getManager().refreshParty(party);
                                 break;
                             default:
                                 throw new CommandException("Invalid rank argument - Use member or manager.");
@@ -420,20 +407,19 @@ public class Parties {
     @Group(@At("partymanage"))
     @Require("plume.partymanage.delete")
     public void managedelete(@Sender EntityPlayer sender, String name) {
-        PartyCache partyMan = this.partyCache.provide();
         UserId issuer = Profiles.fromPlayer(sender);
 
         Deferred<?> deferred = Deferreds
                 .when(() -> {
-                    Party party = partyMan.getManager().findPartyByName(name);
+                    Party party = partyCache.getManager().findPartyByName(name);
 
                     if (party == null) {
                         throw new CommandException(tr("party.doesNotExist"));
                     } else if (!com.skcraft.plume.common.service.party.Parties.canManage(party, issuer)) {
                         throw new CommandException(tr("party.notManager"));
                     } else {
-                        partyMan.removeMembers(party, party.getMembers());
-                        partyMan.getManager().refreshParty(party);
+                        partyCache.removeMembers(party, party.getMembers());
+                        partyCache.getManager().refreshParty(party);
                         return true;
                     }
 

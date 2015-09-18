@@ -14,8 +14,6 @@ import com.skcraft.plume.common.util.concurrent.Deferreds;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.common.util.service.InjectService;
-import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.event.network.PlayerAuthenticateEvent;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.Server;
@@ -44,14 +42,13 @@ public class Bans {
 
     @Inject private BackgroundExecutor executor;
     @Inject private ProfileService profileService;
-    @InjectService private Service<BanManager> banManager;
+    @Inject private BanManager banManager;
     @Inject private TickExecutorService tickExecutorService;
     @Inject private Environment environment;
     @InjectConfig("bans") private Config<BansConfig> config;
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onAuthenticate(PlayerAuthenticateEvent event) {
-        BanManager banManager = this.banManager.provide();
         List<Ban> bans = banManager.findActiveBans(Profiles.fromProfile(event.getProfile()));
         if(bans != null && !bans.isEmpty()) {
             bans.sort((Ban ban1, Ban ban2) -> ban1.getExpireTime() == null ? 1 : ban2.getExpireTime() == null ? -1 : ban1.getExpireTime().compareTo(ban2.getExpireTime()));
@@ -73,8 +70,6 @@ public class Bans {
     @Command(aliases = "ban", desc = "Ban a user")
     @Require("plume.bans.ban")
     public void ban(@Sender ICommandSender sender, String name, @Text String reason) {
-        BanManager banMan = this.banManager.provide();
-
         UserId issuer;
         if (sender instanceof EntityPlayer) {
             issuer = Profiles.fromPlayer((EntityPlayer) sender);
@@ -95,7 +90,7 @@ public class Bans {
                     currentBan.setReason(reason);
                     currentBan.setServer(environment.getServerId());
 
-                    banMan.addBan(currentBan);
+                    banManager.addBan(currentBan);
 
                     return userId;
                 }, executor.getExecutor())
@@ -124,8 +119,6 @@ public class Bans {
     @Command(aliases = "pardon", desc = "Pardon a user")
     @Require("plume.bans.pardon")
     public void pardon(@Sender ICommandSender sender, String name, @Text String reason) {
-        BanManager banMan = this.banManager.provide();
-
         UserId issuer;
         if (sender instanceof EntityPlayer) {
             issuer = Profiles.fromPlayer((EntityPlayer) sender);
@@ -136,7 +129,7 @@ public class Bans {
         Deferred<?> deferred = Deferreds
                 .when(() -> {
                     UserId userId = profileService.findUserId(name);
-                    banMan.pardon(userId, issuer, reason);
+                    banManager.pardon(userId, issuer, reason);
                     return userId;
                 }, executor.getExecutor())
                 .done(userId -> {

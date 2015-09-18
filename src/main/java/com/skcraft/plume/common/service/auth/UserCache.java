@@ -5,9 +5,12 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
+import com.skcraft.plume.common.event.lifecycle.ReloadEvent;
 import com.skcraft.plume.common.util.ObjectCache;
+import com.skcraft.plume.common.util.module.AutoRegister;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
@@ -25,6 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * is queried, but the value will be cached so the database will not be
  * hit again.</p>
  */
+@AutoRegister
 public class UserCache implements ObjectCache<UserId, User> {
 
     @Getter
@@ -53,6 +57,11 @@ public class UserCache implements ObjectCache<UserId, User> {
     public UserCache(Hive hive) {
         checkNotNull(hive, "hive");
         this.hive = hive;
+    }
+
+    @Subscribe
+    public void onReload(ReloadEvent event) {
+        refreshAll();
     }
 
     @Override

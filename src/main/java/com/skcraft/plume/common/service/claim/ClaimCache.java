@@ -4,9 +4,13 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Inject;
+import com.sk89q.worldedit.util.eventbus.Subscribe;
+import com.skcraft.plume.common.event.lifecycle.ReloadEvent;
 import com.skcraft.plume.common.service.party.Party;
 import com.skcraft.plume.common.service.party.PartyCache;
 import com.skcraft.plume.common.util.WorldVector3i;
+import com.skcraft.plume.common.util.module.AutoRegister;
 import gnu.trove.iterator.TLongObjectIterator;
 import gnu.trove.map.hash.TLongObjectHashMap;
 import lombok.Getter;
@@ -54,6 +58,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * to prevent the queue from growing exceptionally large as errors
  * accumulate (such as in the case of complete database unavailability).</p>
  */
+@AutoRegister
 public class ClaimCache {
 
     /**
@@ -82,6 +87,7 @@ public class ClaimCache {
      * @param claims The underlying claim database
      * @param parties The party cache
      */
+    @Inject
     public ClaimCache(ClaimMap claims, PartyCache parties) {
         this(claims, parties, DEFAULT_WORKER_COUNT);
     }
@@ -107,6 +113,11 @@ public class ClaimCache {
         for (int i = 0; i < workerThreadCount; i++) {
             threadFactory.newThread(new PopulateWorker(claims, parties, statePopulateQueue)).start();
         }
+    }
+
+    @Subscribe
+    public void onReload(ReloadEvent event) {
+        refreshAllClaims();
     }
 
     /**

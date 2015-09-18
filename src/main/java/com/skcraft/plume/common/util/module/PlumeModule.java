@@ -10,9 +10,6 @@ import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.ConfigFactory;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.config.DataDir;
-import com.skcraft.plume.common.util.service.InjectService;
-import com.skcraft.plume.common.util.service.Service;
-import com.skcraft.plume.common.util.service.ServiceFactory;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -63,20 +60,6 @@ class PlumeModule extends AbstractModule {
                                     field.setAccessible(true);
                                     ParameterizedType paramType = (ParameterizedType) field.getGenericType();
                                     field.set(instance, configFactory.createMapping(annotation.value(), (Class<?>) paramType.getActualTypeArguments()[0]));
-                                } catch (IllegalAccessException e) {
-                                    throw new RuntimeException("Failed to set @InjectConfig", e);
-                                }
-                            });
-                        } else if (field.getType() == Service.class && field.isAnnotationPresent(InjectService.class)) {
-                            InjectService annotation = field.getAnnotation(InjectService.class);
-                            ServiceFactory serviceFactory = encounter.getProvider(ServiceFactory.class).get();
-
-                            final Class<?> finalClazz = clazz;
-                            encounter.register((MembersInjector<I>) instance -> {
-                                try {
-                                    field.setAccessible(true);
-                                    ParameterizedType paramType = (ParameterizedType) field.getGenericType();
-                                    field.set(instance, serviceFactory.create((Class<?>) paramType.getActualTypeArguments()[0], finalClazz, annotation.required()));
                                 } catch (IllegalAccessException e) {
                                     throw new RuntimeException("Failed to set @InjectConfig", e);
                                 }

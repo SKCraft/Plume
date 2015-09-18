@@ -1,34 +1,31 @@
 package com.skcraft.plume.service;
 
-import com.google.common.base.Optional;
+import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
-import com.sk89q.worldedit.util.eventbus.Subscribe;
+import com.google.inject.Singleton;
 import com.skcraft.plume.common.UserId;
-import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
-import com.skcraft.plume.common.service.auth.*;
+import com.skcraft.plume.common.service.auth.Authorizer;
+import com.skcraft.plume.common.service.auth.NoAccessSubject;
+import com.skcraft.plume.common.service.auth.Subject;
+import com.skcraft.plume.common.service.auth.Subjects;
+import com.skcraft.plume.common.service.auth.User;
+import com.skcraft.plume.common.service.auth.UserCache;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.common.util.service.InjectService;
-import com.skcraft.plume.common.util.service.Service;
-import com.skcraft.plume.common.util.service.ServiceLocator;
+import com.skcraft.plume.service.DefaultAuthorizer.InjectorModule;
 import com.skcraft.plume.util.Server;
 import ninja.leaping.configurate.objectmapping.Setting;
 
-@Module(name = "default-authorizer", desc = "Lets other modules check permissions and optionally uses any loaded hive service")
+@Module(name = "default-authorizer",
+        desc = "Lets other modules check permissions and optionally uses any loaded hive service",
+        injectorModule = InjectorModule.class)
 public class DefaultAuthorizer implements Authorizer {
 
-    @Inject
-    private ServiceLocator services;
-    @InjectService(required = false)
-    private Service<UserCache> userCache;
+    @Inject(optional = true)
+    private UserCache userCache;
     @InjectConfig("default_authorizer")
     private Config<AuthorizerConfig> config;
-
-    @Subscribe
-    public void onInitializationEvent(InitializationEvent event) {
-        services.register(Authorizer.class, this);
-    }
 
     @Override
     public Subject getSubject(UserId userId) {
@@ -36,9 +33,8 @@ public class DefaultAuthorizer implements Authorizer {
             return Subjects.permissive();
         }
 
-        Optional<UserCache> userCache = this.userCache.get();
-        if (userCache.isPresent()) {
-            User user = userCache.get().getIfPresent(userId);
+        if (userCache != null) {
+            User user = userCache.getIfPresent(userId);
             if (user != null) {
                 return user.getSubject();
             } else {
@@ -52,6 +48,13 @@ public class DefaultAuthorizer implements Authorizer {
     private static class AuthorizerConfig {
         @Setting(comment = "Set to true to give all operators all privileges")
         public boolean grantOpAllPrivileges = true;
+    }
+
+    public static class InjectorModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(Authorizer.class).to(DefaultAuthorizer.class).in(Singleton.class);
+        }
     }
 
 }

@@ -1,8 +1,10 @@
 package com.skcraft.plume.common.service.sql;
 
 import com.google.common.collect.*;
+import com.google.inject.Inject;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
+import com.skcraft.plume.common.module.MySQLPool;
 import com.skcraft.plume.common.service.party.Member;
 import com.skcraft.plume.common.service.party.Party;
 import com.skcraft.plume.common.service.party.PartyExistsException;
@@ -32,6 +34,11 @@ public class DatabaseParties implements PartyManager {
 
     @Getter
     private final DatabaseManager database;
+
+    @Inject
+    public DatabaseParties(MySQLPool pool) {
+        this(pool.getDatabase());
+    }
 
     public DatabaseParties(DatabaseManager database) {
         checkNotNull(database, "database");

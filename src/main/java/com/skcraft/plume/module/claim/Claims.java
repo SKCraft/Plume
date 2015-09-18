@@ -17,8 +17,6 @@ import com.skcraft.plume.common.util.WorldVector3i;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.common.util.service.InjectService;
-import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.event.Cause;
 import com.skcraft.plume.event.block.BreakBlockEvent;
 import com.skcraft.plume.event.block.PlaceBlockEvent;
@@ -51,8 +49,8 @@ import static com.skcraft.plume.common.util.SharedLocale.tr;
 public class Claims {
 
     @InjectConfig("claims") private Config<ClaimConfig> config;
-    @InjectService private Service<ClaimCache> claimCache;
-    @InjectService private Service<Authorizer> authorizer;
+    @Inject private ClaimCache claimCache;
+    @Inject private Authorizer authorizer;
     @Inject private Environment environment;
 
     // Submodules
@@ -63,7 +61,7 @@ public class Claims {
         for (WorldServer world : MinecraftServer.getServer().worldServers) {
             for (Object object : world.theChunkProviderServer.loadedChunks) {
                 Chunk chunk = (Chunk) object;
-                claimCache.provide().queueChunk(new WorldVector3i(Worlds.getWorldId(world), chunk.xPosition, 0, chunk.zPosition));
+                claimCache.queueChunk(new WorldVector3i(Worlds.getWorldId(world), chunk.xPosition, 0, chunk.zPosition));
             }
         }
     }
@@ -72,25 +70,25 @@ public class Claims {
     public void onWorldLoad(WorldEvent.Load event) {
         for (Object object : ((WorldServer) event.world).theChunkProviderServer.loadedChunks) {
             Chunk chunk = (Chunk) object;
-            claimCache.provide().queueChunk(new WorldVector3i(Worlds.getWorldId(event.world), chunk.xPosition, 0, chunk.zPosition));
+            claimCache.queueChunk(new WorldVector3i(Worlds.getWorldId(event.world), chunk.xPosition, 0, chunk.zPosition));
         }
     }
 
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event) {
-        claimCache.provide().invalidateChunksInWorld(Worlds.getWorldId(event.world));
+        claimCache.invalidateChunksInWorld(Worlds.getWorldId(event.world));
     }
 
     @SubscribeEvent
     public void onChunkLoad(ChunkEvent.Load event) {
         Chunk chunk = event.getChunk();
-        claimCache.provide().queueChunk(new WorldVector3i(Worlds.getWorldId(event.world), chunk.xPosition, 0, chunk.zPosition));
+        claimCache.queueChunk(new WorldVector3i(Worlds.getWorldId(event.world), chunk.xPosition, 0, chunk.zPosition));
     }
 
     @SubscribeEvent
     public void onChunkUnload(ChunkEvent.Unload event) {
         Chunk chunk = event.getChunk();
-        claimCache.provide().invalidateChunk(new WorldVector3i(Worlds.getWorldId(event.world), chunk.xPosition, 0, chunk.zPosition));
+        claimCache.invalidateChunk(new WorldVector3i(Worlds.getWorldId(event.world), chunk.xPosition, 0, chunk.zPosition));
     }
 
     public boolean mayAccess(Cause cause, ClaimEntry entry) {
@@ -112,7 +110,7 @@ public class Claims {
             Context.Builder builder = new Context.Builder();
             environment.update(builder);
             // TODO: Add player too
-            if (authorizer.provide().getSubject(userId).hasPermission("plume.claims.bypass", builder.build())) {
+            if (authorizer.getSubject(userId).hasPermission("plume.claims.bypass", builder.build())) {
                 return true;
             }
 
@@ -199,7 +197,7 @@ public class Claims {
     }
 
     private ClaimEntry getClaimEntry(Location3i location) {
-        ClaimCache claimCache = Claims.this.claimCache.provide();
+        ClaimCache claimCache = Claims.this.claimCache;
         WorldVector3i chunkPosition = location.toWorldVector();
         chunkPosition = new WorldVector3i(chunkPosition.getWorldId(), chunkPosition.getX() >> 4, 0, chunkPosition.getZ() >> 4);
         return claimCache.getClaimIfPresent(chunkPosition);

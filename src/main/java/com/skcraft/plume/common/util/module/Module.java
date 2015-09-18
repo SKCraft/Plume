@@ -22,4 +22,6 @@ public @interface Module {
 
     boolean hidden() default false;
 
+    Class<? extends com.google.inject.Module>[] injectorModule() default {};
+
 }

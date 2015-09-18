@@ -8,8 +8,6 @@ import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.common.util.service.InjectService;
-import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.util.Contexts;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.profile.Profiles;
@@ -27,7 +25,7 @@ import static com.skcraft.plume.common.util.SharedLocale.tr;
 public class CommandFilter {
 
     @InjectConfig("command_filter") private Config<CommandConfig> config;
-    @InjectService private Service<Authorizer> authorizer;
+    @Inject private Authorizer authorizer;
     @Inject private Environment environment;
 
     @SubscribeEvent
@@ -55,7 +53,7 @@ public class CommandFilter {
                 String perm = "plume.commandfilter.restricted." + testCommand;
                 Contexts.update(builder, (EntityPlayer) event.sender);
 
-                if (!authorizer.provide().getSubject(Profiles.fromCommandSender(event.sender)).hasPermission(perm, builder.build())) {
+                if (!authorizer.getSubject(Profiles.fromCommandSender(event.sender)).hasPermission(perm, builder.build())) {
                     event.sender.addChatMessage(Messages.error(tr("commandFilter.noPermission")));
                     event.setCanceled(true);
                     return;

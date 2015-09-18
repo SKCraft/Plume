@@ -4,10 +4,14 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
+import com.skcraft.plume.common.event.lifecycle.ReloadEvent;
 import com.skcraft.plume.common.service.claim.NoSuchPartyException;
 import com.skcraft.plume.common.util.ObjectCache;
+import com.skcraft.plume.common.util.module.AutoRegister;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
@@ -17,6 +21,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@AutoRegister
 public class PartyCache implements ObjectCache<String, Party> {
 
     @Getter
@@ -41,9 +46,15 @@ public class PartyCache implements ObjectCache<String, Party> {
      *
      * @param manager The backend party manager
      */
+    @Inject
     public PartyCache(PartyManager manager) {
         checkNotNull(manager, "manager");
         this.manager = manager;
+    }
+
+    @Subscribe
+    public void onReload(ReloadEvent event) {
+        refreshAll();
     }
 
     /**

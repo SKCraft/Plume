@@ -11,8 +11,6 @@ import com.skcraft.plume.common.util.WorldVector3i;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.AutoRegister;
-import com.skcraft.plume.common.util.service.InjectService;
-import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.module.backtrack.action.*;
 import com.skcraft.plume.util.BlockSnapshot;
 import com.skcraft.plume.util.NamedEntity;
@@ -48,7 +46,7 @@ public class LoggerListener {
     private static final BlockSnapshot AIR_SNAPSHOT = new BlockSnapshot(Blocks.air, 0, null);
     @InjectConfig("backtrack") private Config<LoggerConfig> config;
 
-    @InjectService private Service<Journal> journal;
+    @Inject private Journal journal;
     @Inject private ActionMap actionMap;
     private JournalBuffer buffer;
 
@@ -56,7 +54,7 @@ public class LoggerListener {
     public void onFMLServerStarting(FMLServerStartingEvent event) {
         File queueFile = new File(DimensionManager.getCurrentSaveRootDirectory(), "/plume/logger/queue.dat");
         queueFile.getParentFile().mkdirs();
-        buffer = new JournalBuffer(journal.provide(), queueFile);
+        buffer = new JournalBuffer(journal, queueFile);
     }
 
     public void addRecord(@Nullable UserId userId, WorldVector3i location, Action action) {

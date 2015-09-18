@@ -29,8 +29,6 @@ import com.skcraft.plume.common.util.concurrent.Deferreds;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.AutoRegister;
-import com.skcraft.plume.common.util.service.InjectService;
-import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.Worlds;
 import com.skcraft.plume.util.concurrent.BackgroundExecutor;
@@ -64,8 +62,8 @@ public class ClaimCommands {
     public static final String SYSTEM_OWNER = "~system";
 
     @InjectConfig("claims") private Config<ClaimConfig> config;
-    @InjectService private Service<ClaimCache> claimCache;
-    @InjectService private Service<PartyCache> partyCache;
+    @Inject private ClaimCache claimCache;
+    @Inject private PartyCache partyCache;
     @Inject private TickExecutorService tickExecutorService;
     @Inject private BackgroundExecutor bgExecutor;
     @Inject private ProfileService profileService;
@@ -75,8 +73,6 @@ public class ClaimCommands {
     @Command(aliases = "claim", desc = "Claim a section of land")
     @Require("plume.claims.claim")
     public void claim(@Sender EntityPlayer player, @Optional String partyName) throws CommandException {
-        ClaimCache claimCache = this.claimCache.provide();
-        PartyCache partyCache = this.partyCache.provide();
         Region selection;
         UserId owner = Profiles.fromPlayer(player);
         String worldName = Worlds.getWorldId(player.worldObj);
@@ -147,8 +143,6 @@ public class ClaimCommands {
 
     @Command(aliases = "claimaccept", desc = "Accept a pending claim request")
     public void acceptClaim(@Sender EntityPlayer player) {
-        ClaimCache claimCache = this.claimCache.provide();
-        PartyCache partyCache = this.partyCache.provide();
         UserId owner = Profiles.fromPlayer(player);
         ClaimRequest existingRequest = pendingRequests.getIfPresent(owner);
 
@@ -247,7 +241,6 @@ public class ClaimCommands {
     @Command(aliases = {"owner", "own"}, desc = "Show the owner of the current location")
     @Require("plume.claims.owner")
     public void owner(@Sender EntityPlayer player) {
-        ClaimCache claimCache = this.claimCache.provide();
         WorldVector3i chunkPosition = new WorldVector3i(Worlds.getWorldId(player.worldObj), (int) player.posX >> 4, 0, (int) player.posZ >> 4);
         ClaimEntry entry = claimCache.getClaimIfPresent(chunkPosition);
         if (entry != null) {
@@ -274,7 +267,6 @@ public class ClaimCommands {
     @Command(aliases = "unclaim", desc = "Unclaim a section of land")
     @Require("plume.claims.unclaim")
     public void unclaim(@Sender EntityPlayer player) throws CommandException {
-        ClaimCache claimCache = this.claimCache.provide();
         Region selection;
         UserId owner = Profiles.fromPlayer(player);
         String worldName = Worlds.getWorldId(player.worldObj);
@@ -324,8 +316,6 @@ public class ClaimCommands {
     @Group(@At("claimmanage"))
     @Require("plume.claimmanage.claim")
     public void adminClaim(@Sender EntityPlayer sender, String ownerName, @Optional String partyName) throws CommandException {
-        ClaimCache claimCache = this.claimCache.provide();
-        PartyCache partyCache = this.partyCache.provide();
         Region selection;
         String worldName = Worlds.getWorldId(sender.worldObj);
 
@@ -383,9 +373,7 @@ public class ClaimCommands {
     @Group(@At("claimmanage"))
     @Require("plume.claimmanage.unclaim")
     public void adminUnclaim(@Sender EntityPlayer player) throws CommandException {
-        ClaimCache claimCache = this.claimCache.provide();
         Region selection;
-        UserId owner = Profiles.fromPlayer(player);
         String worldName = Worlds.getWorldId(player.worldObj);
 
         try {

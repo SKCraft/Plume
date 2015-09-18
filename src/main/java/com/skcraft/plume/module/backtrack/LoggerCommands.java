@@ -30,8 +30,6 @@ import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.AutoRegister;
 import com.skcraft.plume.common.util.pagination.ListPagination;
 import com.skcraft.plume.common.util.pagination.Page;
-import com.skcraft.plume.common.util.service.InjectService;
-import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.module.backtrack.action.Action;
 import com.skcraft.plume.module.backtrack.playback.PlaybackAgent;
 import com.skcraft.plume.module.backtrack.playback.PlaybackType;
@@ -68,7 +66,7 @@ public class LoggerCommands {
 
     @InjectConfig("backtrack") private Config<LoggerConfig> config;
     @Inject private ActionMap actionMap;
-    @InjectService private Service<Journal> journal;
+    @Inject private Journal journal;
     private final ListeningExecutorService loggerExecutor = MoreExecutors.listeningDecorator(EvenMoreExecutors.newBoundedCachedThreadPool(0, 1, 2));
     @Inject private BackgroundExecutor backgroundExecutor;
     @Inject private TickExecutorService tickExecutor;
@@ -157,7 +155,7 @@ public class LoggerCommands {
                         }
                     } catch (NumberFormatException e) {
                         Criteria criteria = parser.parse(input).build();
-                        List<Record> records = journal.provide().findRecords(criteria, Order.DESC, 1);
+                        List<Record> records = journal.findRecords(criteria, Order.DESC, 1);
                         if (records.isEmpty()) {
                             throw new CommandException(tr("logger.noResults", input.trim()));
                         }
@@ -197,7 +195,7 @@ public class LoggerCommands {
                     if (!confirm && config.get().playback.confirmNoDateNoPlayer && criteria.getSince() == null && criteria.getBefore() == null && criteria.getUserId() == null) {
                         throw new CommandException(tr("logger.playback.confirmNoDateNoPlayer"));
                     }
-                    return journal.provide().findRecords(criteria, playbackType.getOrder());
+                    return journal.findRecords(criteria, playbackType.getOrder());
                 }, loggerExecutor)
                 .done(cursor -> {
                     if (cursor.hasNext()) {
@@ -239,7 +237,7 @@ public class LoggerCommands {
         Deferred<?> deferred = Deferreds
                 .when(() -> {
                     Criteria criteria = parser.parse(input).build();
-                    List<Record> records = journal.provide().findRecords(criteria, order, getLimit(limit));
+                    List<Record> records = journal.findRecords(criteria, order, getLimit(limit));
                     return new ListPagination<>(records, perPage);
                 }, loggerExecutor)
                 .done(pagination -> {

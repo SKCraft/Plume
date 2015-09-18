@@ -28,6 +28,8 @@ class ModuleLoader {
     }
 
     public void load() throws IOException {
+        List<com.google.inject.Module> loadedInjectorModules = Lists.newArrayList();
+
         List<Class<?>> modules = Lists.newArrayList(ClassFilter.only().from(ClassIndex.getAnnotated(Module.class)));
         List<Class<?>> loadable = Lists.newArrayList();
 
@@ -54,15 +56,22 @@ class ModuleLoader {
             }
 
             if (enabled) {
+                for (Class<? extends com.google.inject.Module> injectorModule : annotation.injectorModule()) {
+                    log.info("Found injector module " + injectorModule.getName() + " from " + Modules.getModuleName(module));
+                    loadedInjectorModules.add(injector.getInstance(injectorModule));
+                }
+
                 loadable.add(module);
             }
         }
 
         loader.save(config);
 
+        Injector childInjector = injector.createChildInjector(loadedInjectorModules);
+
         for (Class<?> module : loadable) {
             log.info("Loading " + Modules.getModuleName(module) + "...");
-            injector.getInstance(module);
+            childInjector.getInstance(module);
         }
     }
 

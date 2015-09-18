@@ -1,6 +1,5 @@
 package com.skcraft.plume.module;
 
-import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
@@ -13,8 +12,6 @@ import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.common.util.service.InjectService;
-import com.skcraft.plume.common.util.service.Service;
 import com.skcraft.plume.event.network.PlayerAuthenticateEvent;
 import com.skcraft.plume.util.Server;
 import com.skcraft.plume.util.profile.Profiles;
@@ -38,15 +35,12 @@ public class UserLoader {
     private final Map<UserId, User> online = Maps.newHashMap();
 
     @InjectConfig("users") private Config<UsersConfig> config;
-    @InjectService(required = false) private Service<UserCache> userCache;
+    @Inject(optional = true) private UserCache userCache;
     @Inject private Environment environment;
 
     @SubscribeEvent
     public void onAuthenticate(PlayerAuthenticateEvent event) {
-        Optional<UserCache> optional = this.userCache.get();
-
-        if (optional.isPresent()) {
-            UserCache userCache = optional.get();
+        if (userCache != null) {
             Date now = new Date();
             UserId userId = Profiles.fromProfile(event.getProfile());
             User user = userCache.load(userId);
@@ -74,10 +68,7 @@ public class UserLoader {
 
     @SubscribeEvent
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        Optional<UserCache> optional = this.userCache.get();
-
-        if (optional.isPresent()) {
-            UserCache userCache = optional.get();
+        if (userCache != null) {
             UserId userId = Profiles.fromPlayer(event.player);
             User user = userCache.getIfPresent(userId);
             if (user != null) {
