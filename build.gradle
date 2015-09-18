@@ -54,6 +54,8 @@ dependencies {
     compile 'joda-time:joda-time:2.8.2' // Time library; used for period matcher not found in Java 8+
     compile 'com.googlecode.json-simple:json-simple:1.1.1' // JSON parsing and emitting
     compile 'org.beanshell:bsh:2.0b5' // BeanShell REPL
+    compile 'io.dropwizard.metrics:metrics-core:3.1.0' // Metrics
+    compile 'io.dropwizard.metrics:metrics-graphite:3.1.0' // Metrics + Graphite
 
     // SQL and JDBC
     compile 'org.jooq:jooq:3.6.2' // SQL DSL
@@ -145,6 +147,7 @@ shadowJar {
         include(dependency('org.modelmapper.extensions:modelmapper-jooq:.*'))
         include(dependency('com.zaxxer:HikariCP:.*'))
         include(dependency('org.beanshell:bsh:.*'))
+        include(dependency('io.dropwizard.metrics:.*'))
 
         relocate 'com.sk89q.intake', 'com.skcraft.plume.internal.intake'
         relocate 'com.google.inject', 'com.skcraft.plume.internal.inject'

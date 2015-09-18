@@ -2,6 +2,7 @@
 /src/main/resources/*_at.cfg
 !/src/main/resources/plume_at.cfg
 log4j.xml
+.vagrant
 
 ### Java ###
 *.class
