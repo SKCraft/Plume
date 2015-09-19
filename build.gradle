@@ -56,6 +56,7 @@ dependencies {
     compile 'org.beanshell:bsh:2.0b5' // BeanShell REPL
     compile 'io.dropwizard.metrics:metrics-core:3.1.0' // Metrics
     compile 'io.dropwizard.metrics:metrics-graphite:3.1.0' // Metrics + Graphite
+    compile 'io.dropwizard.metrics:metrics-jvm:3.1.0' // Metrics + JVM
 
     // SQL and JDBC
     compile 'org.jooq:jooq:3.6.2' // SQL DSL
