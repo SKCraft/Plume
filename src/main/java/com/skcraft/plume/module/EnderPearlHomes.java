@@ -24,30 +24,32 @@ public class EnderPearlHomes {
 
     @SubscribeEvent
     public void onEnderTeleport(EnderTeleportEvent event) {
-        World world = event.entity.worldObj;
-        World spawnWorld = MinecraftServer.getServer().getEntityWorld();
-        EntityPlayerMP player = (EntityPlayerMP) event.entity;
-        Location3d target = new Location3d(world, event.targetX, event.targetY, event.targetZ);
-        Location3d current = Locations.getLocation3d(player);
+        if (event.entity instanceof EntityPlayerMP) {
+            World world = event.entity.worldObj;
+            World spawnWorld = MinecraftServer.getServer().getEntityWorld();
+            EntityPlayerMP player = (EntityPlayerMP) event.entity;
+            Location3d target = new Location3d(world, event.targetX, event.targetY, event.targetZ);
+            Location3d current = Locations.getLocation3d(player);
 
-        boolean inWater = Materials.isWater(world.getBlock((int) player.posX, (int) player.posY, (int) player.posZ));
-        double distanceSq = current.distanceSq(target);
-        double horizDistanceSq =  current.setY(0).distanceSq(target.setY(0));
+            boolean inWater = Materials.isWater(world.getBlock((int) player.posX, (int) player.posY, (int) player.posZ));
+            double distanceSq = current.distanceSq(target);
+            double horizDistanceSq =  current.setY(0).distanceSq(target.setY(0));
 
-        if (inWater && (distanceSq <= HOME_DISTANCE_SQ || horizDistanceSq < SPAWN_HORIZ_DISTANCE_SQ && current.getY() <= target.getY() + SPAWN_HEAD_BUFFER)) {
-            ChunkCoordinates coords = spawnWorld.getSpawnPoint();
-            TeleportHelper.teleport(player, Locations.getLocation3d(spawnWorld, coords));
-            player.addChatMessage(Messages.info(tr("enderpearlHomes.toSpawn")));
-            event.setCanceled(true);
-        } else if (current.distanceSq(target) <= HOME_DISTANCE_SQ) {
-            ChunkCoordinates coords = player.getBedLocation(spawnWorld.provider.dimensionId);
-            if (coords != null) {
+            if (inWater && (distanceSq <= HOME_DISTANCE_SQ || horizDistanceSq < SPAWN_HORIZ_DISTANCE_SQ && current.getY() <= target.getY() + SPAWN_HEAD_BUFFER)) {
+                ChunkCoordinates coords = spawnWorld.getSpawnPoint();
                 TeleportHelper.teleport(player, Locations.getLocation3d(spawnWorld, coords));
-                player.addChatMessage(Messages.info(tr("enderpearlHomes.nowAtBed")));
-            } else {
-                player.addChatMessage(Messages.error(tr("enderpearlHomes.noBed")));
+                player.addChatMessage(Messages.info(tr("enderpearlHomes.toSpawn")));
+                event.setCanceled(true);
+            } else if (current.distanceSq(target) <= HOME_DISTANCE_SQ) {
+                ChunkCoordinates coords = player.getBedLocation(spawnWorld.provider.dimensionId);
+                if (coords != null) {
+                    TeleportHelper.teleport(player, Locations.getLocation3d(spawnWorld, coords));
+                    player.addChatMessage(Messages.info(tr("enderpearlHomes.nowAtBed")));
+                } else {
+                    player.addChatMessage(Messages.error(tr("enderpearlHomes.noBed")));
+                }
+                event.setCanceled(true);
             }
-            event.setCanceled(true);
         }
     }
 
