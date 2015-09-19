@@ -1,8 +1,10 @@
 package com.skcraft.plume.util;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
@@ -58,22 +60,25 @@ public final class Messages {
         return message;
     }
 
-    public static void broadcastInfo(String message) {
-        log.info("BROADCAST: " + message);
-        for (String name : MinecraftServer.getServer().getAllUsernames()) {
-            if (name != null) {
-                EntityPlayerMP player = Server.findPlayer(name);
-                player.addChatMessage(Messages.info(message));
+    public static void broadcast(IChatComponent message, Predicate<EntityPlayer> filter) {
+        log.info("BROADCAST: " + message.getUnformattedText());
+        for (Object object : MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
+            EntityPlayer player = ((EntityPlayer) object);
+            if (filter.apply(player)) {
+                player.addChatMessage(message);
             }
         }
     }
 
+    public static void broadcast(IChatComponent message) {
+        broadcast(message, Predicates.alwaysTrue());
+    }
+
+    public static void broadcastInfo(String message) {
+        broadcast(Messages.info(message));
+    }
+
     public static void broadcastAlert(String message) {
-        for (String name : MinecraftServer.getServer().getAllUsernames()) {
-            if (name != null) {
-                EntityPlayerMP player = Server.findPlayer(name);
-                player.addChatMessage(Messages.error(message));
-            }
-        }
+        broadcast(Messages.error(message));
     }
 }

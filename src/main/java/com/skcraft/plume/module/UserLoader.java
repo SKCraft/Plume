@@ -13,13 +13,17 @@ import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.event.network.PlayerAuthenticateEvent;
+import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.Server;
 import com.skcraft.plume.util.profile.Profiles;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
 import ninja.leaping.configurate.objectmapping.Setting;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -73,6 +77,17 @@ public class UserLoader {
             User user = userCache.getIfPresent(userId);
             if (user != null) {
                 online.put(userId, user);
+
+                Date joinDate = user.getJoinDate();
+                Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.MINUTE, -1);
+                Date after = calendar.getTime();
+
+                if (config.get().announceNewPlayers && joinDate != null && joinDate.after(after)) {
+                    ChatComponentText message = new ChatComponentText(tr("users.newMember", event.player.getGameProfile().getName()));
+                    message.getChatStyle().setColor(EnumChatFormatting.GOLD);
+                    Messages.broadcast(message, player -> !player.equals(event.player));
+                }
             } else if (!config.get().allowLoginWithoutLoadedUser) {
                 Server.kick((EntityPlayerMP) event.player, tr("users.profileNotLoaded"));
             }
@@ -94,6 +109,9 @@ public class UserLoader {
 
         @Setting(comment = "The message the user gets disconnected with if the user is not whitelisted")
         private String notWhitelistedMessage = "You are not whitelisted to this server.";
+
+        @Setting(comment = "Whether to announce that a newly joined player is new to the server")
+        private boolean announceNewPlayers = false;
     }
 
 }
