@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 public class MySQLJournal {
 
     @Inject private MySQLPool pool;
-    @Inject private DatabaseJournal journal;
+    @Inject private Journal journal;
     @InjectConfig("mysql/journal") private Config<JournalConfig> config;
 
     @Subscribe

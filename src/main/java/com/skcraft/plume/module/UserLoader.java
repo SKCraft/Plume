@@ -35,7 +35,7 @@ public class UserLoader {
     private final Map<UserId, User> online = Maps.newHashMap();
 
     @InjectConfig("users") private Config<UsersConfig> config;
-    @Inject(optional = true) private UserCache userCache;
+    @Inject private UserCache userCache;
     @Inject private Environment environment;
 
     @SubscribeEvent

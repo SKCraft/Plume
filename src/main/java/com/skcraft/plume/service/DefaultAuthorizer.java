@@ -22,7 +22,7 @@ import ninja.leaping.configurate.objectmapping.Setting;
         injectorModule = InjectorModule.class)
 public class DefaultAuthorizer implements Authorizer {
 
-    @Inject(optional = true)
+    @Inject
     private UserCache userCache;
     @InjectConfig("default_authorizer")
     private Config<AuthorizerConfig> config;

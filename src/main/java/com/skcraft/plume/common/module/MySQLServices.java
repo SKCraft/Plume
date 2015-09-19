@@ -30,10 +30,10 @@ public class MySQLServices {
     private Config<ServicesConfig> config;
 
     @Inject private MySQLPool pool;
-    @Inject private DatabaseHive hive;
-    @Inject private DatabaseBans bans;
-    @Inject private DatabaseParties parties;
-    @Inject private DatabaseClaims claimMap;
+    @Inject private Hive hive;
+    @Inject private BanManager bans;
+    @Inject private PartyManager parties;
+    @Inject private ClaimMap claimMap;
 
     @Subscribe
     public void onInitializationEvent(InitializationEvent event) {

@@ -19,9 +19,11 @@ class PlumeModule extends AbstractModule {
 
     private final File dataDir;
     private final EventBus eventBus = new EventBus();
+    private final ConfigFactory configFactory;
 
     PlumeModule(File dataDir) {
         this.dataDir = dataDir;
+        this.configFactory = new ConfigFactory(dataDir);
     }
 
     @Override
@@ -53,7 +55,6 @@ class PlumeModule extends AbstractModule {
                     for (Field field : clazz.getDeclaredFields()) {
                         if (field.getType() == Config.class && field.isAnnotationPresent(InjectConfig.class)) {
                             InjectConfig annotation = field.getAnnotation(InjectConfig.class);
-                            ConfigFactory configFactory = encounter.getProvider(ConfigFactory.class).get();
 
                             encounter.register((MembersInjector<I>) instance -> {
                                 try {
