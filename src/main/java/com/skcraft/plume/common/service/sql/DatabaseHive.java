@@ -1,6 +1,7 @@
 package com.skcraft.plume.common.service.sql;
 
 import com.google.common.base.Function;
+import com.google.common.base.Supplier;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
@@ -50,18 +51,18 @@ public class DatabaseHive implements Hive {
     private static final int QUERY_BATCH_SIZE = 200;
 
     @Getter
-    private final DatabaseManager database;
+    private final Supplier<DatabaseManager> database;
     private ImmutableMap<Integer, Group> groups = ImmutableMap.of();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     @Inject
     public DatabaseHive(MySQLPool pool) {
-        this(pool.getDatabase());
+        this.database = pool::getDatabase;
     }
 
     public DatabaseHive(DatabaseManager database) {
         checkNotNull(database, "database");
-        this.database = database;
+        this.database = () -> database;
     }
 
     @Override
@@ -78,7 +79,7 @@ public class DatabaseHive implements Hive {
         Lock lock = this.lock.writeLock();
         lock.lock();
         try {
-            DSLContext create = database.create();
+            DSLContext create = database.get().create();
             // Fetch groups
             Builder<Integer, Group> groupsBuilder = ImmutableMap.builder();
 
@@ -134,7 +135,7 @@ public class DatabaseHive implements Hive {
         Lock lock = this.lock.readLock();
         lock.lock();
         try {
-            DSLContext create = database.create();
+            DSLContext create = database.get().create();
 
             Map<Integer, User> users = Maps.newHashMap(); // Temporary map to first get the users then add their groups
 
@@ -163,11 +164,11 @@ public class DatabaseHive implements Hive {
                         .fetch();
 
                 for (Record record : userRecords) {
-                    UserId userId = database.getUserIdCache().fromRecord(record, USER_ID);
+                    UserId userId = database.get().getUserIdCache().fromRecord(record, USER_ID);
                     User user = userSupplier.apply(userId);
-                    database.getModelMapper().map(record, user);
+                    database.get().getModelMapper().map(record, user);
                     user.setUserId(userId);
-                    user.setReferrer(database.getUserIdCache().fromRecord(record, r));
+                    user.setReferrer(database.get().getUserIdCache().fromRecord(record, r));
                     users.put(record.getValue(USER_ID.ID), user);
                 }
 
@@ -209,15 +210,15 @@ public class DatabaseHive implements Hive {
     public void saveUser(User user, boolean saveGroups) throws DataAccessException {
         checkNotNull(user, "user");
         try {
-            DSLContext c = database.create();
+            DSLContext c = database.get().create();
 
-            int userId = database.getUserIdCache().getOrCreateUserId(c, user.getUserId());
+            int userId = database.get().getUserIdCache().getOrCreateUserId(c, user.getUserId());
 
             UserRecord record = c.newRecord(USER, user);
             record.setUserId(userId);
 
             if (user.getReferrer() != null) {
-                int referrerId = database.getUserIdCache().getOrCreateUserId(c, user.getReferrer());
+                int referrerId = database.get().getUserIdCache().getOrCreateUserId(c, user.getReferrer());
                 record.setReferrerId(referrerId);
             }
 

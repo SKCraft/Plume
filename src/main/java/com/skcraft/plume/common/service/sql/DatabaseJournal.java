@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -37,11 +38,11 @@ public class DatabaseJournal implements Journal {
     private static final int MIN_Y = 0;
     private static final int MAX_Y = 255;
     private ConcurrentMap<String, Short> worldIds = Maps.newConcurrentMap();
-    @Getter private final DatabaseManager database;
+    @Getter private final Supplier<DatabaseManager> database;
 
     @Inject
     public DatabaseJournal(MySQLPool pool) {
-        this(pool.getDatabase());
+        this.database = pool::getDatabase;
     }
 
     /**
@@ -51,13 +52,13 @@ public class DatabaseJournal implements Journal {
      */
     public DatabaseJournal(DatabaseManager database) {
         checkNotNull(database, "database");
-        this.database = database;
+        this.database = () -> database;
     }
 
     @Override
     public void load() {
         ConcurrentMap<String, Short> worldIds = Maps.newConcurrentMap();
-        List<LogWorldRecord> results = database.create().selectFrom(LOG_WORLD).fetch();
+        List<LogWorldRecord> results = database.get().create().selectFrom(LOG_WORLD).fetch();
         for (LogWorldRecord result : results) {
             worldIds.put(result.getName().toLowerCase(), result.getId());
         }
@@ -170,7 +171,7 @@ public class DatabaseJournal implements Journal {
         record.setId(result.getValue(LOG.ID));
         record.setLocation(new WorldVector3i(result.getValue(LOG_WORLD.NAME), result.getValue(LOG.X), result.getValue(LOG.Y), result.getValue(LOG.Z)));
         record.setTime(result.getValue(LOG.TIME));
-        record.setUserId(database.getUserIdCache().fromRecord(result, USER_ID));
+        record.setUserId(database.get().getUserIdCache().fromRecord(result, USER_ID));
         record.setAction(result.getValue(LOG.ACTION));
         record.setData(result.getValue(LOG.DATA));
         return record;
@@ -181,7 +182,7 @@ public class DatabaseJournal implements Journal {
         checkNotNull(order, "order");
 
         try {
-            DSLContext create = database.create();
+            DSLContext create = database.get().create();
 
             Condition condition = buildCondition(criteria, LOG.WORLD_ID.eq(LOG_WORLD.ID));
 
@@ -253,7 +254,7 @@ public class DatabaseJournal implements Journal {
             Set<UserId> userIds = Sets.newHashSet();
             Map<UserId, Integer> resolvedUsers;
             Set<String> worlds = Sets.newHashSet();
-            DSLContext context = database.create();
+            DSLContext context = database.get().create();
 
             // Collect user IDs and world IDs for separate insertion
             for (Record record : records) {
@@ -264,7 +265,7 @@ public class DatabaseJournal implements Journal {
             }
 
             // Insert user IDs
-            resolvedUsers = database.getUserIdCache().getOrCreateUserIds(context, userIds);
+            resolvedUsers = database.get().getUserIdCache().getOrCreateUserIds(context, userIds);
 
             // Insert world IDs
             saveWorldIds(context, worlds);

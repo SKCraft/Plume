@@ -1,5 +1,6 @@
 package com.skcraft.plume.common.service.sql;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.skcraft.plume.common.DataAccessException;
@@ -8,7 +9,6 @@ import com.skcraft.plume.common.module.MySQLPool;
 import com.skcraft.plume.common.service.ban.Ban;
 import com.skcraft.plume.common.service.ban.BanManager;
 import com.skcraft.plume.common.service.sql.model.data.tables.records.BanRecord;
-import lombok.Getter;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -26,17 +26,16 @@ import static com.skcraft.plume.common.service.sql.model.data.tables.UserId.USER
 
 public class DatabaseBans implements BanManager {
 
-    @Getter
-    private final DatabaseManager database;
+    private final Supplier<DatabaseManager> database;
 
     @Inject
     public DatabaseBans(MySQLPool pool) {
-        this(pool.getDatabase());
+        database = pool::getDatabase;
     }
 
     public DatabaseBans(DatabaseManager database) {
         checkNotNull(database, "database");
-        this.database = database;
+        this.database = () -> database;
     }
 
     public static Condition getActiveBanCondition() { return BAN.EXPIRE_TIME.isNull().or(BAN.EXPIRE_TIME.gt(Timestamp.from(Instant.now()))); }
@@ -46,7 +45,7 @@ public class DatabaseBans implements BanManager {
         checkNotNull(id, "id");
 
         try {
-            DSLContext create = database.create();
+            DSLContext create = database.get().create();
 
             List<Ban> bans = Lists.newArrayList();
 
@@ -60,7 +59,7 @@ public class DatabaseBans implements BanManager {
                     .fetch();
 
             for (Record record : banRecords) {
-                Ban ban = database.getModelMapper().map(record, Ban.class);
+                Ban ban = database.get().getModelMapper().map(record, Ban.class);
                 UserId userId = new UserId(UUID.fromString(record.getValue(USER_ID.UUID)), record.getValue(USER_ID.NAME));
                 ban.setUserId(userId);
                 bans.add(ban);
@@ -76,9 +75,9 @@ public class DatabaseBans implements BanManager {
     public int addBan(Ban ban) throws DataAccessException {
         checkNotNull(ban, "ban");
         try {
-            DSLContext create = database.create();
+            DSLContext create = database.get().create();
 
-            int userId = database.getUserIdCache().getOrCreateUserId(create, ban.getUserId());
+            int userId = database.get().getUserIdCache().getOrCreateUserId(create, ban.getUserId());
 
             BanRecord record = create.newRecord(BAN, ban);
             //checkArgument(record.getId() == null, "Can't save existing ban");
@@ -104,10 +103,10 @@ public class DatabaseBans implements BanManager {
         Timestamp now = Timestamp.from(Instant.now());
 
         try {
-            DSLContext create = database.create();
+            DSLContext create = database.get().create();
 
             UUID userUuid = checkNotNull(user.getUuid(), "user.getUuid()");
-            Integer pardonUserId = pardonUser != null ? database.getUserIdCache().getOrCreateUserId(create, pardonUser) : null;
+            Integer pardonUserId = pardonUser != null ? database.get().getUserIdCache().getOrCreateUserId(create, pardonUser) : null;
 
             create.update(BAN)
                     .set(BAN.EXPIRE_TIME, now)

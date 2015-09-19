@@ -1,5 +1,6 @@
 package com.skcraft.plume.common.service.sql;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.*;
 import com.google.inject.Inject;
 import com.skcraft.plume.common.DataAccessException;
@@ -33,16 +34,16 @@ public class DatabaseParties implements PartyManager {
     private static final int QUERY_BATCH_SIZE = 200;
 
     @Getter
-    private final DatabaseManager database;
+    private final Supplier<DatabaseManager> database;
 
     @Inject
     public DatabaseParties(MySQLPool pool) {
-        this(pool.getDatabase());
+        this.database = pool::getDatabase;
     }
 
     public DatabaseParties(DatabaseManager database) {
         checkNotNull(database, "database");
-        this.database = database;
+        this.database = () -> database;
     }
 
     @Override
@@ -50,7 +51,7 @@ public class DatabaseParties implements PartyManager {
         checkNotNull(party, "party");
 
         try {
-            database.create().transaction(configuration -> {
+            database.get().create().transaction(configuration -> {
                 DSLContext create = DSL.using(configuration);
 
                 // Insert the party
@@ -94,7 +95,7 @@ public class DatabaseParties implements PartyManager {
         checkNotNull(names, "names");
 
         try {
-            DSLContext create = database.create();
+            DSLContext create = database.get().create();
 
             Map<String, Party> parties = Maps.newHashMap();
 
@@ -116,7 +117,7 @@ public class DatabaseParties implements PartyManager {
 
                 for (PartyRecord record : partyRecords) {
                     Party party = partySupplier.apply(record.getValue(PARTY.NAME));
-                    database.getModelMapper().map(record, party);
+                    database.get().getModelMapper().map(record, party);
                     parties.put(party.getName().toLowerCase(), party);
                 }
 
@@ -125,8 +126,8 @@ public class DatabaseParties implements PartyManager {
                 for (Record record : memberRecords) {
                     Party party = parties.get(record.getValue(PARTY_MEMBER.PARTY_NAME).toLowerCase());
                     if (party != null) {
-                        Member member = database.getModelMapper().map(record, Member.class);
-                        member.setUserId(getDatabase().getUserIdCache().fromRecord(record, USER_ID));
+                        Member member = database.get().getModelMapper().map(record, Member.class);
+                        member.setUserId(database.get().getUserIdCache().fromRecord(record, USER_ID));
                         // Don't immediately update the party with the new members because
                         // we may be refreshing the party and so we don't want the
                         // party's state to be incorrect during loading
@@ -188,7 +189,7 @@ public class DatabaseParties implements PartyManager {
         checkNotNull(party, "party");
         checkNotNull(members, "members");
         try {
-            database.create().transaction(configuration -> {
+            database.get().create().transaction(configuration -> {
                 DSLContext create = DSL.using(configuration);
                 addMembers(create, party, members);
             });
@@ -200,8 +201,8 @@ public class DatabaseParties implements PartyManager {
     @Override
     public void removeMembers(String party, Set<UserId> members) {
         try {
-            DSLContext create = database.create();
-            Collection<Integer> userIds = database.getUserIdCache().getOrCreateUserIds(create, members).values();
+            DSLContext create = database.get().create();
+            Collection<Integer> userIds = database.get().getUserIdCache().getOrCreateUserIds(create, members).values();
 
             create.deleteFrom(PARTY_MEMBER)
                     .where(PARTY_MEMBER.PARTY_NAME.eq(party)
@@ -217,7 +218,7 @@ public class DatabaseParties implements PartyManager {
         for (Member member : members) {
             userIds.add(checkNotNull(member.getUserId(), "member.getUserId()"));
         }
-        Map<UserId, Integer> userIdsMap = database.getUserIdCache().getOrCreateUserIds(create, userIds);
+        Map<UserId, Integer> userIdsMap = database.get().getUserIdCache().getOrCreateUserIds(create, userIds);
 
         List<Query> memberQueries = Lists.newArrayList();
         for (Member member : members) {

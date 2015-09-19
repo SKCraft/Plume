@@ -1,6 +1,11 @@
 package com.skcraft.plume.common.service.sql;
 
-import com.google.common.collect.*;
+import com.google.common.base.Supplier;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.collect.UnmodifiableIterator;
 import com.google.inject.Inject;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
@@ -9,12 +14,22 @@ import com.skcraft.plume.common.service.claim.Claim;
 import com.skcraft.plume.common.service.claim.ClaimMap;
 import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.common.util.WorldVector3i;
-import org.jooq.*;
+import org.jooq.Cursor;
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.RenderContext;
+import org.jooq.Result;
+import org.jooq.Row3;
 import org.jooq.impl.DSL;
 
 import javax.annotation.Nullable;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.skcraft.plume.common.service.sql.model.data.tables.Claim.CLAIM;
@@ -27,18 +42,19 @@ public class DatabaseClaims implements ClaimMap {
      * The number of rows to update at a time in one statement.
      */
     private static final int UPDATE_BATCH_SIZE = 100;
-    private final DatabaseManager database;
+    private final Supplier<DatabaseManager> database;
     private final String server;
 
     @Inject
     public DatabaseClaims(MySQLPool pool, Environment environment) {
-        this(pool.getDatabase(), environment.getServerId());
+        this.database = pool::getDatabase;
+        this.server = environment.getServerId();
     }
 
     public DatabaseClaims(DatabaseManager database, String server) {
         checkNotNull(database, "database");
         checkNotNull(server, "server");
-        this.database = database;
+        this.database = () -> database;
         this.server = server;
     }
 
@@ -53,7 +69,7 @@ public class DatabaseClaims implements ClaimMap {
         checkNotNull(positions, "positions");
 
         try {
-            DSLContext create = database.create();
+            DSLContext create = database.get().create();
 
             Map<WorldVector3i, Claim> claims = Maps.newHashMap();
 
@@ -74,7 +90,7 @@ public class DatabaseClaims implements ClaimMap {
                     .fetch();
 
             for (Record record : claimRecords) {
-                Claim claim = database.getModelMapper().map(record, Claim.class);
+                Claim claim = database.get().getModelMapper().map(record, Claim.class);
                 claim.setParty(record.getValue(CLAIM.PARTY_NAME));
                 UserId owner = new UserId(UUID.fromString(record.getValue(USER_ID.UUID)), record.getValue(USER_ID.NAME));
                 claim.setOwner(owner);
@@ -93,7 +109,7 @@ public class DatabaseClaims implements ClaimMap {
         checkNotNull(owner, "owner");
 
         try {
-            return executeReplace(database.create(), positions, owner, party);
+            return executeReplace(database.get().create(), positions, owner, party);
         } catch (org.jooq.exception.DataAccessException e) {
             throw new DataAccessException("Failed to fetch claims for given coordinates", e);
         }
@@ -112,7 +128,7 @@ public class DatabaseClaims implements ClaimMap {
         checkNotNull(positions, "positions");
 
         try {
-            DSLContext create = database.create();
+            DSLContext create = database.get().create();
 
             // We will remove entries from this set
             Set<WorldVector3i> freePositions = Sets.newHashSet(positions);
@@ -134,7 +150,7 @@ public class DatabaseClaims implements ClaimMap {
         checkNotNull(positions, "positions");
 
         try {
-            DSLContext create = database.create();
+            DSLContext create = database.get().create();
 
             // We will remove entries from this set
             Set<WorldVector3i> freePositions = Sets.newHashSet(positions);
@@ -176,9 +192,9 @@ public class DatabaseClaims implements ClaimMap {
         checkNotNull(owner, "owner");
 
         try {
-            DSLContext create = database.create();
+            DSLContext create = database.get().create();
 
-            int ownerId = database.getUserIdCache().getOrCreateUserId(create, owner);
+            int ownerId = database.get().getUserIdCache().getOrCreateUserId(create, owner);
 
             Record record = create.selectCount()
                     .from(CLAIM)
@@ -201,7 +217,7 @@ public class DatabaseClaims implements ClaimMap {
             DSLContext create = DSL.using(configuration);
             RenderContext ctx = create.renderContext().qualify(false);
 
-            int ownerId = database.getUserIdCache().getOrCreateUserId(create, owner);
+            int ownerId = database.get().getUserIdCache().getOrCreateUserId(create, owner);
             java.sql.Date now = new java.sql.Date(new Date().getTime());
 
             UnmodifiableIterator<List<WorldVector3i>> it = Iterators.partition(positions.iterator(), UPDATE_BATCH_SIZE);
