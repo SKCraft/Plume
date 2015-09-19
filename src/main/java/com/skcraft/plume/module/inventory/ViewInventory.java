@@ -1,4 +1,4 @@
-package com.skcraft.plume.module.viewinv;
+package com.skcraft.plume.module.inventory;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;

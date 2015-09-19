@@ -1,4 +1,4 @@
-package com.skcraft.plume.module.viewinv;
+package com.skcraft.plume.module.inventory;
 
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.util.NBTConstants;
