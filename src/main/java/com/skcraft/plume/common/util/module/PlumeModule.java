@@ -33,6 +33,7 @@ class PlumeModule extends AbstractModule {
 
         bind(File.class).annotatedWith(DataDir.class).toInstance(dataDir);
         bind(EventBus.class).toInstance(eventBus);
+        bind(ConfigFactory.class).toInstance(configFactory);
         bind(ModuleLoader.class).in(Singleton.class);
 
         // Event bus registration
