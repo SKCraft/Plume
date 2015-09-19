@@ -8,7 +8,7 @@ import net.minecraftforge.event.world.WorldEvent;
 
 import java.util.Iterator;
 
-@Module(name = "potential-spawn-validator", desc = "Block spawns with invalid weights", enabled = false)
+@Module(name = "potential-spawn-validator", desc = "Block spawns with invalid weights")
 @Log
 public class PotentialSpawnValidator {
 
