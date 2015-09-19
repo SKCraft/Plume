@@ -148,12 +148,28 @@ public class UserIdCache {
      * @return The ID
      */
     public int getOrCreateUserId(DSLContext create, UserId userId) {
+        return getOrCreateUserId(create, userId, false);
+    }
+
+    /**
+     * Get the ID for a given UserID, creating a new UserId entry in the
+     * database if it's not found.
+     *
+     * @param create The DSL context
+     * @param userId The UserId to find
+     * @param update Whether to force update
+     * @return The ID
+     */
+    public int getOrCreateUserId(DSLContext create, UserId userId, boolean update) {
         checkNotNull(userId, "userId");
         UUID uuid = checkNotNull(userId.getUuid(), "userId.getUuid()");
 
-        Integer id = userIdCache.get(uuid);
-        if (id != null) {
-            return id;
+        Integer id;
+        if (!update) {
+            id = userIdCache.get(uuid);
+            if (id != null) {
+                return id;
+            }
         }
 
         // Workaround for jOOQ #2123: https://github.com/jOOQ/jOOQ/issues/2123

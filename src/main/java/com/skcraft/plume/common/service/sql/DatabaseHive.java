@@ -212,7 +212,7 @@ public class DatabaseHive implements Hive {
         try {
             DSLContext c = database.get().create();
 
-            int userId = database.get().getUserIdCache().getOrCreateUserId(c, user.getUserId());
+            int userId = database.get().getUserIdCache().getOrCreateUserId(c, user.getUserId(), true);
 
             UserRecord record = c.newRecord(USER, user);
             record.setUserId(userId);

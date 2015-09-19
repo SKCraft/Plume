@@ -55,6 +55,7 @@ public class UserLoader {
                 expireCache.put(user, true);
 
                 if (user.getSubject().hasPermission("whitelist", environment.update(new Context.Builder()).build())) {
+                    user.getUserId().setName(event.getProfile().getName());
                     if (user.getJoinDate() == null && user.getCreateDate() != null) {
                         user.setJoinDate(now);
                     }
