@@ -43,19 +43,19 @@ public class DatabaseClaims implements ClaimMap {
      */
     private static final int UPDATE_BATCH_SIZE = 100;
     private final Supplier<DatabaseManager> database;
-    private final String server;
+    private final Supplier<String> server;
 
     @Inject
     public DatabaseClaims(MySQLPool pool, Environment environment) {
         this.database = pool::getDatabase;
-        this.server = environment.getServerId();
+        this.server = environment::getServerId;
     }
 
     public DatabaseClaims(DatabaseManager database, String server) {
         checkNotNull(database, "database");
         checkNotNull(server, "server");
         this.database = () -> database;
-        this.server = server;
+        this.server = () -> server;
     }
 
     @Nullable
@@ -84,7 +84,7 @@ public class DatabaseClaims implements ClaimMap {
                     .select(USER_ID.fields())
                     .from(CLAIM)
                     .crossJoin(USER_ID)
-                    .where(CLAIM.SERVER.eq(server)
+                    .where(CLAIM.SERVER.eq(server.get())
                             .and(row(CLAIM.WORLD, CLAIM.X, CLAIM.Z).in(coordRows)
                                     .and(CLAIM.OWNER_ID.eq(USER_ID.ID))))
                     .fetch();
@@ -138,7 +138,7 @@ public class DatabaseClaims implements ClaimMap {
 
             create
                     .deleteFrom(CLAIM)
-                    .where(CLAIM.SERVER.eq(server).and(row(CLAIM.WORLD, CLAIM.X, CLAIM.Z).in(coordRows)))
+                    .where(CLAIM.SERVER.eq(server.get()).and(row(CLAIM.WORLD, CLAIM.X, CLAIM.Z).in(coordRows)))
                     .execute();
         } catch (org.jooq.exception.DataAccessException e) {
             throw new DataAccessException("Failed to fetch claims for given coordinates", e);
@@ -163,7 +163,7 @@ public class DatabaseClaims implements ClaimMap {
                     .select(USER_ID.fields())
                     .from(CLAIM)
                     .crossJoin(USER_ID)
-                    .where(CLAIM.SERVER.eq(server)
+                    .where(CLAIM.SERVER.eq(server.get())
                             .and(row(CLAIM.WORLD, CLAIM.X, CLAIM.Z).in(coordRows)
                                     .and(CLAIM.OWNER_ID.eq(USER_ID.ID))))
                     .fetchLazy();
@@ -198,7 +198,7 @@ public class DatabaseClaims implements ClaimMap {
 
             Record record = create.selectCount()
                     .from(CLAIM)
-                    .where(CLAIM.SERVER.eq(server).and(CLAIM.OWNER_ID.eq(ownerId)))
+                    .where(CLAIM.SERVER.eq(server.get()).and(CLAIM.OWNER_ID.eq(ownerId)))
                     .fetchOne();
 
             return (Integer) record.getValue(0);
@@ -246,7 +246,7 @@ public class DatabaseClaims implements ClaimMap {
                     }
                     builder.append("(?, ?, ?, ?, ?, ?, ?)");
 
-                    values.add(server);
+                    values.add(server.get());
                     values.add(position.getWorldId());
                     values.add(position.getX());
                     values.add(position.getZ());
@@ -255,7 +255,7 @@ public class DatabaseClaims implements ClaimMap {
                     values.add(new Timestamp(now.getTime()));
 
                     Claim claim = new Claim();
-                    claim.setServer(server);
+                    claim.setServer(server.get());
                     claim.setWorld(position.getWorldId());
                     claim.setX(position.getX());
                     claim.setZ(position.getZ());
