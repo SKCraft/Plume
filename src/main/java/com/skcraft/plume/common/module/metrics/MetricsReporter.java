@@ -1,5 +1,6 @@
 package com.skcraft.plume.common.module.metrics;
 
+import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
@@ -29,6 +30,15 @@ public class MetricsReporter {
 
     @Subscribe
     public void onInitialization(InitializationEvent event) {
+        if (config.get().console.enabled) {
+            log.info("Registering console metrics printing...");
+            ConsoleReporter reporter = ConsoleReporter.forRegistry(metricRegistry)
+                    .convertRatesTo(TimeUnit.SECONDS)
+                    .convertDurationsTo(TimeUnit.MILLISECONDS)
+                    .build();
+            reporter.start(config.get().console.interval, TimeUnit.SECONDS);
+        }
+
         if (config.get().graphite.enabled) {
             log.info("Registering Graphite metrics destination...");
             Graphite graphite = new Graphite(new InetSocketAddress(config.get().graphite.address, config.get().graphite.port));
@@ -49,11 +59,22 @@ public class MetricsReporter {
     }
 
     private static class ReporterConfig {
+        @Setting(comment = "Enable reporting via console")
+        private ConsoleConfig console = new ConsoleConfig();
+
         @Setting(comment = "Enable reporting via JMX")
         private JMXConfig jmx = new JMXConfig();
 
         @Setting(comment = "Enable reporting to a Graphite instance")
         private GraphiteConfig graphite = new GraphiteConfig();
+    }
+
+    @ConfigSerializable
+    private static class ConsoleConfig {
+        @Setting
+        private boolean enabled = false;
+        @Setting(comment = "The interval in seconds to report metrics at")
+        private int interval = 10;
     }
 
     @ConfigSerializable
