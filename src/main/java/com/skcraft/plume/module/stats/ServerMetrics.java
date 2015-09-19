@@ -1,4 +1,4 @@
-package com.skcraft.plume.module.metrics;
+package com.skcraft.plume.module.stats;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;

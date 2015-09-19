@@ -1,4 +1,4 @@
-package com.skcraft.plume.module;
+package com.skcraft.plume.module.player;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;

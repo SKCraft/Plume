@@ -1,4 +1,4 @@
-package com.skcraft.plume.module;
+package com.skcraft.plume.module.player;
 
 import com.google.common.collect.Sets;
 import com.sk89q.intake.Command;

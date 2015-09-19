@@ -1,4 +1,4 @@
-package com.skcraft.plume.module.scripting;
+package com.skcraft.plume.module;
 
 import bsh.EvalError;
 import bsh.Interpreter;

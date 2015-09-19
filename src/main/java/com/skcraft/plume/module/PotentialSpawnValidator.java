@@ -1,4 +1,4 @@
-package com.skcraft.plume.module.patch;
+package com.skcraft.plume.module;
 
 import com.skcraft.plume.common.util.module.Module;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -8,7 +8,7 @@ import net.minecraftforge.event.world.WorldEvent;
 
 import java.util.Iterator;
 
-@Module(name = "potential-spawn-validator")
+@Module(name = "potential-spawn-validator", desc = "Block spawns with invalid weights", enabled = false)
 @Log
 public class PotentialSpawnValidator {
 

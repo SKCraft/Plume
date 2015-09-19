@@ -1,4 +1,4 @@
-package com.skcraft.plume.module;
+package com.skcraft.plume.module.player;
 
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;

@@ -1,4 +1,4 @@
-package com.skcraft.plume.module;
+package com.skcraft.plume.module.chat;
 
 import com.google.common.collect.Lists;
 import com.skcraft.plume.common.util.config.Config;

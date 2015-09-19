@@ -1,7 +1,6 @@
-package com.skcraft.plume.module;
+package com.skcraft.plume.module.player;
 
 import com.sk89q.intake.Command;
-import com.sk89q.intake.CommandException;
 import com.sk89q.intake.Require;
 import com.sk89q.intake.parametric.annotation.Optional;
 import com.skcraft.plume.command.Sender;
