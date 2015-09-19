@@ -23,6 +23,7 @@ public class TeleportHelper {
         }
         //TODO: allow pitch and yaw to be set
         player.playerNetServerHandler.setPlayerLocation(x, y, z, player.rotationYaw, player.rotationPitch);
+        player.fallDistance = 0;
     }
 
     public static class BasicTeleporter extends Teleporter {
