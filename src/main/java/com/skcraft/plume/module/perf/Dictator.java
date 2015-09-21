@@ -52,7 +52,9 @@ public class Dictator {
             });
 
     private Rule getRule(Class<?> clazz) {
-        for (Rule rule : config.get().rules) {
+        List<Rule> rules = config.get().rules;
+        if (rules == null) return null;
+        for (Rule rule : rules) {
             if (rule.apply(clazz)) {
                 return rule;
             }
