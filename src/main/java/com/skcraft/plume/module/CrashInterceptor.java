@@ -23,7 +23,7 @@ import ninja.leaping.configurate.objectmapping.Setting;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-@Module(name = "crash_interceptor", desc = "Intercepts certain kinds of crashes")
+@Module(name = "crash-interceptor", desc = "Intercepts certain kinds of crashes")
 @Log
 public class CrashInterceptor {
 
