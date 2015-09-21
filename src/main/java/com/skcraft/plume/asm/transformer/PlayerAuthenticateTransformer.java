@@ -1,5 +1,6 @@
-package com.skcraft.plume.asm;
+package com.skcraft.plume.asm.transformer;
 
+import com.skcraft.plume.asm.util.ObfMappings;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
@@ -15,7 +16,7 @@ import java.util.Map;
 import static org.objectweb.asm.Opcodes.ASM5;
 
 @SortingIndex(value = -999)
-public class PlumeTransformer implements IClassTransformer {
+public class PlayerAuthenticateTransformer implements IClassTransformer {
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] data) {

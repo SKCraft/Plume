@@ -8,7 +8,10 @@ public class PlumePlugin implements IFMLLoadingPlugin {
 
     @Override
     public String[] getASMTransformerClass() {
-        return new String[] { "com.skcraft.plume.asm.PlumeTransformer" };
+        return new String[] {
+                "com.skcraft.plume.asm.transformer.PlayerAuthenticateTransformer",
+                "com.skcraft.plume.asm.transformer.TickCallbackTransform"
+        };
     }
 
     @Override
