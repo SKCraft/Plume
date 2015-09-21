@@ -93,6 +93,7 @@ public class ServerMetrics {
         private final CachedGauge<Integer> tileEntityCount = new CachedGauge<>();
         private final CachedGauge<Integer> tickingTileEntityCount = new CachedGauge<>();
 
+        private final CachedGauge<Integer> deadEntityCount = new CachedGauge<>();
         private final CachedGauge<Integer> entityCount = new CachedGauge<>();
         private final CachedGauge<Integer> livingCount = new CachedGauge<>();
         private final CachedGauge<Integer> fallingCount = new CachedGauge<>();
@@ -119,6 +120,7 @@ public class ServerMetrics {
             metricRegistry.register(track(name("worlds", id, "playerCount")), chunkCount);
             metricRegistry.register(track(name("worlds", id, "tileEntities", "count")), tileEntityCount);
             metricRegistry.register(track(name("worlds", id, "tileEntities", "ticking")), tickingTileEntityCount);
+            metricRegistry.register(track(name("worlds", id, "entities", "deadCount")), deadEntityCount);
             metricRegistry.register(track(name("worlds", id, "entities", "count")), entityCount);
             metricRegistry.register(track(name("worlds", id, "entities", "livingCount")), livingCount);
             metricRegistry.register(track(name("worlds", id, "entities", "fallingBlockCount")), fallingCount);
@@ -154,6 +156,7 @@ public class ServerMetrics {
             tileEntityCount.setValue(tileEntities);
             tickingTileEntityCount.setValue(tickingTileEntities);
 
+            int deadEntities = 0;
             int entities = 0;
             int living = 0;
             int falling = 0;
@@ -165,17 +168,22 @@ public class ServerMetrics {
             int waterMobs = 0;
 
             for (Entity entity : (List<Entity>) world.loadedEntityList) {
-                entities++;
-                if (entity instanceof EntityLivingBase) living++;
-                if (entity instanceof EntityFallingBlock) falling++;
-                if (entity instanceof EntityXPOrb) xpOrbs++;
-                if (entity instanceof EntityItem) items++;
-                if (entity instanceof EntityAmbientCreature) ambients++;
-                if (entity instanceof EntityAnimal) animals++;
-                if (entity instanceof EntityVillager) villagers++;
-                if (entity instanceof EntityWaterMob) waterMobs++;
+                if (entity.isDead) {
+                    deadEntities++;
+                } else {
+                    entities++;
+                    if (entity instanceof EntityLivingBase) living++;
+                    if (entity instanceof EntityFallingBlock) falling++;
+                    if (entity instanceof EntityXPOrb) xpOrbs++;
+                    if (entity instanceof EntityItem) items++;
+                    if (entity instanceof EntityAmbientCreature) ambients++;
+                    if (entity instanceof EntityAnimal) animals++;
+                    if (entity instanceof EntityVillager) villagers++;
+                    if (entity instanceof EntityWaterMob) waterMobs++;
+                }
             }
 
+            deadEntityCount.setValue(deadEntities);
             entityCount.setValue(entities);
             livingCount.setValue(living);
             fallingCount.setValue(falling);
