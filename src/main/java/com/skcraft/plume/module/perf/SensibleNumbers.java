@@ -41,7 +41,7 @@ public class SensibleNumbers {
     private final ClassCounter chickenCounter = new ClassCounter(EntityChicken.class);
     private final ClassCounter petCounter = new ClassCounter(EntityTameable.class);
 
-    @InjectConfig("sensible-numbers")
+    @InjectConfig("sensible_numbers")
     private Config<SensibleNumbersConfig> config;
 
     private void setCreatureTypeQuota(EnumCreatureType type, int quota) {

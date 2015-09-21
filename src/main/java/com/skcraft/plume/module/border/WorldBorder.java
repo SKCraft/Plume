@@ -6,12 +6,16 @@ import com.google.common.cache.LoadingCache;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.module.border.WorldBorderConfig;
 import com.skcraft.plume.module.border.WorldBorderConfig.Border;
 import com.skcraft.plume.module.border.WorldBorderConfig.Border.BorderType;
 import com.skcraft.plume.module.border.WorldBorderConfig.Border.Threshold;
-import com.skcraft.plume.util.*;
+import com.skcraft.plume.util.Location3d;
+import com.skcraft.plume.util.Location3i;
+import com.skcraft.plume.util.Locations;
+import com.skcraft.plume.util.Messages;
+import com.skcraft.plume.util.SafeBlockFinder;
 import com.skcraft.plume.util.SafeBlockFinder.NoSafeLocationException;
+import com.skcraft.plume.util.TeleportHelper;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -23,7 +27,7 @@ import static com.skcraft.plume.common.util.SharedLocale.tr;
 
 @Module(name = "world-border", desc = "Configurable world border that warns and then bounces players back from it")
 public class WorldBorder {
-    @InjectConfig("world-border") private Config<WorldBorderConfig> config;
+    @InjectConfig("world_border") private Config<WorldBorderConfig> config;
 
     private final LoadingCache<UUID, BorderSession> sessions = CacheBuilder.newBuilder().build(new CacheLoader<UUID, BorderSession>() {
         @Override
