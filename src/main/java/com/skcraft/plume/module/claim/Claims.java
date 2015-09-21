@@ -108,6 +108,9 @@ public class Claims {
             return true;
         } else if (rootCause instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer) rootCause;
+            if (player.getCommandSenderName().startsWith("[") && config.get().protection.ignoreFakePlayers) {
+                return true;
+            }
             rootCause = Profiles.fromPlayer(player);
         }
 
