@@ -57,6 +57,7 @@ dependencies {
     compile 'io.dropwizard.metrics:metrics-core:3.1.0' // Metrics
     compile 'io.dropwizard.metrics:metrics-graphite:3.1.0' // Metrics + Graphite
     compile 'io.dropwizard.metrics:metrics-jvm:3.1.0' // Metrics + JVM
+    compile 'net.sf.opencsv:opencsv:2.3' // CSV read/write
 
     // SQL and JDBC
     compile 'org.jooq:jooq:3.6.2' // SQL DSL
@@ -149,6 +150,7 @@ shadowJar {
         include(dependency('com.zaxxer:HikariCP:.*'))
         include(dependency('org.beanshell:bsh:.*'))
         include(dependency('io.dropwizard.metrics:.*'))
+        include(dependency('net.sf.opencsv:opencsv:.*'))
 
         relocate 'com.sk89q.intake', 'com.skcraft.plume.internal.intake'
         relocate 'com.google.inject', 'com.skcraft.plume.internal.inject'
@@ -160,6 +162,7 @@ shadowJar {
         relocate 'org.atteo', 'com.skcraft.plume.internal.classindex'
         relocate 'org.mapdb', 'com.skcraft.plume.internal.mapdb'
         relocate 'org.modelmapper', 'com.skcraft.plume.internal.modelmapper'
+        relocate 'net.sf.opencsv', 'com.skcraft.plume.internal.opencsv'
     }
 }
 

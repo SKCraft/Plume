@@ -10,6 +10,7 @@ import com.skcraft.plume.common.service.auth.Context;
 import com.skcraft.plume.common.service.claim.Claim;
 import com.skcraft.plume.common.service.claim.ClaimCache;
 import com.skcraft.plume.common.service.claim.ClaimEntry;
+import com.skcraft.plume.common.service.claim.ClaimMap;
 import com.skcraft.plume.common.service.party.Parties;
 import com.skcraft.plume.common.service.party.Party;
 import com.skcraft.plume.common.util.Environment;
@@ -24,6 +25,7 @@ import com.skcraft.plume.event.block.UseBlockEvent;
 import com.skcraft.plume.event.entity.DamageEntityEvent;
 import com.skcraft.plume.event.entity.DestroyEntityEvent;
 import com.skcraft.plume.event.entity.UseEntityEvent;
+import com.skcraft.plume.module.perf.profiler.CollectAppendersEvent;
 import com.skcraft.plume.util.Location3i;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.Worlds;
@@ -50,6 +52,7 @@ public class Claims {
 
     @InjectConfig("claims") private Config<ClaimConfig> config;
     @Inject private ClaimCache claimCache;
+    @Inject private ClaimMap claimMap;
     @Inject private Authorizer authorizer;
     @Inject private Environment environment;
 
@@ -89,6 +92,11 @@ public class Claims {
     public void onChunkUnload(ChunkEvent.Unload event) {
         Chunk chunk = event.getChunk();
         claimCache.invalidateChunk(new WorldVector3i(Worlds.getWorldId(event.world), chunk.xPosition, 0, chunk.zPosition));
+    }
+
+    @Subscribe
+    public void onCollectAppenders(CollectAppendersEvent event) {
+        event.getAppenders().add(new ClaimAppender(event.getTimings(), claimMap));
     }
 
     public boolean mayAccess(Cause cause, ClaimEntry entry) {
