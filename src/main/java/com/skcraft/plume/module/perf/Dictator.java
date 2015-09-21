@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-@Module(name = "dictator", desc = "Reduce the ticking frequency of certain entities or tile entities")
+@Module(name = "dictator", desc = "Reduce the ticking frequency of certain entities or tile entities", enabled = false)
 public class Dictator {
 
     private static final XorRandom random = new XorRandom();
