@@ -1,3 +1,4 @@
+/testserver
 /run/
 /src/main/resources/*_at.cfg
 !/src/main/resources/plume_at.cfg
