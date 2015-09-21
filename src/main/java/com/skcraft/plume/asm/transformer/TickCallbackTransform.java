@@ -22,10 +22,10 @@ public class TickCallbackTransform implements IClassTransformer {
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] data) {
-        if (worldUpdateMatcher.matchesClass(transformedName)) {
+        if (worldUpdateMatcher.matchesClass(name)) {
             ClassReader cr = new ClassReader(data);
             ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES);
-            cr.accept(new TickCallbackClassVisitor(cw, transformedName), 0);
+            cr.accept(new TickCallbackClassVisitor(cw, name), 0);
             return cw.toByteArray();
         }
         return data;

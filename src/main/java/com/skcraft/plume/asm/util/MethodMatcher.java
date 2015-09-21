@@ -19,6 +19,10 @@ public class MethodMatcher {
     private String desc;
 
     public boolean matchesClass(String testOwner) {
+        if (!(Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")) {
+            FMLDeobfuscatingRemapper remapper = FMLDeobfuscatingRemapper.INSTANCE;
+            testOwner = remapper.map(testOwner.replace(".", "/")).replace("/", ".");
+        }
         return className.equals(testOwner);
     }
 
@@ -28,9 +32,9 @@ public class MethodMatcher {
             return testOwner.equals(className) && testName.equals(devName) && testDesc.equals(desc);
         } else {
             FMLDeobfuscatingRemapper remapper = FMLDeobfuscatingRemapper.INSTANCE;
-            String srgName = remapper.mapMethodName(remapper.unmap(testOwner.replace(".", "/")), testName, testDesc);
+            String srgName = remapper.mapMethodName(testOwner, testName, testDesc);
             String srgDesc = remapper.mapMethodDesc(testDesc);
-            return testOwner.equals(className) && srgName.equals(name) && srgDesc.equals(desc);
+            return srgName.equals(name) && srgDesc.equals(desc);
         }
     }
 
