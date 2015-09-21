@@ -27,7 +27,7 @@ import java.util.logging.Level;
 @Log
 public class CrashInterceptor {
 
-    @InjectConfig("crash-interceptor")
+    @InjectConfig("crash_interceptor")
     private Config<CrashConfig> config;
     private Cache<Object, Boolean> noTickCache;
     private final LoadingCache<Object, CrashTracker> logCache = CacheBuilder.newBuilder()
