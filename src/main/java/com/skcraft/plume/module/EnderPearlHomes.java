@@ -1,11 +1,13 @@
 package com.skcraft.plume.module;
 
+import com.google.inject.Inject;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Location3d;
 import com.skcraft.plume.util.Locations;
 import com.skcraft.plume.util.Materials;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.TeleportHelper;
+import com.skcraft.plume.util.concurrent.TickExecutorService;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -22,6 +24,8 @@ public class EnderPearlHomes {
     private static final int SPAWN_HORIZ_DISTANCE_SQ = 3 * 3;
     private static final int SPAWN_HEAD_BUFFER = 3;
 
+    @Inject private TickExecutorService tickExecutor;
+
     @SubscribeEvent
     public void onEnderTeleport(EnderTeleportEvent event) {
         if (event.entity instanceof EntityPlayerMP) {
@@ -37,14 +41,18 @@ public class EnderPearlHomes {
 
             if (inWater && (distanceSq <= HOME_DISTANCE_SQ || horizDistanceSq < SPAWN_HORIZ_DISTANCE_SQ && current.getY() <= target.getY() + SPAWN_HEAD_BUFFER)) {
                 ChunkCoordinates coords = spawnWorld.getSpawnPoint();
-                TeleportHelper.teleport(player, Locations.getLocation3d(spawnWorld, coords));
-                player.addChatMessage(Messages.info(tr("enderpearlHomes.toSpawn")));
                 event.setCanceled(true);
+                tickExecutor.execute(() -> {
+                    TeleportHelper.teleport(player, Locations.getLocation3d(spawnWorld, coords));
+                    player.addChatMessage(Messages.info(tr("enderpearlHomes.toSpawn")));
+                });
             } else if (current.distanceSq(target) <= HOME_DISTANCE_SQ) {
                 ChunkCoordinates coords = player.getBedLocation(spawnWorld.provider.dimensionId);
                 if (coords != null) {
-                    TeleportHelper.teleport(player, Locations.getLocation3d(spawnWorld, coords));
-                    player.addChatMessage(Messages.info(tr("enderpearlHomes.nowAtBed")));
+                    tickExecutor.execute(() -> {
+                        TeleportHelper.teleport(player, Locations.getLocation3d(spawnWorld, coords));
+                        player.addChatMessage(Messages.info(tr("enderpearlHomes.nowAtBed")));
+                    });
                 } else {
                     player.addChatMessage(Messages.error(tr("enderpearlHomes.noBed")));
                 }
