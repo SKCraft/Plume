@@ -19,7 +19,8 @@ import ninja.leaping.configurate.objectmapping.Setting;
 
 @Module(name = "default-authorizer",
         desc = "Lets other modules check permissions and optionally uses any loaded hive service",
-        injectorModule = InjectorModule.class)
+        injectorModule = InjectorModule.class,
+        hidden = true)
 public class DefaultAuthorizer implements Authorizer {
 
     @Inject(optional = true)
