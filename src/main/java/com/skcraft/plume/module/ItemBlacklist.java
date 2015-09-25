@@ -24,6 +24,8 @@ public class ItemBlacklist {
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.player.worldObj.isRemote) return;
+
         if(event.phase == TickEvent.Phase.END && event.side == Side.SERVER) {
             for(int i = 0; i < event.player.inventory.mainInventory.length; i++) {
                 ItemStack stack = event.player.inventory.mainInventory[i];

@@ -13,6 +13,7 @@ import com.skcraft.plume.util.Server;
 import com.skcraft.plume.util.Worlds;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityFallingBlock;
@@ -52,6 +53,8 @@ public class ServerMetrics {
 
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
+        if (event.world.isRemote) return;
+
         String worldId = Worlds.getWorldId(event.world);
         if (!containers.containsKey(worldId)) {
             MetricContainer container = new MetricContainer(event.world);
@@ -62,6 +65,8 @@ public class ServerMetrics {
 
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event) {
+        if (event.world.isRemote) return;
+
         MetricContainer container = containers.remove(Worlds.getWorldId(event.world));
         if (container != null) {
             container.unregister();
@@ -70,6 +75,8 @@ public class ServerMetrics {
 
     @SubscribeEvent
     public void onTick(ServerTickEvent event) {
+        if (event.side != Side.SERVER) return;
+
         long now = System.nanoTime();
 
         if (now - lastGatherTime >= GATHER_INTERVAL) {

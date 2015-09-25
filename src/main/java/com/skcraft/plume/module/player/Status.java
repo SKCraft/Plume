@@ -5,19 +5,13 @@ import com.sk89q.intake.Require;
 import com.sk89q.intake.parametric.annotation.Optional;
 import com.sk89q.intake.parametric.annotation.Switch;
 import com.skcraft.plume.command.Sender;
-import com.skcraft.plume.common.util.SharedLocale;
 import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.event.entity.EntityEvent;
 import com.skcraft.plume.util.Messages;
-import com.skcraft.plume.util.Server;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -97,6 +91,8 @@ public class Status {
 
     @SubscribeEvent
     public void livingAttack(LivingAttackEvent event) {
+        if (event.entity.worldObj.isRemote) return;
+
         if (gods.contains(event.entityLiving.getUniqueID())) {
             event.setCanceled(true);
         }

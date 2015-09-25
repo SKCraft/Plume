@@ -18,6 +18,7 @@ import com.skcraft.plume.util.Worlds;
 import com.skcraft.plume.util.inventory.Inventories;
 import com.skcraft.plume.util.profile.Profiles;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import lombok.extern.java.Log;
@@ -55,6 +56,11 @@ public class LoggerListener {
         File queueFile = new File(DimensionManager.getCurrentSaveRootDirectory(), "/plume/logger/queue.dat");
         queueFile.getParentFile().mkdirs();
         buffer = new JournalBuffer(journal, queueFile);
+    }
+
+    @Subscribe
+    public void onFMLServerStopping(FMLServerStoppingEvent event) {
+        buffer.shutdown();
     }
 
     public void addRecord(@Nullable UserId userId, WorldVector3i location, Action action) {

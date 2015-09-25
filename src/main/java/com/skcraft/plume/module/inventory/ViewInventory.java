@@ -72,6 +72,8 @@ public class ViewInventory {
 
     @SubscribeEvent
     public void onPlayerRespawn(PlayerRespawnEvent event) {
+        if (event.player.worldObj.isRemote) return;
+
         ViewInventoryAdapter adapter = openInventories.get(Profiles.fromProfile(event.player.getGameProfile()));
         if (adapter != null) {
             try {

@@ -1,14 +1,13 @@
 package com.skcraft.plume.common.module.metrics;
 
-import com.codahale.metrics.ConsoleReporter;
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.MetricFilter;
-import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.*;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
+import com.skcraft.plume.common.event.lifecycle.ShutdownEvent;
 import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
@@ -17,8 +16,12 @@ import lombok.extern.java.Log;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 @Module(name = "metrics-reporter", desc = "Make metrics available outside the server", enabled = true)
 @Log
@@ -27,6 +30,7 @@ public class MetricsReporter {
     @Inject private MetricRegistry metricRegistry;
     @Inject private Environment environment;
     @InjectConfig("metrics_reporter") private Config<ReporterConfig> config;
+    private final List<Closeable> reporters = Lists.newArrayList();
 
     @Subscribe
     public void onInitialization(InitializationEvent event) {
@@ -37,6 +41,7 @@ public class MetricsReporter {
                     .convertDurationsTo(TimeUnit.MILLISECONDS)
                     .build();
             reporter.start(config.get().console.interval, TimeUnit.SECONDS);
+            reporters.add(reporter);
         }
 
         if (config.get().graphite.enabled) {
@@ -49,12 +54,25 @@ public class MetricsReporter {
                     .filter(MetricFilter.ALL)
                     .build(graphite);
             reporter.start(config.get().graphite.interval, TimeUnit.SECONDS);
+            reporters.add(reporter);
         }
 
         if (config.get().jmx.enabled) {
             log.info("Registering metrics via JMX...");
             JmxReporter reporter = JmxReporter.forRegistry(metricRegistry).build();
             reporter.start();
+            reporters.add(reporter);
+        }
+    }
+
+    @Subscribe
+    public void onShutdown(ShutdownEvent event) {
+        for (Closeable reporter : reporters) {
+            try {
+                reporter.close();
+            } catch (IOException e) {
+                log.log(Level.WARNING, "Failed to stop the metrics reporter " + reporter, e);
+            }
         }
     }
 

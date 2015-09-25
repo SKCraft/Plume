@@ -38,6 +38,8 @@ public class WorldBorder {
 
     @SubscribeEvent
     public void playerTick(TickEvent.PlayerTickEvent event) {
+        if (event.player.worldObj.isRemote) return;
+
         EntityPlayerMP player = (EntityPlayerMP) event.player;
         Border border = config.get().border;
         BorderSession session = sessions.getUnchecked(player.getGameProfile().getId());

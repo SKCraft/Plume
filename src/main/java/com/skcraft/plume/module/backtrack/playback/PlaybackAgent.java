@@ -13,6 +13,7 @@ import com.skcraft.plume.module.backtrack.LoggerConfig;
 import com.skcraft.plume.util.Messages;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.relauncher.Side;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
@@ -49,6 +50,8 @@ public class PlaybackAgent {
 
     @SubscribeEvent
     public void tickStart(TickEvent event) {
+        if (event.side != Side.SERVER) return;
+
         synchronized (this) {
             long start = System.currentTimeMillis();
             long maxTimePerTick = config.get().playback.maxTimePerTick;

@@ -12,6 +12,7 @@ import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Contexts;
 import com.skcraft.plume.util.profile.Profiles;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import net.minecraft.command.ICommand;
 import net.minecraft.entity.player.EntityPlayerMP;
 
@@ -24,6 +25,11 @@ public class WorldEditPermProvider implements ForgePermissionsProvider {
     @Subscribe
     public void onFMLServerStartingEvent(FMLServerStartingEvent event) {
         ForgeWorldEdit.inst.setPermissionsProvider(this);
+    }
+
+    @Subscribe
+    public void onFMLServerStoppingEvent(FMLServerStoppingEvent event) {
+        ForgeWorldEdit.inst.setPermissionsProvider(null);
     }
 
     @Override

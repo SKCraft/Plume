@@ -28,6 +28,8 @@ public class EnderPearlHomes {
 
     @SubscribeEvent
     public void onEnderTeleport(EnderTeleportEvent event) {
+        if (event.entity.worldObj.isRemote) return;
+
         if (event.entity instanceof EntityPlayerMP) {
             World world = event.entity.worldObj;
             World spawnWorld = MinecraftServer.getServer().getEntityWorld();

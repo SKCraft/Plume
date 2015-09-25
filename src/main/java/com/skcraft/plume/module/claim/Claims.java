@@ -71,6 +71,8 @@ public class Claims {
 
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
+        if (event.world.isRemote) return;
+
         for (Object object : ((WorldServer) event.world).theChunkProviderServer.loadedChunks) {
             Chunk chunk = (Chunk) object;
             claimCache.queueChunk(new WorldVector3i(Worlds.getWorldId(event.world), chunk.xPosition, 0, chunk.zPosition));
@@ -79,17 +81,23 @@ public class Claims {
 
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event) {
+        if (event.world.isRemote) return;
+
         claimCache.invalidateChunksInWorld(Worlds.getWorldId(event.world));
     }
 
     @SubscribeEvent
     public void onChunkLoad(ChunkEvent.Load event) {
+        if (event.world.isRemote) return;
+
         Chunk chunk = event.getChunk();
         claimCache.queueChunk(new WorldVector3i(Worlds.getWorldId(event.world), chunk.xPosition, 0, chunk.zPosition));
     }
 
     @SubscribeEvent
     public void onChunkUnload(ChunkEvent.Unload event) {
+        if (event.world.isRemote) return;
+
         Chunk chunk = event.getChunk();
         claimCache.invalidateChunk(new WorldVector3i(Worlds.getWorldId(event.world), chunk.xPosition, 0, chunk.zPosition));
     }
@@ -187,6 +195,8 @@ public class Claims {
 
     @SubscribeEvent
     public void onCheckSpawn(CheckSpawn event) {
+        if (event.world.isRemote) return;
+
         EntityLivingBase entity = event.entityLiving;
 
         if (config.get().systemChunksBlockMonsters && (entity instanceof EntityMob || entity instanceof EntitySlime)) {

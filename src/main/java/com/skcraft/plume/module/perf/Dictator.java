@@ -69,6 +69,8 @@ public class Dictator {
 
     @SubscribeEvent
     public void onEntityTickEvent(EntityTickEvent event) {
+        if (event.getWorld().isRemote) return;
+
         if (!config.get().rules.isEmpty()) {
             Optional<Rule> optional = ruleCache.getUnchecked(event.getEntity().getClass());
             if (optional.isPresent()) {
@@ -79,6 +81,8 @@ public class Dictator {
 
     @SubscribeEvent
     public void onTileEntityTickEvent(TileEntityTickEvent event) {
+        if (event.getWorld().isRemote) return;
+
         if (!config.get().rules.isEmpty()) {
             Optional<Rule> optional = ruleCache.getUnchecked(event.getTileEntity().getClass());
             if (optional.isPresent()) {

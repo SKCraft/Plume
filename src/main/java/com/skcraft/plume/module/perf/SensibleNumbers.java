@@ -159,6 +159,8 @@ public class SensibleNumbers {
 
     @SubscribeEvent
     public void onEntityJoinWorld(EntityJoinWorldEvent event) {
+        if (event.world.isRemote) return;
+
         Entity entity = event.entity;
         if (!canSpawn(entity)) {
             event.setResult(Result.DENY);
@@ -168,6 +170,8 @@ public class SensibleNumbers {
 
     @SubscribeEvent
     public void onCheckSpawn(CheckSpawn event) {
+        if (event.world.isRemote) return;
+
         Entity entity = event.entity;
         if (!canSpawn(entity)) {
             event.setResult(Result.DENY);
