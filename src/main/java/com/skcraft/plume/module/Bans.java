@@ -36,7 +36,7 @@ import java.util.List;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "bans", desc = "Checks for bans and provides ban commands [requires ban services]")
+@Module(name = "bans", desc = "Checks for bans and provides ban commands [requires ban services]", enabled = false)
 @Log
 public class Bans {
 

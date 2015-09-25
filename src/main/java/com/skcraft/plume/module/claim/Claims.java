@@ -47,7 +47,7 @@ import net.minecraftforge.event.world.WorldEvent;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "claims", desc = "Checks claim protection and adds claim commands [requires claim and party services]")
+@Module(name = "claims", desc = "Checks claim protection and adds claim commands [requires claim and party services]", enabled = false)
 public class Claims {
 
     @InjectConfig("claims") private Config<ClaimConfig> config;

@@ -7,7 +7,7 @@ import com.skcraft.plume.common.service.journal.Journal;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.module.backtrack.action.*;
 
-@Module(name = "backtrack", desc = "Logs block changes for later query [requires journal service]")
+@Module(name = "backtrack", desc = "Logs block changes for later query [requires journal service]", enabled = false)
 public class BackTrack {
 
     @Inject private LoggerCommands commands;

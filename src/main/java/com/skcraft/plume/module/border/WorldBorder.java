@@ -25,7 +25,7 @@ import java.util.UUID;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "world-border", desc = "Configurable world border that warns and then bounces players back from it")
+@Module(name = "world-border", desc = "Configurable world border that warns and then bounces players back from it", enabled = false)
 public class WorldBorder {
     @InjectConfig("world_border") private Config<WorldBorderConfig> config;
 

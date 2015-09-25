@@ -23,7 +23,8 @@ import javax.inject.Singleton;
 
 @Module(name = "mysql-services",
         desc = "Provides MySQL-based hive, ban, party, and claim services",
-        injectorModule = InjectorModule.class)
+        injectorModule = InjectorModule.class,
+        enabled = false)
 public class MySQLServices {
 
     @InjectConfig("mysql/services")

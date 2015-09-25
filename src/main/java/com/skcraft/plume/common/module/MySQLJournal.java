@@ -17,7 +17,8 @@ import javax.inject.Singleton;
 
 @Module(name = "mysql-journal",
         desc = "Provides MySQL-based journal services",
-        injectorModule = InjectorModule.class)
+        injectorModule = InjectorModule.class,
+        enabled = false)
 public class MySQLJournal {
 
     @Inject private MySQLPool pool;
