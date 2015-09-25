@@ -10,6 +10,7 @@ import com.skcraft.plume.common.util.FatalError;
 import com.skcraft.plume.common.util.SharedLocale;
 import com.skcraft.plume.common.util.config.SetTypeSerializer;
 import com.skcraft.plume.common.util.logging.Log4jRedirect;
+import com.skcraft.plume.common.util.module.LoaderException;
 import com.skcraft.plume.common.util.module.PlumeLoader;
 import com.skcraft.plume.util.config.ItemStackTypeSerializer;
 import com.skcraft.plume.util.config.SingleItemMatcherTypeSerializer;
@@ -24,7 +25,6 @@ import net.minecraft.item.ItemStack;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -57,7 +57,7 @@ public class Plume {
     }
 
     @EventHandler
-    public void onPreInitialization(FMLPreInitializationEvent event) throws IOException {
+    public void onPreInitialization(FMLPreInitializationEvent event) throws LoaderException {
         // Hack to redirect log messages
         Logger logger = Logger.getLogger("com.skcraft.plume");
         logger.setUseParentHandlers(false);

@@ -1,11 +1,10 @@
 package com.skcraft.plume.common.util.module;
 
 import com.google.common.collect.Lists;
-import com.google.inject.*;
-import com.google.inject.Module;
+import com.google.inject.Injector;
+import com.skcraft.plume.common.util.config.ConfigFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -27,15 +26,11 @@ public class PlumeLoader {
         return this;
     }
 
-    public Injector load() throws IOException {
+    public Injector load() throws LoaderException {
         dataDir.mkdirs();
 
-        List<Module> modules = Lists.newArrayList();
-        modules.add(new PlumeModule(dataDir));
-        modules.addAll(this.modules);
-        Injector injector = Guice.createInjector(modules);
-        injector.getInstance(ModuleLoader.class).load();
-        return injector;
+        ModuleLoader loader = new ModuleLoader(dataDir, new ConfigFactory(dataDir), modules);
+        return loader.load();
     }
 
 }
