@@ -140,7 +140,7 @@ public class LoggerCommands {
         Deferred<?> deferred = Deferreds
                 .when(() -> {
                     try {
-                        int id = Integer.parseInt(input);
+                        int id = Integer.parseInt(input.trim());
                         ListPagination<Record> results = queryCache.getIfPresent(userId);
                         if (results != null) {
                             List<Record> data = results.getData();
