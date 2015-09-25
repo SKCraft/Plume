@@ -61,7 +61,7 @@ public class BeanShell {
                 sender.addChatMessage(new ChatComponentText("Executed with no output"));
             }
         } catch (EvalError e) {
-            sender.addChatMessage(new ChatComponentText("!!! " + e.getMessage()));
+            log.log(Level.WARNING, "Failed to execute BeanShell code", e);
         }
     }
 
@@ -80,7 +80,7 @@ public class BeanShell {
                 sender.addChatMessage(new ChatComponentText("Executed with no output"));
             }
         } catch (IOException | EvalError e) {
-            sender.addChatMessage(new ChatComponentText("!!! " + e.getMessage()));
+            log.log(Level.WARNING, "Failed to execute BeanShell code", e);
         }
     }
 
