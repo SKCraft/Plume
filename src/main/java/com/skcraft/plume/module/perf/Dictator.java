@@ -5,15 +5,21 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.event.lifecycle.LoadConfigEvent;
+import com.skcraft.plume.common.service.claim.ClaimCache;
+import com.skcraft.plume.common.service.claim.ClaimEntry;
+import com.skcraft.plume.common.util.WorldVector3i;
 import com.skcraft.plume.common.util.XorRandom;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.event.tick.EntityTickEvent;
 import com.skcraft.plume.event.tick.TileEntityTickEvent;
+import com.skcraft.plume.util.Worlds;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.tileentity.TileEntity;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
@@ -41,6 +47,7 @@ public class Dictator {
 
     @InjectConfig("dictator")
     private Config<DictatorConfig> config;
+    @Inject(optional = true) private ClaimCache claimCache;
     private final LoadingCache<Class<?>, Optional<Rule>> ruleCache = CacheBuilder.newBuilder()
             .concurrencyLevel(1)
             .weakKeys()
@@ -89,11 +96,40 @@ public class Dictator {
                 event.setCanceled(!optional.get().mayTick());
             }
         }
+
+        if (!event.isCanceled()) {
+            ClaimRules claimRules = config.get().claimRules;
+            double chance = claimRules.unclaimedChance;
+            if (chance < 1) {
+                TileEntity tileEntity = event.getTileEntity();
+                WorldVector3i chunkPosition = new WorldVector3i(Worlds.getWorldId(tileEntity.getWorldObj()), tileEntity.xCoord >> 4, 0, tileEntity.zCoord >> 4);
+                ClaimEntry claimEntry = claimCache.getClaimIfPresent(chunkPosition);
+                if (claimEntry != null && claimEntry.getClaim() == null) {
+                    if (chance <= 0) {
+                        event.setCanceled(true);
+                    } else {
+                        double p = Math.abs(random.nextLong() / (double) Long.MAX_VALUE);
+                        if (p > chance) {
+                            event.setCanceled(true);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private static class DictatorConfig {
         @Setting(comment = "List of rules to reduce ticking with")
         private List<Rule> rules = Lists.newArrayList();
+
+        @Setting(comment = "Dynamic rules based on claims (if claims support exists)")
+        private ClaimRules claimRules = new ClaimRules();
+    }
+
+    @ConfigSerializable
+    private static class ClaimRules {
+        @Setting(comment = "The chance (0 to 1) of tile entities in unclaimed chunks ticking, where 1 is 100% or every time (<= 0 to not tick at all)")
+        private double unclaimedChance = 1;
     }
 
     @ConfigSerializable
