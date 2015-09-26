@@ -14,7 +14,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 @Log
 @SortingIndex(value = 999) // Run late because we're currently replacing the tick methods
-public class TickCallbackTransform implements IClassTransformer {
+public class TickCallbackTransformer implements IClassTransformer {
 
     private final MethodMatcher worldUpdateMatcher = new MethodMatcher("net.minecraft.world.World", "func_72939_s", "updateEntities", "()V");
     private final MethodMatcher updateEntityMatcher = new MethodMatcher("net.minecraft.world.World", "func_72870_g", "updateEntity", "(Lnet/minecraft/entity/Entity;)V");
