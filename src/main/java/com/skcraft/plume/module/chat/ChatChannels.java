@@ -1,5 +1,6 @@
 package com.skcraft.plume.module.chat;
 
+import com.google.inject.Inject;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
 import com.skcraft.plume.command.Sender;
@@ -13,6 +14,8 @@ import static com.skcraft.plume.common.util.SharedLocale.tr;
 @Module(name = "chat-channels", desc = "Allow users to join private chat channels")
 @Log
 public class ChatChannels {
+
+    @Inject private ChatListener listener;
 
     @Command(aliases = "join", desc = "Join a private chat channel.", usage = "/join <channel>")
     @Require("plume.chatchannels")

@@ -16,35 +16,36 @@ public class ChatListener {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPlayerChat(ServerChatEvent e) {
-        if (!ChatChannelManager.getManager().isInPrivateChat(e.player))
+        if (!ChatChannelManager.getManager().isInPrivateChat(e.player) || e.message.indexOf("/") == e.message.length() - 1)
             return;
 
         e.setCanceled(true);
 
-        ChatChannelManager.getManager().broadcast(ChatChannelManager.getManager().getChannelOf(e.player), ChatProcessor.priv(e.username, e.message));
+        log.info("ChatChannel broadcast");
+
+        ChatChannelManager.getManager().broadcast(ChatChannelManager.getManager().getChannelOf(e.player), ChatProcessor.priv(e.player.getDisplayName(), e.message));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerPublicChat(ServerChatEvent e) {
-        if (!ChatChannelManager.getManager().isInPrivateChat(e.player))
-            return;
-
         e.setCanceled(true);
+
+        log.info("ChatChannel public chat cancel");
 
         List online = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
         for (EntityPlayerMP player : (List<EntityPlayerMP>) online) {
-            if (player.getUniqueID().equals(e.player.getUniqueID()))
+            // If receiver == sender AND receiver is in private chat
+            if (player.getUniqueID().equals(e.player.getUniqueID()) && ChatChannelManager.getManager().isInPrivateChat(player)) {
+                player.addChatMessage(e.component);
                 continue;
+            }
 
+            // If receiver is in private chat
             if (ChatChannelManager.getManager().isInPrivateChat(player)) {
-                player.addChatMessage(ChatProcessor.dark(e.component.getUnformattedTextForChat()));
+                player.addChatMessage(ChatProcessor.dark(e.username, e.message));
             } else {
                 player.addChatMessage(e.component);
             }
         }
-    }
-
-    {
-        log.info("ChatListener overriding chat");
     }
 }

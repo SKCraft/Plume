@@ -2,10 +2,7 @@ package com.skcraft.plume.module.chat;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.*;
 
 public class ChatProcessor {
     public static void sendChatMessage(EntityPlayerMP sender, String msg, EntityPlayerMP recipient) {
@@ -53,14 +50,18 @@ public class ChatProcessor {
     }
 
     public static ChatComponentText priv(String user, String msg) {
-        return new ChatComponentText("<" + EnumChatFormatting.DARK_GRAY + "#" + EnumChatFormatting.RESET + user + "> " + msg);
+        return new ChatComponentText("<" + EnumChatFormatting.DARK_GRAY + "#" + EnumChatFormatting.RESET + user + EnumChatFormatting.RESET + "> " + msg);
     }
 
-    public static ChatComponentText dark(String msg) {
-        ChatComponentText dark = new ChatComponentText(msg);
+    public static IChatComponent dark(IChatComponent component) {
+        IChatComponent dark = component.createCopy();
         dark.getChatStyle().setColor(EnumChatFormatting.DARK_GRAY);
 
         return dark;
+    }
+
+    public static ChatComponentText dark(String user, String msg) {
+        return new ChatComponentText(EnumChatFormatting.DARK_GRAY + "<" + user + "> " + msg + EnumChatFormatting.RESET);
     }
 
     public static EnumChatFormatting getColorFromCode(String hex) {

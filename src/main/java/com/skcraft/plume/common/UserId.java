@@ -27,7 +27,7 @@ public class UserId implements Serializable {
     }
 
     public EntityPlayerMP getPlayerOfThis() {
-        if (MinecraftServer.getServer().getConfigurationManager().playerEntityList != null)
+        if (MinecraftServer.getServer().getConfigurationManager().playerEntityList == null)
             return null;
 
         for (EntityPlayerMP p : (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList)
