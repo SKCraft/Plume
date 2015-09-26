@@ -3,59 +3,48 @@ package com.skcraft.plume.module.chat;
 import com.skcraft.plume.common.util.module.AutoRegister;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import lombok.extern.java.Log;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.event.ServerChatEvent;
 
 import java.util.List;
 
 @AutoRegister
+@Log
 public class ChatListener {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPlayerChat(ServerChatEvent e) {
-        // Is the sender in a chat channel AND not using the override prefix?
-        if (ChatChannelManager.getManager().isInChatChannel(e.player) && e.message.indexOf("\\") != 0) {
-            // Then cancel the event!
-            e.setCanceled(true);
+        if (!ChatChannelManager.getManager().isInPrivateChat(e.player))
+            return;
 
-            ChatChannel ch = ChatChannelManager.getManager().getChatChannelOf(e.player);
+        e.setCanceled(true);
 
-            // Broadcast function that formats with # and display name (fancy name)
-            ch.sendMessage(e.player, e.message);
-        }
+        ChatChannelManager.getManager().broadcast(ChatChannelManager.getManager().getChannelOf(e.player), ChatProcessor.priv(e.username, e.message));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerPublicChat(ServerChatEvent e) {
-        List<EntityPlayerMP> online = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
+        if (!ChatChannelManager.getManager().isInPrivateChat(e.player))
+            return;
 
-        // Is sender NOT in a chat channel OR using the override prefix?
-        if (!ChatChannelManager.getManager().isInChatChannel(e.player) || e.message.indexOf("\\") == 0) {
-            e.setCanceled(true);
+        e.setCanceled(true);
 
-            ChatComponentText c;
+        List online = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
+        for (EntityPlayerMP player : (List<EntityPlayerMP>) online) {
+            if (player.getUniqueID().equals(e.player.getUniqueID()))
+                continue;
 
-            if (e.message.indexOf("\\") == 0)
-                c = ChatProcessor.chat("§f", "<", "§r", e.player.getDisplayName(), "§f", "> " + e.message.substring(1, e.message.length()));
-            else
-                c = ChatProcessor.chat("§f", "<", "§r", e.player.getDisplayName(), "§f", "> " + e.message);
-
-            MinecraftServer.getServer().logInfo(c.getUnformattedTextForChat());
-
-            for (EntityPlayerMP r : online) {
-                if (r.getGameProfile().getId().equals(e.player.getGameProfile().getId())) {
-                    r.addChatMessage(c);
-                    return;
-                }
-
-                if (ChatChannelManager.getManager().isInChatChannel(r)) {
-                    r.addChatMessage(ChatProcessor.chat("§8", c.getUnformattedText(), "§r"));
-                } else {
-                    r.addChatMessage(c);
-                }
+            if (ChatChannelManager.getManager().isInPrivateChat(player)) {
+                player.addChatMessage(ChatProcessor.dark(e.component.getUnformattedTextForChat()));
+            } else {
+                player.addChatMessage(e.component);
             }
         }
+    }
+
+    {
+        log.info("ChatListener overriding chat");
     }
 }
