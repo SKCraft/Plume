@@ -2,6 +2,7 @@ package com.skcraft.plume.common.service.journal.criteria;
 
 import com.google.inject.Inject;
 import com.sk89q.intake.argument.ArgumentException;
+import com.sk89q.intake.argument.ArgumentParseException;
 import com.sk89q.intake.argument.CommandArgs;
 import com.sk89q.intake.argument.Namespace;
 import lombok.Data;
@@ -35,8 +36,12 @@ public class PriorTo implements Criteria {
 
     @Override
     public void parse(CommandArgs args, Namespace namespace) throws ArgumentException {
-        Period p = periodFormatter.parsePeriod(args.next());
-        before = new DateTime().minus(p).toDate();
+        try {
+            Period p = periodFormatter.parsePeriod(args.next());
+            before = new DateTime().minus(p).toDate();
+        } catch (IllegalArgumentException e) {
+            throw new ArgumentParseException(e.getMessage());
+        }
     }
 
     @Override
