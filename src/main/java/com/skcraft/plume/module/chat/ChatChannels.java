@@ -5,14 +5,12 @@ import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
 import com.skcraft.plume.command.Sender;
 import com.skcraft.plume.common.util.module.Module;
-import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
 @Module(name = "chat-channels", desc = "Allow users to join private chat channels")
-@Log
 public class ChatChannels {
 
     @Inject private ChatListener listener;
@@ -47,9 +45,5 @@ public class ChatChannels {
         }
 
         ChatChannelManager.getManager().part(sender);
-    }
-
-    {
-        log.info("ChatChannels loaded");
     }
 }
