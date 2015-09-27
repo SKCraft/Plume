@@ -21,7 +21,7 @@ public class ChatListener {
 
         e.setCanceled(true);
 
-        log.info("ChatChannel broadcast");
+        log.info("[#" + ChatChannelManager.getManager().getChannelOf(e.player) + "] " + e.username + ": " + e.message);
 
         ChatChannelManager.getManager().broadcast(ChatChannelManager.getManager().getChannelOf(e.player), ChatProcessor.priv(e.player.getDisplayName(), e.message));
     }
@@ -30,7 +30,7 @@ public class ChatListener {
     public void onPlayerPublicChat(ServerChatEvent e) {
         e.setCanceled(true);
 
-        log.info("ChatChannel public chat cancel");
+        log.info("[#global] " + e.username + ": " + e.message);
 
         List online = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
         for (EntityPlayerMP player : (List<EntityPlayerMP>) online) {
