@@ -3,8 +3,16 @@ package com.skcraft.plume.command;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.sk89q.intake.*;
+import com.sk89q.intake.Command;
+import com.sk89q.intake.CommandCallable;
+import com.sk89q.intake.CommandException;
+import com.sk89q.intake.CommandMapping;
+import com.sk89q.intake.Description;
+import com.sk89q.intake.Intake;
+import com.sk89q.intake.InvalidUsageException;
+import com.sk89q.intake.InvocationCommandException;
 import com.sk89q.intake.argument.Namespace;
+import com.sk89q.intake.dispatcher.Dispatcher;
 import com.sk89q.intake.dispatcher.SimpleDispatcher;
 import com.sk89q.intake.parametric.Injector;
 import com.sk89q.intake.parametric.ParametricBuilder;
@@ -18,6 +26,7 @@ import com.skcraft.plume.common.service.auth.Context.Builder;
 import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Contexts;
+import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.profile.Profiles;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import lombok.Getter;
@@ -26,15 +35,15 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.rcon.RConConsoleSource;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.skcraft.plume.common.util.SharedLocale.tr;
 
 @Module(name = "command-manager", hidden = true)
 @Log
@@ -94,20 +103,16 @@ public class CommandManager {
                     namespace.put(ICommandSender.class, sender);
 
                     try {
-                        command.getCallable().call(argJoiner.join(args), namespace, Lists.newArrayList());
+                        command.getCallable().call(argJoiner.join(args), namespace, Lists.newArrayList(command.getPrimaryAlias()));
+                    } catch (InvalidUsageException e) {
+                        sendCommandUsageHelp(e, sender);
                     } catch (CommandException e) {
-                        ChatComponentText msg = new ChatComponentText(e.getMessage());
-                        msg.getChatStyle().setColor(EnumChatFormatting.RED);
-                        sender.addChatMessage(msg);
+                        sender.addChatMessage(Messages.error(e.getMessage()));
                     } catch (AuthorizationException e) {
-                        ChatComponentText msg = new ChatComponentText("You don't have permission to use that command.");
-                        msg.getChatStyle().setColor(EnumChatFormatting.RED);
-                        sender.addChatMessage(msg);
+                        sender.addChatMessage(Messages.error(tr("commands.noPermission")));
                     } catch (InvocationCommandException e) {
-                        ChatComponentText msg = new ChatComponentText("An error occurred while running your command. The server log will have the error that can be reported.");
                         log.log(Level.WARNING, "Command execution failed", e);
-                        msg.getChatStyle().setColor(EnumChatFormatting.RED);
-                        sender.addChatMessage(msg);
+                        sender.addChatMessage(Messages.error(tr("commands.exceptionOccurred")));
                     }
                 }
             };
@@ -124,6 +129,51 @@ public class CommandManager {
                 }
                 registered = true;
             }
+        }
+    }
+
+    private void sendCommandUsageHelp(InvalidUsageException e, ICommandSender sender) {
+        String commandString = Joiner.on(" ").join(e.getAliasStack());
+        Description description = e.getCommand().getDescription();
+
+        if (e.isFullHelpSuggested()) {
+            if (e.getCommand() instanceof Dispatcher) {
+                sender.addChatMessage(Messages.error(tr("commands.subcommands")));
+
+                Dispatcher dispatcher = (Dispatcher) e.getCommand();
+                List<CommandMapping> list = new ArrayList<>(dispatcher.getCommands());
+
+                for (CommandMapping mapping : list) {
+                    sender.addChatMessage(Messages.error(
+                            "/" + (commandString.isEmpty() ? "" : commandString + " ") + mapping.getPrimaryAlias() +
+                                    ": " + mapping.getDescription().getShortDescription()));
+                }
+            } else {
+                sender.addChatMessage(Messages.subtle(tr("commands.helpFor", commandString)));
+
+                if (description.getUsage() != null) {
+                    sender.addChatMessage(Messages.subtle(tr("commands.usage", description.getUsage())));
+                } else {
+                    sender.addChatMessage(Messages.subtle(tr("commands.unknownUsage")));
+                }
+
+                if (description.getHelp() != null) {
+                    sender.addChatMessage(Messages.subtle(description.getHelp()));
+                } else if (description.getShortDescription() != null) {
+                    sender.addChatMessage(Messages.subtle(description.getShortDescription()));
+                } else {
+                    sender.addChatMessage(Messages.subtle(tr("commands.helpUnavailable")));
+                }
+            }
+
+            String message = e.getMessage();
+            if (message != null) {
+                sender.addChatMessage(Messages.error(message));
+            }
+        } else {
+            String message = e.getMessage();
+            sender.addChatMessage(Messages.error(message != null ? message : tr("commands.usedImproperly")));
+            sender.addChatMessage(Messages.subtle(tr("commands.usage", commandString + " " + e.getCommand().getDescription().getUsage())));
         }
     }
 

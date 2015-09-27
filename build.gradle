@@ -49,7 +49,7 @@ dependencies {
     compile 'org.mapdb:mapdb:2.0-beta5' // Used to persist the block logger queue on save failure
     compile 'net.sf.trove4j:trove4j:3.0.3' // Collections, notably used for chunk claims
     compile 'ninja.leaping.configurate:configurate-hocon:2.0'
-    compile 'com.sk89q.intake:intake:4.1-SNAPSHOT' // Command registration library
+    compile 'com.sk89q.intake:intake:4.2-SNAPSHOT' // Command registration library
     compile 'com.sk89q:squirrelid:0.1.0' // Mojang name -> UUID
     compile 'joda-time:joda-time:2.8.2' // Time library; used for period matcher not found in Java 8+
     compile 'com.googlecode.json-simple:json-simple:1.1.1' // JSON parsing and emitting
