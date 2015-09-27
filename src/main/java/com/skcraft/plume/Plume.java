@@ -17,12 +17,13 @@ import java.util.logging.Logger;
 public class Plume {
 
     public static final String MODID = "plume";
+    public static final String CHANNEL_ID = "plume";
 
     @Instance(MODID)
     public static Plume INSTANCE;
 
-    @SidedProxy(serverSide = "com.skcraft.plume.ServerProxy", clientSide = "com.skcraft.plume.ClientProxy")
-    private static Proxy proxy;
+    @SidedProxy(serverSide = "com.skcraft.plume.SharedProxy", clientSide = "com.skcraft.plume.ClientProxy")
+    public static SharedProxy PROXY;
 
     @EventHandler
     public void onPreInitialization(FMLPreInitializationEvent event) throws Exception {
@@ -33,27 +34,32 @@ public class Plume {
 
         SharedLocale.loadBundle("com.skcraft.plume.lang.Plume", Locale.getDefault());
 
-        proxy.onPreInitialization(event);
+        PROXY.onPreInitialization(event);
+    }
+
+    @EventHandler
+    public void onInitialization(FMLInitializationEvent event) throws Exception {
+        PROXY.onInitialization(event);
     }
 
     @EventHandler
     public void onServerStarting(FMLServerStartingEvent event) throws Exception {
-        proxy.onServerStarting(event);
+        PROXY.onServerStarting(event);
     }
 
     @EventHandler
     public void onServerStarted(FMLServerStartedEvent event) throws Exception{
-        proxy.onServerStarted(event);
+        PROXY.onServerStarted(event);
     }
 
     @EventHandler
     public void onServerStopping(FMLServerStoppingEvent event) throws Exception {
-        proxy.onServerStopping(event);
+        PROXY.onServerStopping(event);
     }
 
     @EventHandler
     public void onServerStopped(FMLServerStoppedEvent event) throws Exception {
-        proxy.onServerStopped(event);
+        PROXY.onServerStopped(event);
     }
 
 }

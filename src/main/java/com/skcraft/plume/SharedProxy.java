@@ -10,11 +10,15 @@ import com.skcraft.plume.common.util.FatalError;
 import com.skcraft.plume.common.util.config.SetTypeSerializer;
 import com.skcraft.plume.common.util.module.LoaderException;
 import com.skcraft.plume.common.util.module.PlumeLoader;
+import com.skcraft.plume.network.PlumePacketHandler;
 import com.skcraft.plume.util.config.ItemStackTypeSerializer;
 import com.skcraft.plume.util.config.SingleItemMatcherTypeSerializer;
 import com.skcraft.plume.util.inventory.SingleItemMatcher;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.*;
+import cpw.mods.fml.common.network.FMLEventChannel;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import lombok.Getter;
 import lombok.extern.java.Log;
 import net.minecraft.item.ItemStack;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
@@ -25,9 +29,12 @@ import java.util.Set;
 import java.util.logging.Level;
 
 @Log
-public class ServerProxy implements Proxy {
+public class SharedProxy {
 
+    private FMLEventChannel eventChannel;
     private Injector injector;
+    @Getter
+    private PlumePacketHandler packetHandler;
 
     public EventBus getEventBus() {
         return injector.getInstance(EventBus.class);
@@ -43,7 +50,6 @@ public class ServerProxy implements Proxy {
         }
     }
 
-    @Override
     public void onPreInitialization(FMLPreInitializationEvent event) throws LoaderException {
         TypeSerializers.getDefaultSerializers().registerType(new TypeToken<Set<?>>() {}, new SetTypeSerializer());
         TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(ItemStack.class), new ItemStackTypeSerializer());
@@ -68,22 +74,24 @@ public class ServerProxy implements Proxy {
         getEventBus().post(event);
     }
 
-    @Override
+    public void onInitialization(FMLInitializationEvent event) {
+        eventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(Plume.CHANNEL_ID);
+        packetHandler = new PlumePacketHandler(eventChannel);
+        eventChannel.register(packetHandler);
+    }
+
     public void onServerStarting(FMLServerStartingEvent event) {
         getEventBus().post(event);
     }
 
-    @Override
     public void onServerStarted(FMLServerStartedEvent event) {
         getEventBus().post(event);
     }
 
-    @Override
     public void onServerStopping(FMLServerStoppingEvent event) {
         getEventBus().post(event);
     }
 
-    @Override
     public void onServerStopped(FMLServerStoppedEvent event) {
         getEventBus().post(event);
     }
