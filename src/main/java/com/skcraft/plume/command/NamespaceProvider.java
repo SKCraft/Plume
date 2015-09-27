@@ -23,7 +23,7 @@ class NamespaceProvider<T> implements Provider<T> {
 
     @Override
     public boolean isProvided() {
-        return false;
+        return true;
     }
 
     @Nullable
