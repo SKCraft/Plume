@@ -4,9 +4,14 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.CommandException;
 import com.sk89q.intake.Require;
+import com.sk89q.intake.argument.ArgumentException;
+import com.sk89q.intake.argument.MissingArgumentException;
+import com.sk89q.intake.argument.Namespace;
+import com.sk89q.intake.parametric.annotation.Optional;
 import com.sk89q.intake.parametric.annotation.Switch;
 import com.sk89q.intake.parametric.annotation.Text;
 import com.sk89q.worldedit.regions.Region;
@@ -19,7 +24,6 @@ import com.skcraft.plume.common.service.journal.Journal;
 import com.skcraft.plume.common.service.journal.Record;
 import com.skcraft.plume.common.service.journal.criteria.Criteria;
 import com.skcraft.plume.common.service.journal.criteria.CriteriaParser;
-import com.skcraft.plume.common.service.journal.criteria.CriteriaParser.ParseException;
 import com.skcraft.plume.common.util.Order;
 import com.skcraft.plume.common.util.Vectors;
 import com.skcraft.plume.common.util.WorldVector3i;
@@ -34,7 +38,12 @@ import com.skcraft.plume.module.backtrack.action.Action;
 import com.skcraft.plume.module.backtrack.playback.PlaybackAgent;
 import com.skcraft.plume.module.backtrack.playback.PlaybackType;
 import com.skcraft.plume.module.backtrack.playback.RejectedPlaybackException;
-import com.skcraft.plume.util.*;
+import com.skcraft.plume.util.Location3d;
+import com.skcraft.plume.util.Locations;
+import com.skcraft.plume.util.Messages;
+import com.skcraft.plume.util.NoSuchWorldException;
+import com.skcraft.plume.util.TeleportHelper;
+import com.skcraft.plume.util.Worlds;
 import com.skcraft.plume.util.concurrent.BackgroundExecutor;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
 import com.skcraft.plume.util.inventory.Inventories;
@@ -73,6 +82,8 @@ public class LoggerCommands {
     @Inject private ProfileService profileService;
     @Inject private PlaybackAgent playbackAgent;
     @Inject private QueryCache queryCache;
+    @Inject private CriteriaParser criteriaParser;
+    @Inject private Injector injector;
 
     public int getLimit(Integer limit) {
         return limit == null ? config.get().search.defaultLimit : Math.max(1, Math.min(config.get().search.maxLimit, limit));
@@ -135,7 +146,6 @@ public class LoggerCommands {
 
     private void processSingleRecord(ICommandSender sender, String input, BiConsumer<Record, Action> callable) {
         UserId userId = Profiles.fromCommandSender(sender);
-        CriteriaParser parser = createCriteriaParser(sender);
 
         Deferred<?> deferred = Deferreds
                 .when(() -> {
@@ -154,7 +164,7 @@ public class LoggerCommands {
                             throw new CommandException(tr("logger.noCachedResults"));
                         }
                     } catch (NumberFormatException e) {
-                        Criteria criteria = parser.parse(input).build();
+                        Criteria criteria = parseCriteria(sender, input);
                         List<Record> records = journal.findRecords(criteria, Order.DESC, 1);
                         if (records.isEmpty()) {
                             throw new CommandException(tr("logger.noResults", input.trim()));
@@ -177,22 +187,20 @@ public class LoggerCommands {
         backgroundExecutor.notifyOnDelay(deferred, sender);
     }
 
-    private CriteriaParser createCriteriaParser(ICommandSender sender) {
+    private Criteria parseCriteria(ICommandSender sender, String input) throws ArgumentException {
         Region selection = WorldEditAPI.getSelectionIfExists(sender);
         WorldVector3i center = sender instanceof EntityPlayer ? Locations.getWorldVector3i((EntityPlayer) sender) : null;
-        CriteriaParser parser = new CriteriaParser(profileService, actionMap::getActionIdByName);
-        parser.setCenter(center);
-        parser.setSelection(selection);
-        return parser;
+        Namespace namespace = new Namespace();
+        namespace.put("selection", selection);
+        namespace.put("center", center);
+        return criteriaParser.parse(input, namespace);
     }
 
     private void createPlayback(ICommandSender sender, String input, PlaybackType playbackType, boolean confirm) {
-        CriteriaParser parser = createCriteriaParser(sender);
-
         Deferred<?> deferred = Deferreds
                 .when(() -> {
-                    Criteria criteria = parser.parse(input).build();
-                    if (!confirm && config.get().playback.confirmNoDateNoPlayer && criteria.getSince() == null && criteria.getBefore() == null && criteria.getUserId() == null) {
+                    Criteria criteria = parseCriteria(sender, input);
+                    if (!confirm && config.get().playback.confirmNoDateNoPlayer && !criteria.hasSpecificCriteria()) {
                         throw new CommandException(tr("logger.playback.confirmNoDateNoPlayer"));
                     }
                     return journal.findRecords(criteria, playbackType.getOrder());
@@ -206,14 +214,16 @@ public class LoggerCommands {
                             throw e;
                         }
                     } else {
-                        sender.addChatMessage(Messages.error(tr("logger.noResults", input)));
+                        sender.addChatMessage(Messages.error(tr("logger.noResults", input.trim())));
                         cursor.close();
                     }
                 }, tickExecutor)
                 .fail(e -> {
                     if (e instanceof CommandException) {
                         sender.addChatMessage(Messages.error(e.getMessage()));
-                    } else if (e instanceof ParseException) {
+                    } else if (e instanceof MissingArgumentException) {
+                        sender.addChatMessage(Messages.error(tr("logger.criteriaParser.missingLastArgument")));
+                    } else if (e instanceof ArgumentException) {
                         sender.addChatMessage(Messages.error(e.getMessage()));
                     } else if (e instanceof RejectedPlaybackException) {
                         sender.addChatMessage(Messages.error(tr("logger.playback.tooManyConcurrent")));
@@ -228,15 +238,13 @@ public class LoggerCommands {
     @Command(aliases = {"search", "query", "find"}, desc = "Search the block log")
     @Group({@At("backtrack"), @At("bt"), @At("lb")})
     @Require("plume.logger.query")
-    public void search(@Sender ICommandSender sender, @Text String input, @Switch('a') boolean ascending, @Switch('l') Integer limit) {
+    public void search(@Sender ICommandSender sender, @Optional("") @Text String input, @Switch('a') boolean ascending, @Switch('l') Integer limit) {
         UserId userId = Profiles.fromCommandSender(sender);
         Order order = ascending ? Order.ASC : Order.DESC;
         int perPage = Messages.LINES_PER_PAGE - 1;
-        CriteriaParser parser = createCriteriaParser(sender);
-
         Deferred<?> deferred = Deferreds
                 .when(() -> {
-                    Criteria criteria = parser.parse(input).build();
+                    Criteria criteria = parseCriteria(sender, input);
                     List<Record> records = journal.findRecords(criteria, order, getLimit(limit));
                     return new ListPagination<>(records, perPage);
                 }, loggerExecutor)
@@ -245,11 +253,13 @@ public class LoggerCommands {
                         queryCache.put(userId, pagination);
                         printLog(sender, pagination.first());
                     } else {
-                        sender.addChatMessage(Messages.error(tr("logger.noResults", input)));
+                        sender.addChatMessage(Messages.error(tr("logger.noResults", input.trim())));
                     }
                 }, tickExecutor)
                 .fail(e -> {
-                    if (e instanceof ParseException) {
+                    if (e instanceof MissingArgumentException) {
+                        sender.addChatMessage(Messages.error(tr("logger.criteriaParser.missingLastArgument")));
+                    } else if (e instanceof ArgumentException) {
                         sender.addChatMessage(Messages.error(e.getMessage()));
                     } else {
                         sender.addChatMessage(Messages.exception(e));
@@ -262,7 +272,7 @@ public class LoggerCommands {
     @Command(aliases = {"near"}, desc = "Search for entries near your current location")
     @Group({@At("backtrack"), @At("bt"), @At("lb")})
     @Require("plume.logger.query")
-    public void near(@Sender EntityPlayer player, @Text String input) {
+    public void near(@Sender EntityPlayer player, @Optional("") @Text String input) {
         search(player, (config.get().near.defaultParameters + " " + input).trim(), false, null);
     }
 
@@ -300,7 +310,7 @@ public class LoggerCommands {
     @Command(aliases = {"details", "info"}, desc = "View detailed information about a given record")
     @Group({@At("backtrack"), @At("bt"), @At("lb")})
     @Require("plume.logger.details")
-    public void details(@Sender EntityPlayerMP sender, @Text String input) throws ActionReadException {
+    public void details(@Sender EntityPlayerMP sender, @Optional("") @Text String input) throws ActionReadException {
         processSingleRecord(sender, input, (record, action) -> {
             WorldVector3i loc = record.getLocation();
             sender.addChatMessage(new ChatComponentText(tr("logger.details.location", loc.getX(), loc.getY(), loc.getZ(), loc.getWorldId())));
@@ -314,7 +324,7 @@ public class LoggerCommands {
     @Command(aliases = {"teleport", "tp"}, desc = "Teleport to the location of a given record")
     @Group({@At("backtrack"), @At("bt"), @At("lb")})
     @Require("plume.logger.teleport")
-    public void teleport(@Sender EntityPlayerMP sender, @Text String input) throws ActionReadException {
+    public void teleport(@Sender EntityPlayerMP sender, @Optional("") @Text String input) throws ActionReadException {
         processSingleRecord(sender, input, (record, action) -> {
             try {
                 Location3d location = Vectors.toCenteredLocation3d(record.getLocation());
@@ -329,7 +339,7 @@ public class LoggerCommands {
     @Command(aliases = {"items"}, desc = "Get the items from a record")
     @Group({@At("backtrack"), @At("bt"), @At("lb")})
     @Require("plume.logger.items")
-    public void items(@Sender EntityPlayerMP sender, @Text String input) throws ActionReadException {
+    public void items(@Sender EntityPlayerMP sender, @Optional("") @Text String input) throws ActionReadException {
         processSingleRecord(sender, input, (record, action) -> {
             List<ItemStack> items = action.copyItems();
             if (!items.isEmpty()) {

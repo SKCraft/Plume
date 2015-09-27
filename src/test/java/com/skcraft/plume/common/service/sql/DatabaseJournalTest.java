@@ -2,8 +2,13 @@ package com.skcraft.plume.common.service.sql;
 
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.regions.CuboidRegion;
-import com.skcraft.plume.common.service.journal.criteria.Criteria;
 import com.skcraft.plume.common.service.journal.Record;
+import com.skcraft.plume.common.service.journal.criteria.AlwaysTrue;
+import com.skcraft.plume.common.service.journal.criteria.CausedBy;
+import com.skcraft.plume.common.service.journal.criteria.ContainedWithin;
+import com.skcraft.plume.common.service.journal.criteria.PriorTo;
+import com.skcraft.plume.common.service.journal.criteria.Since;
+import com.skcraft.plume.common.service.journal.criteria.WithinWorld;
 import com.skcraft.plume.common.util.Order;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,7 +105,7 @@ public class DatabaseJournalTest {
     @Test
     public void testQueryRecords_ASC() throws Exception {
         DatabaseJournal journal = createJournal();
-        List<Record> records = journal.findRecords(new Criteria.Builder().build(), Order.ASC, 1000);
+        List<Record> records = journal.findRecords(AlwaysTrue.INSTANCE, Order.ASC, 1000);
         assertThat(records.size(), is(5));
         verifyRecord1(records.get(0));
         verifyRecord2(records.get(1));
@@ -112,7 +117,7 @@ public class DatabaseJournalTest {
     @Test
     public void testQueryRecords_DESC() throws Exception {
         DatabaseJournal journal = createJournal();
-        List<Record> records = journal.findRecords(new Criteria.Builder().build(), Order.DESC, 1000);
+        List<Record> records = journal.findRecords(AlwaysTrue.INSTANCE, Order.DESC, 1000);
         assertThat(records.size(), is(5));
         verifyRecord1(records.get(4));
         verifyRecord2(records.get(3));
@@ -124,7 +129,7 @@ public class DatabaseJournalTest {
     @Test
     public void testQueryRecords_LimitASC() throws Exception {
         DatabaseJournal journal = createJournal();
-        List<Record> records = journal.findRecords(new Criteria.Builder().build(), Order.ASC, 3);
+        List<Record> records = journal.findRecords(AlwaysTrue.INSTANCE, Order.ASC, 3);
         assertThat(records.size(), is(3));
         verifyRecord1(records.get(0));
         verifyRecord2(records.get(1));
@@ -134,7 +139,7 @@ public class DatabaseJournalTest {
     @Test
     public void testQueryRecords_LimitDESC() throws Exception {
         DatabaseJournal journal = createJournal();
-        List<Record> records = journal.findRecords(new Criteria.Builder().build(), Order.DESC, 3);
+        List<Record> records = journal.findRecords(AlwaysTrue.INSTANCE, Order.DESC, 3);
         assertThat(records.size(), is(3));
         verifyRecord5(records.get(0));
         verifyRecord4(records.get(1));
@@ -144,10 +149,7 @@ public class DatabaseJournalTest {
     @Test
     public void testQueryRecords_Before() throws Exception {
         DatabaseJournal journal = createJournal();
-        Criteria criteria = new Criteria.Builder()
-                .setBefore(MockDatabase.parseDate("2014-05-01 00:03:00"))
-                .build();
-        List<Record> records = journal.findRecords(criteria, Order.ASC, 1000);
+        List<Record> records = journal.findRecords(new PriorTo(MockDatabase.parseDate("2014-05-01 00:03:00")), Order.ASC, 1000);
         assertThat(records.size(), is(2));
         verifyRecord1(records.get(0));
         verifyRecord2(records.get(1));
@@ -156,10 +158,7 @@ public class DatabaseJournalTest {
     @Test
     public void testQueryRecords_Since() throws Exception {
         DatabaseJournal journal = createJournal();
-        Criteria criteria = new Criteria.Builder()
-                .setSince(MockDatabase.parseDate("2014-05-01 00:03:00"))
-                .build();
-        List<Record> records = journal.findRecords(criteria, Order.ASC, 1000);
+        List<Record> records = journal.findRecords(new Since(MockDatabase.parseDate("2014-05-01 00:03:00")), Order.ASC, 1000);
         assertThat(records.size(), is(2));
         verifyRecord4(records.get(0));
         verifyRecord5(records.get(1));
@@ -168,23 +167,16 @@ public class DatabaseJournalTest {
     @Test
     public void testQueryRecords_Region() throws Exception {
         DatabaseJournal journal = createJournal();
-        Criteria criteria = new Criteria.Builder()
-                .setContainedWithin(new CuboidRegion(new Vector(-20, 50, 10), new Vector(50, 80, 55)))
-                .build();
-        List<Record> records = journal.findRecords(criteria, Order.ASC, 1000);
-        assertThat(records.size(), is(3));
+        List<Record> records = journal.findRecords(new ContainedWithin("world", new CuboidRegion(new Vector(-20, 50, 10), new Vector(50, 80, 55))), Order.ASC, 1000);
+        assertThat(records.size(), is(2));
         verifyRecord2(records.get(0));
         verifyRecord3(records.get(1));
-        verifyRecord4(records.get(2));
     }
 
     @Test
     public void testQueryRecords_UserId() throws Exception {
         DatabaseJournal journal = createJournal();
-        Criteria criteria = new Criteria.Builder()
-                .setUserId(MockDatabase.VINCENT_USER)
-                .build();
-        List<Record> records = journal.findRecords(criteria, Order.ASC, 1000);
+        List<Record> records = journal.findRecords(new CausedBy(MockDatabase.VINCENT_USER), Order.ASC, 1000);
         assertThat(records.size(), is(2));
         verifyRecord3(records.get(0));
         verifyRecord5(records.get(1));
@@ -193,10 +185,7 @@ public class DatabaseJournalTest {
     @Test
     public void testQueryRecords_World() throws Exception {
         DatabaseJournal journal = createJournal();
-        Criteria criteria = new Criteria.Builder()
-                .setWorldId("end")
-                .build();
-        List<Record> records = journal.findRecords(criteria, Order.ASC, 1000);
+        List<Record> records = journal.findRecords(new WithinWorld("end"), Order.ASC, 1000);
         assertThat(records.size(), is(1));
         verifyRecord5(records.get(0));
     }

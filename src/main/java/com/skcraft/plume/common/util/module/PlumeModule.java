@@ -13,6 +13,8 @@ import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.ConfigFactory;
 import com.skcraft.plume.common.util.config.DataDir;
 import com.skcraft.plume.common.util.config.InjectConfig;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -36,10 +38,21 @@ class PlumeModule extends AbstractModule {
         bindScope(Module.class, Scopes.SINGLETON);
         bindScope(AutoRegister.class, Scopes.SINGLETON);
 
+        PeriodFormatter periodFormatter = new PeriodFormatterBuilder()
+                .appendYears().appendSuffix("y")
+                .appendMonths().appendSuffix("mt")
+                .appendWeeks().appendSuffix("w")
+                .appendDays().appendSuffix("d")
+                .appendHours().appendSuffix("h")
+                .appendMinutes().appendSuffix("m")
+                .appendSeconds().appendSuffix("s")
+                .toFormatter();
+
         bind(File.class).annotatedWith(DataDir.class).toInstance(dataDir);
         bind(EventBus.class).toInstance(eventBus);
         bind(ConfigFactory.class).toInstance(configFactory);
         bind(ScheduledExecutorService.class).toInstance(Executors.newScheduledThreadPool(1));
+        bind(PeriodFormatter.class).toInstance(periodFormatter);
 
         // Event bus registration
         bindListener(Matchers.any(), new TypeListener() {

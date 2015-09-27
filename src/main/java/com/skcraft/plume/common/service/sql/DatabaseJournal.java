@@ -1,26 +1,37 @@
 package com.skcraft.plume.common.service.sql;
 
-import com.google.common.collect.*;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.collect.UnmodifiableIterator;
 import com.google.inject.Inject;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.regions.Region;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.module.MySQLPool;
-import com.skcraft.plume.common.service.journal.*;
+import com.skcraft.plume.common.service.journal.Journal;
 import com.skcraft.plume.common.service.journal.Record;
 import com.skcraft.plume.common.service.journal.criteria.Criteria;
 import com.skcraft.plume.common.service.sql.model.log.tables.records.LogWorldRecord;
-import com.skcraft.plume.common.util.*;
+import com.skcraft.plume.common.util.Order;
+import com.skcraft.plume.common.util.WorldVector3i;
 import lombok.Getter;
 import lombok.extern.java.Log;
-import org.jooq.*;
+import org.jooq.Condition;
 import org.jooq.Cursor;
+import org.jooq.DSLContext;
+import org.jooq.InsertValuesStep1;
+import org.jooq.RenderContext;
+import org.jooq.SelectLimitStep;
 import org.jooq.impl.DSL;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -110,59 +121,6 @@ public class DatabaseJournal implements Journal {
         }
     }
 
-    /**
-     * Builds a jOOQ condition object from given criteria.
-     *
-     * @param criteria The criteria
-     * @param condition The starting condition to extend
-     * @return The final condition
-     */
-    private Condition buildCondition(Criteria criteria, Condition condition) {
-        String world = criteria.getWorldId();
-        if (world != null) {
-            condition = condition.and(LOG_WORLD.NAME.eq(world));
-        }
-
-        Region region = criteria.getContainedWithin();
-        if (region != null) {
-            Vector min = region.getMinimumPoint();
-            Vector max = region.getMaximumPoint();
-            condition = condition.and(LOG.X.greaterOrEqual(min.getBlockX()));
-            condition = condition.and(LOG.Y.greaterOrEqual((short) min.getBlockY()));
-            condition = condition.and(LOG.Z.greaterOrEqual(min.getBlockZ()));
-            condition = condition.and(LOG.X.lessOrEqual(max.getBlockX()));
-            condition = condition.and(LOG.Y.lessOrEqual((short) max.getBlockY()));
-            condition = condition.and(LOG.Z.lessOrEqual(max.getBlockZ()));
-        }
-
-        Date before = criteria.getBefore();
-        if (before != null) {
-            condition = condition.and(LOG.TIME.lessThan(new Timestamp(before.getTime())));
-        }
-
-        Date after = criteria.getSince();
-        if (after != null) {
-            condition = condition.and(LOG.TIME.greaterThan(new Timestamp(after.getTime())));
-        }
-
-        UserId userId = criteria.getUserId();
-        if (userId != null) {
-            condition = condition.and(USER_ID.UUID.eq(userId.getUuid().toString()));
-        }
-
-        List<Short> actions = criteria.getActions();
-        if (actions != null) {
-            condition = condition.and(LOG.ACTION.in(actions));
-        }
-
-        List<Short> excludeActions = criteria.getExcludeActions();
-        if (excludeActions != null) {
-            condition = condition.and(LOG.ACTION.notIn(excludeActions));
-        }
-
-        return condition;
-    }
-
     private Record mapJooqRecord(org.jooq.Record result) {
         if (result == null) {
             return null;
@@ -184,7 +142,7 @@ public class DatabaseJournal implements Journal {
         try {
             DSLContext create = database.get().create();
 
-            Condition condition = buildCondition(criteria, LOG.WORLD_ID.eq(LOG_WORLD.ID));
+            Condition condition = LOG.WORLD_ID.eq(LOG_WORLD.ID).and(criteria.toCondition());
 
             SelectLimitStep<org.jooq.Record> query = create.select(LOG.fields())
                     .select(LOG_WORLD.fields())
