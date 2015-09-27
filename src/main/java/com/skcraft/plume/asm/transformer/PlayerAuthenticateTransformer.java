@@ -1,6 +1,5 @@
 package com.skcraft.plume.asm.transformer;
 
-import com.skcraft.plume.asm.util.ObfMappings;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
