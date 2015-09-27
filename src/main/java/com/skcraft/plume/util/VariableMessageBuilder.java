@@ -11,17 +11,14 @@ import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
 @Singleton
 public class VariableMessageBuilder {
 
-    private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\{([^\\}]+)\\}");
-
     public String interpolate(String text, MessageContext context) {
-        return StringInterpolation.interpolate(VARIABLE_PATTERN, text, context);
+        return StringInterpolation.interpolate(StringInterpolation.BRACE_PATTERN, text, context);
     }
 
     public static class MessageContext implements Function<String, String> {

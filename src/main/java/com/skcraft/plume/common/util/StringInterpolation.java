@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 
 public final class StringInterpolation {
 
+    public static final Pattern BRACE_PATTERN = Pattern.compile("\\{([^\\}]+)\\}");
+
     private StringInterpolation() {
     }
 

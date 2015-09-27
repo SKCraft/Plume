@@ -10,8 +10,39 @@ public final class ObfHelper {
     private ObfHelper() {
     }
 
+    public static String obfClass(String name) {
+        if (DEV_ENVIRONMENT) {
+            return name;
+        }
+        return FMLDeobfuscatingRemapper.INSTANCE.unmap(name);
+    }
+
     public static String obfMethodDesc(String desc) {
-        return FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(desc);
+        if (DEV_ENVIRONMENT) {
+            return desc;
+        }
+        return ObfuscatingMapper.INSTANCE.mapMethodDesc(desc);
+    }
+
+    public static String obfDesc(String desc) {
+        if (DEV_ENVIRONMENT) {
+            return desc;
+        }
+        return ObfuscatingMapper.INSTANCE.mapDesc(desc);
+    }
+
+    public static String obfMethod(String owner, String name, String devName, String desc) {
+        if (DEV_ENVIRONMENT) {
+            return devName;
+        }
+        return ObfuscatingMapper.INSTANCE.mapMethodName(owner, name, desc);
+    }
+
+    public static String obfField(String owner, String name, String devName, String desc) {
+        if (DEV_ENVIRONMENT) {
+            return devName;
+        }
+        return ObfuscatingMapper.INSTANCE.mapFieldName(owner, name, desc);
     }
 
 }
