@@ -85,7 +85,7 @@ public class Parties {
                     } else if (userId.equals(issuer)) {
                         throw new CommandException(tr("party.add.cannotAddSelf"));
                     } else {
-                        partyCache.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MEMBER)));
+                        partyCache.addMembers(party, Sets.newHashSet(new Member(userId, Rank.MANAGER)));
                         partyCache.getManager().refreshParty(party);
 
                         return userId.getName();
