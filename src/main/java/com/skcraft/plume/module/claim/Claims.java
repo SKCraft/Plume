@@ -110,16 +110,14 @@ public class Claims {
 
     public boolean mayAccess(Cause cause, ClaimEntry entry) {
         Object rootCause = cause.getRootCause();
+        EntityPlayer firstPlayer = cause.getFirstPlayer();
 
         if (!cause.isKnown()) {
             return false;
-        } else if (rootCause instanceof FakePlayer && config.get().protection.ignoreFakePlayers) {
+        } else if (firstPlayer instanceof FakePlayer && config.get().protection.ignoreFakePlayers) {
             return true;
         } else if (rootCause instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer) rootCause;
-            if (player.getCommandSenderName().startsWith("[") && config.get().protection.ignoreFakePlayers) {
-                return true;
-            }
             rootCause = Profiles.fromPlayer(player);
         }
 
