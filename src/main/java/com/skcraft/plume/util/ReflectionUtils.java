@@ -8,6 +8,13 @@ public final class ReflectionUtils {
     }
 
     @SuppressWarnings("unchecked")
+    public static <T> T getStaticDeclaredField(Class<?> clazz, String name) throws NoSuchFieldException, IllegalAccessException {
+        Field field = clazz.getDeclaredField(name);
+        field.setAccessible(true);
+        return (T) field.get(null);
+    }
+
+    @SuppressWarnings("unchecked")
     public static <T> T getDeclaredField(Object instance, String name) throws NoSuchFieldException, IllegalAccessException {
         Field field = instance.getClass().getDeclaredField(name);
         field.setAccessible(true);
