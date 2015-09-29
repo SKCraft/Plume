@@ -37,6 +37,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
@@ -235,7 +236,7 @@ public class Claims {
 
         @Override
         public boolean apply(Location3i input) {
-            EntityPlayer player = cause.getFirstPlayer();
+            EntityPlayerMP player = cause.getFirstPlayerMP();
             ClaimEntry entry = getClaimEntry(input);
 
             if (entry != null) {
@@ -254,7 +255,7 @@ public class Claims {
                         return true;
                     }
 
-                    if (player != null) {
+                    if (player != null && player.playerNetServerHandler != null) {
                         if (systemOwned) {
                             player.addChatMessage(Messages.error(tr("claims.protection.noAccessSystem")));
                         } else {
@@ -264,7 +265,7 @@ public class Claims {
                     return false;
                 }
             } else {
-                if (player != null) {
+                if (player != null && player.playerNetServerHandler != null) {
                     player.addChatMessage(Messages.error(tr("claims.protection.notLoaded")));
                 }
                 return false;

@@ -115,6 +115,17 @@ public final class Cause {
     }
 
     @Nullable
+    public EntityPlayerMP getFirstPlayerMP() {
+        for (Object object : causes) {
+            if (object instanceof EntityPlayerMP) {
+                return (EntityPlayerMP) object;
+            }
+        }
+
+        return null;
+    }
+
+    @Nullable
     public Entity getFirstEntity() {
         for (Object object : causes) {
             if (object instanceof Entity) {
