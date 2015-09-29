@@ -12,7 +12,6 @@ import com.sk89q.squirrelid.Profile;
 import com.sk89q.squirrelid.resolver.HttpRepositoryService;
 import com.skcraft.plume.common.UserId;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -56,7 +55,6 @@ public class ProfileService {
                 }
             });
 
-    @Nullable
     public UserId findUserId(String name) throws ProfileLookupException, ProfileNotFoundException {
         try {
             Optional<UserId> optional = cache.get(name.toLowerCase());
