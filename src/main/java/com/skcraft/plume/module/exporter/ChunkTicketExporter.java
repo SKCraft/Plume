@@ -3,11 +3,10 @@ package com.skcraft.plume.module.exporter;
 import au.com.bytecode.opencsv.CSVWriter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.skcraft.plume.util.ReflectionUtils;
+import com.skcraft.plume.util.ChunkManagerUtils;
 import com.skcraft.plume.util.Worlds;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 
 import java.util.List;
@@ -20,7 +19,7 @@ public class ChunkTicketExporter implements CSVExporter {
 
     @Override
     public void collectData() throws NoSuchFieldException, IllegalAccessException {
-        Map<World, Multimap<String, Ticket>> tickets = ReflectionUtils.getStaticDeclaredField(ForgeChunkManager.class, "tickets");
+        Map<World, Multimap<String, Ticket>> tickets = ChunkManagerUtils.getTickets();
         for (Map.Entry<World, Multimap<String, Ticket>> entry : tickets.entrySet()) {
             for (Ticket ticket : entry.getValue().values()) {
                 for (ChunkCoordIntPair chunkPos : ticket.getChunkList()) {
