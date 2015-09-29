@@ -60,7 +60,7 @@ public class Parties {
                     if (e instanceof PartyExistsException) {
                         sender.addChatMessage(Messages.error(tr("party.create.existsAlready", name)));
                     } else {
-                        sender.addChatMessage(Messages.error(tr("args.exception.unhandled", e.getMessage())));
+                        sender.addChatMessage(Messages.exception(e));
                     }
                 }, tickExecutorService);
 
@@ -102,7 +102,7 @@ public class Parties {
                     } else if (e instanceof CommandException) {
                         sender.addChatMessage(Messages.error(tr("party.invite.failed", e.getMessage())));
                     } else {
-                        sender.addChatMessage(Messages.error(tr("args.exception.unhandled", ((ProfileLookupException) e).getName())));
+                        sender.addChatMessage(Messages.exception(e));
                     }
                 }, tickExecutorService);
 
@@ -144,7 +144,7 @@ public class Parties {
                     } else if (e instanceof CommandException) {
                         sender.addChatMessage(Messages.error(tr("party.remove.failed", e.getMessage())));
                     } else {
-                        sender.addChatMessage(Messages.error(tr("args.exception.unhandled", ((ProfileLookupException) e).getName())));
+                        sender.addChatMessage(Messages.exception(e));
                     }
                 }, tickExecutorService);
 
@@ -196,7 +196,7 @@ public class Parties {
                     } else if (e instanceof CommandException) {
                         sender.addChatMessage(Messages.error(tr("party.rank.failed", e.getMessage())));
                     } else {
-                        sender.addChatMessage(Messages.error(tr("args.exception.unhandled", ((ProfileLookupException) e).getName())));
+                        sender.addChatMessage(Messages.exception(e));
                     }
                 }, tickExecutorService);
 
@@ -240,7 +240,7 @@ public class Parties {
                     } else if (e instanceof CommandException) {
                         sender.addChatMessage(Messages.error(tr("party.leave.failed", e.getMessage())));
                     } else {
-                        sender.addChatMessage(Messages.error(tr("args.exception.unhandled", ((ProfileLookupException) e).getName())));
+                        sender.addChatMessage(Messages.exception(e));
                     }
                 }, tickExecutorService);
 
@@ -273,7 +273,7 @@ public class Parties {
                     if (e instanceof CommandException) {
                         sender.addChatMessage(Messages.error(tr("party.info.failed", e.getMessage())));
                     } else {
-                        sender.addChatMessage(Messages.error(tr("args.exception.unhandled", ((ProfileLookupException) e).getName())));
+                        sender.addChatMessage(Messages.exception(e));
                     }
                 }, tickExecutorService);
 
@@ -309,7 +309,7 @@ public class Parties {
                     } else if (e instanceof CommandException) {
                         sender.addChatMessage(Messages.error(tr("party.invite.failed", e.getMessage())));
                     } else {
-                        sender.addChatMessage(Messages.error(tr("args.exception.unhandled", ((ProfileLookupException) e).getName())));
+                        sender.addChatMessage(Messages.exception(e));
                     }
                 }, tickExecutorService);
 
@@ -347,7 +347,7 @@ public class Parties {
                     } else if (e instanceof CommandException) {
                         sender.addChatMessage(Messages.error(tr("party.remove.failed", e.getMessage())));
                     } else {
-                        sender.addChatMessage(Messages.error(tr("args.exception.unhandled", ((ProfileLookupException) e).getName())));
+                        sender.addChatMessage(Messages.exception(e));
                     }
                 }, tickExecutorService);
 
@@ -395,7 +395,7 @@ public class Parties {
                     } else if (e instanceof CommandException) {
                         sender.addChatMessage(Messages.error(tr("party.rank.failed", e.getMessage())));
                     } else {
-                        sender.addChatMessage(Messages.error(tr("args.exception.unhandled", ((ProfileLookupException) e).getName())));
+                        sender.addChatMessage(Messages.exception(e));
                     }
                 }, tickExecutorService);
 
@@ -431,7 +431,7 @@ public class Parties {
                     if (e instanceof CommandException) {
                         sender.addChatMessage(Messages.error(tr("party.delete.failed.other", e.getMessage())));
                     } else {
-                        sender.addChatMessage(Messages.error(tr("args.exception.unhandled", e.getLocalizedMessage())));
+                        sender.addChatMessage(Messages.exception(e));
                     }
                 }, tickExecutorService);
 
