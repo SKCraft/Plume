@@ -22,6 +22,7 @@ import com.skcraft.plume.util.concurrent.BackgroundExecutor;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
 import lombok.extern.java.Log;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ChatComponentText;
 
 import java.util.Date;
 
@@ -266,7 +267,7 @@ public class Parties {
                 .done(party -> {
                     sender.addChatMessage(Messages.info(tr("party.info.1", party.getName())));
                     sender.addChatMessage(Messages.info(tr("party.info.2", party.getCreateTime().toString())));
-                    sender.addChatMessage(Messages.info(tr("party.info.3")));
+                    sender.addChatMessage(new ChatComponentText(tr("party.info.3")));
                     sender.addChatMessage(Messages.info(com.skcraft.plume.common.service.party.Parties.getMemberListStr(party)));
                 }, tickExecutorService)
                 .fail(e -> {
