@@ -61,6 +61,7 @@ import net.minecraft.util.IChatComponent;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
 
@@ -179,6 +180,8 @@ public class LoggerCommands {
                 .fail(e -> {
                     if (e instanceof CommandException) {
                         sender.addChatMessage(Messages.error(e.getMessage()));
+                    } else if (e instanceof RejectedExecutionException) {
+                        sender.addChatMessage(Messages.error(tr("logger.rejectedExecution")));
                     } else {
                         sender.addChatMessage(Messages.exception(e));
                     }
@@ -261,10 +264,12 @@ public class LoggerCommands {
                         sender.addChatMessage(Messages.error(tr("logger.criteriaParser.missingLastArgument")));
                     } else if (e instanceof ArgumentException) {
                         sender.addChatMessage(Messages.error(e.getMessage()));
+                    } else if (e instanceof RejectedExecutionException) {
+                        sender.addChatMessage(Messages.error(tr("logger.rejectedExecution")));
                     } else {
                         sender.addChatMessage(Messages.exception(e));
                     }
-                });
+                }, tickExecutor);
 
         backgroundExecutor.notifyOnDelay(deferred, sender);
     }
