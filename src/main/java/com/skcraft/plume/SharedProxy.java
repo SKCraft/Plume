@@ -4,6 +4,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.inject.Injector;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
 import com.skcraft.plume.common.event.lifecycle.PostInitializationEvent;
+import com.skcraft.plume.common.event.lifecycle.ShutdownEvent;
 import com.skcraft.plume.common.util.FatalError;
 import com.skcraft.plume.common.util.config.SetTypeSerializer;
 import com.skcraft.plume.common.util.event.EventBus;
@@ -87,6 +88,8 @@ public class SharedProxy {
 
     public void onServerStopping(FMLServerStoppingEvent event) {
         getEventBus().post(event);
+
+        getEventBus().post(new ShutdownEvent());
     }
 
     public void onServerStopped(FMLServerStoppedEvent event) {
