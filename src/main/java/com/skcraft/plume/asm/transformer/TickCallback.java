@@ -6,13 +6,16 @@ import com.skcraft.plume.event.tick.EntityTickEvent;
 import com.skcraft.plume.event.tick.EntityTickExceptionEvent;
 import com.skcraft.plume.event.tick.TileEntityTickEvent;
 import com.skcraft.plume.event.tick.TileEntityTickExceptionEvent;
+import lombok.extern.java.Log;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.logging.Level;
 
 @SuppressWarnings("ForLoopReplaceableByForEach")
+@Log
 public final class TickCallback {
 
     private TickCallback() {
@@ -25,7 +28,11 @@ public final class TickCallback {
             List<Stopwatch> stopwatches = tickEvent.getStopwatches();
             try {
                 for (int i = 0; i < stopwatches.size(); i++) {
-                    stopwatches.get(i).start();
+                    try {
+                        stopwatches.get(i).start();
+                    } catch (Throwable t) {
+                        log.log(Level.WARNING, "Failed to start stopwatch " + stopwatches.get(i).getClass().getName(), t);
+                    }
                 }
                 world.updateEntity(entity);
             } catch (Throwable t) {
@@ -36,7 +43,11 @@ public final class TickCallback {
                 }
             } finally {
                 for (int i = stopwatches.size() - 1; i >= 0; i--) {
-                    stopwatches.get(i).stop();
+                    try {
+                        stopwatches.get(i).stop();
+                    } catch (Throwable t) {
+                        log.log(Level.WARNING, "Failed to stop stopwatch " + stopwatches.get(i).getClass().getName(), t);
+                    }
                 }
             }
         }
@@ -49,7 +60,11 @@ public final class TickCallback {
             List<Stopwatch> stopwatches = tickEvent.getStopwatches();
             try {
                 for (int i = 0; i < stopwatches.size(); i++) {
-                    stopwatches.get(i).start();
+                    try {
+                        stopwatches.get(i).start();
+                    } catch (Throwable t) {
+                        log.log(Level.WARNING, "Failed to start stopwatch " + stopwatches.get(i).getClass().getName(), t);
+                    }
                 }
                 tileEntity.updateEntity();
             } catch (Throwable t) {
@@ -60,7 +75,11 @@ public final class TickCallback {
                 }
             } finally {
                 for (int i = stopwatches.size() - 1; i >= 0; i--) {
-                    stopwatches.get(i).stop();
+                    try {
+                        stopwatches.get(i).stop();
+                    } catch (Throwable t) {
+                        log.log(Level.WARNING, "Failed to stop stopwatch " + stopwatches.get(i).getClass().getName(), t);
+                    }
                 }
             }
         }
