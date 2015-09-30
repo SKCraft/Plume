@@ -1,7 +1,7 @@
 package com.skcraft.plume.module;
 
-import com.sk89q.worldedit.util.eventbus.EventHandler.Priority;
-import com.sk89q.worldedit.util.eventbus.Subscribe;
+import com.skcraft.plume.common.util.event.Order;
+import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.event.Result;
 import com.skcraft.plume.event.block.BlockChange;
@@ -23,7 +23,7 @@ import net.minecraft.entity.Entity;
 @Log
 public class DebuggingListener {
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void onPlaceBlock(PlaceBlockEvent event) {
         for (BlockChange change : event.getChanges()) {
             StringBuilder builder = new StringBuilder();
@@ -41,7 +41,7 @@ public class DebuggingListener {
         }
     }
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void onBreakBlock(BreakBlockEvent event) {
         for (BlockChange change : event.getChanges()) {
             StringBuilder builder = new StringBuilder();
@@ -59,7 +59,7 @@ public class DebuggingListener {
         }
     }
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void onUseBlock(UseBlockEvent event) {
         for (Location3i location : event.getLocations()) {
             StringBuilder builder = new StringBuilder();
@@ -77,7 +77,7 @@ public class DebuggingListener {
         }
     }
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void onSpawnEntity(SpawnEntityEvent event) {
         for (Entity entity : event.getEntities()) {
             StringBuilder builder = new StringBuilder();
@@ -95,7 +95,7 @@ public class DebuggingListener {
         }
     }
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void onDestroyEntity(DestroyEntityEvent event) {
         for (Entity entity : event.getEntities()) {
             StringBuilder builder = new StringBuilder();
@@ -113,7 +113,7 @@ public class DebuggingListener {
         }
     }
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void onUseEntity(UseEntityEvent event) {
         for (Entity entity : event.getEntities()) {
             StringBuilder builder = new StringBuilder();
@@ -131,7 +131,7 @@ public class DebuggingListener {
         }
     }
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void obDamageEntity(DamageEntityEvent event) {
         for (Entity entity : event.getEntities()) {
             StringBuilder builder = new StringBuilder();

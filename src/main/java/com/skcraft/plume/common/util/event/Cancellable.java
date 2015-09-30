@@ -1,4 +1,4 @@
-package com.skcraft.plume.event;
+package com.skcraft.plume.common.util.event;
 
 public interface Cancellable {
 

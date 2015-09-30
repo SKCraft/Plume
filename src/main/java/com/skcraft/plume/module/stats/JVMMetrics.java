@@ -11,8 +11,8 @@ import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
+import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
 
 import java.lang.management.ManagementFactory;

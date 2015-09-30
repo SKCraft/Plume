@@ -1,16 +1,19 @@
 package com.skcraft.plume.common.module.metrics;
 
-import com.codahale.metrics.*;
+import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.MetricFilter;
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
 import com.skcraft.plume.common.event.lifecycle.ShutdownEvent;
 import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
+import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
 import lombok.extern.java.Log;
 import ninja.leaping.configurate.objectmapping.Setting;

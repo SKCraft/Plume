@@ -2,7 +2,6 @@ package com.skcraft.plume.common.module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
-import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
 import com.skcraft.plume.common.module.MySQLServices.InjectorModule;
 import com.skcraft.plume.common.service.auth.Hive;
@@ -16,6 +15,7 @@ import com.skcraft.plume.common.service.sql.DatabaseManager;
 import com.skcraft.plume.common.service.sql.DatabaseParties;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
+import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
 import ninja.leaping.configurate.objectmapping.Setting;
 

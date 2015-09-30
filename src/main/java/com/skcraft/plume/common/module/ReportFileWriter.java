@@ -1,12 +1,12 @@
 package com.skcraft.plume.common.module;
 
 import com.google.common.io.CharStreams;
-import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.event.ReportGenerationEvent;
 import com.skcraft.plume.common.util.PathnameBuilder;
 import com.skcraft.plume.common.util.StringInterpolation;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
+import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
 import lombok.extern.java.Log;
 import ninja.leaping.configurate.objectmapping.Setting;

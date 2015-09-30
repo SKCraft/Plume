@@ -1,11 +1,20 @@
 package com.skcraft.plume.module.backtrack;
 
 import com.google.inject.Inject;
-import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.event.lifecycle.PostInitializationEvent;
 import com.skcraft.plume.common.service.journal.Journal;
+import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
-import com.skcraft.plume.module.backtrack.action.*;
+import com.skcraft.plume.module.backtrack.action.BlockBreakAction;
+import com.skcraft.plume.module.backtrack.action.BlockExplodeAction;
+import com.skcraft.plume.module.backtrack.action.BlockPlaceAction;
+import com.skcraft.plume.module.backtrack.action.BucketFillAction;
+import com.skcraft.plume.module.backtrack.action.EntityDamageAction;
+import com.skcraft.plume.module.backtrack.action.ItemDropAction;
+import com.skcraft.plume.module.backtrack.action.ItemPickupAction;
+import com.skcraft.plume.module.backtrack.action.PlayerChatAction;
+import com.skcraft.plume.module.backtrack.action.PlayerCommandAction;
+import com.skcraft.plume.module.backtrack.action.PlayerDeathAction;
 
 @Module(name = "backtrack", desc = "Logs block changes for later query [requires journal service]", enabled = false)
 public class BackTrack {

@@ -3,8 +3,8 @@ package com.skcraft.plume.module.stats;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.google.inject.Inject;
-import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
+import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.service.ClockHistory;
 

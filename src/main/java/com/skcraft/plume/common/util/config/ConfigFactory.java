@@ -4,9 +4,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.inject.Inject;
-import com.sk89q.worldedit.util.eventbus.EventHandler.Priority;
-import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.event.lifecycle.LoadConfigEvent;
+import com.skcraft.plume.common.util.event.Order;
+import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.AutoRegister;
 import lombok.Data;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -75,12 +75,12 @@ public class ConfigFactory {
         return (Config<T>) configs.getUnchecked(new Key(name, type));
     }
 
-    @Subscribe(priority = Priority.VERY_EARLY)
+    @Subscribe(order = Order.VERY_EARLY)
     public void onLoadConfig(LoadConfigEvent event) {
         configs.asMap().values().forEach(Config::load);
     }
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void onLoadConfigLate(LoadConfigEvent event) {
         configs.asMap().values().forEach(Config::save);
     }

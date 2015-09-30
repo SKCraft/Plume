@@ -5,12 +5,12 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.DataAccessException;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.event.lifecycle.ReloadEvent;
 import com.skcraft.plume.common.service.claim.NoSuchPartyException;
 import com.skcraft.plume.common.util.ObjectCache;
+import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.AutoRegister;
 import lombok.Getter;
 

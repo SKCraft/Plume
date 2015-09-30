@@ -2,8 +2,6 @@ package com.skcraft.plume.module.claim;
 
 import com.google.common.base.Predicate;
 import com.google.inject.Inject;
-import com.sk89q.worldedit.util.eventbus.EventHandler.Priority;
-import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.service.auth.Authorizer;
 import com.skcraft.plume.common.service.auth.Context;
@@ -17,6 +15,8 @@ import com.skcraft.plume.common.util.Environment;
 import com.skcraft.plume.common.util.WorldVector3i;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
+import com.skcraft.plume.common.util.event.Order;
+import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.event.Cause;
 import com.skcraft.plume.event.block.BreakBlockEvent;
@@ -147,28 +147,28 @@ public class Claims {
         }
     }
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void onPlaceBlock(PlaceBlockEvent event) {
         if (!event.isCancelled()) {
             event.filterLocations(new LocationFilter(event.getCause(), false), true);
         }
     }
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void onBreakBlock(BreakBlockEvent event) {
         if (!event.isCancelled()) {
             event.filterLocations(new LocationFilter(event.getCause(), false), true);
         }
     }
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void onUseBlock(UseBlockEvent event) {
         if (!event.isCancelled()) {
             event.filterLocations(new LocationFilter(event.getCause(), true), true);
         }
     }
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void onDestroyEntity(DestroyEntityEvent event) {
         if (!event.isCancelled()) {
             LocationFilter filter = new LocationFilter(event.getCause(), false);
@@ -176,7 +176,7 @@ public class Claims {
         }
     }
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void onUseEntity(UseEntityEvent event) {
         if (!event.isCancelled()) {
             LocationFilter filter = new LocationFilter(event.getCause(), true);
@@ -184,7 +184,7 @@ public class Claims {
         }
     }
 
-    @Subscribe(priority = Priority.VERY_LATE)
+    @Subscribe(order = Order.VERY_LATE)
     public void onDamageEntity(DamageEntityEvent event) {
         if (!event.isCancelled()) {
             LocationFilter filter = new LocationFilter(event.getCause(), false);

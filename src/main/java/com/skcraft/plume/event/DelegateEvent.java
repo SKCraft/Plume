@@ -3,6 +3,7 @@ package com.skcraft.plume.event;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
+import com.skcraft.plume.common.util.event.Cancellable;
 
 import java.util.Iterator;
 import java.util.List;

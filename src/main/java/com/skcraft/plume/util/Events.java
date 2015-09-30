@@ -1,6 +1,6 @@
 package com.skcraft.plume.util;
 
-import com.sk89q.worldedit.util.eventbus.EventBus;
+import com.skcraft.plume.common.util.event.EventBus;
 import com.skcraft.plume.event.DelegateEvent;
 import cpw.mods.fml.common.eventhandler.Event;
 

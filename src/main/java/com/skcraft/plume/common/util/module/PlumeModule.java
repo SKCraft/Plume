@@ -8,11 +8,12 @@ import com.google.inject.matcher.Matchers;
 import com.google.inject.spi.InjectionListener;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
-import com.sk89q.worldedit.util.eventbus.EventBus;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.ConfigFactory;
 import com.skcraft.plume.common.util.config.DataDir;
 import com.skcraft.plume.common.util.config.InjectConfig;
+import com.skcraft.plume.common.util.event.EventBus;
+import com.skcraft.plume.common.util.event.PlumeEventBus;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
@@ -25,7 +26,7 @@ import java.util.concurrent.ScheduledExecutorService;
 class PlumeModule extends AbstractModule {
 
     private final File dataDir;
-    private final EventBus eventBus = new EventBus();
+    private final EventBus eventBus = new PlumeEventBus();
     private final ConfigFactory configFactory;
 
     PlumeModule(File dataDir) {
