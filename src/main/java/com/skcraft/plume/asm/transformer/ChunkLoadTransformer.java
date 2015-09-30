@@ -68,7 +68,7 @@ public class ChunkLoadTransformer implements IClassTransformer {
                 mv.visitVarInsn(ILOAD, 1);
                 mv.visitVarInsn(ILOAD, 2);
                 mv.visitMethodInsn(INVOKESTATIC, "com/skcraft/plume/asm/transformer/ChunkLoadHelper", "mayLoadChunk", ObfHelper.obfMethodDesc("(Lnet/minecraft/world/WorldServer;II)Z"), false);
-                mv.visitJumpInsn(IFNE, defaultEmptyChunk);
+                mv.visitJumpInsn(IFEQ, defaultEmptyChunk);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitVarInsn(ILOAD, 1);
                 mv.visitVarInsn(ILOAD, 2);
