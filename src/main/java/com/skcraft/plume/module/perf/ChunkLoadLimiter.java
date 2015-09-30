@@ -70,7 +70,7 @@ public class ChunkLoadLimiter {
 
     @SubscribeEvent
     public void onChunkLoadRequest(ChunkLoadRequestEvent event) {
-        if (!config.get().allowLoading) {
+        if (!config.get().allowImplicitLoading) {
             event.setCanceled(true);
             return;
         }
@@ -84,11 +84,11 @@ public class ChunkLoadLimiter {
                 event.setCanceled(!ruleCache.getUnchecked(tileEntity.getClass()));
             }
         } else if (tickingWorld) {
-            if (!config.get().allowLoadingDuringWorldTick) {
+            if (!config.get().allowImplicitLoadingDuringWorldTick) {
                 event.setCanceled(true);
             }
         } else {
-            if (!config.get().allowLoadingElsewhere) {
+            if (!config.get().allowImplicitLoadingElsewhere) {
                 event.setCanceled(true);
             }
         }
