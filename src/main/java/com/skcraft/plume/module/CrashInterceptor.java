@@ -6,10 +6,10 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
+import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.event.tick.EntityTickExceptionEvent;
 import com.skcraft.plume.event.tick.TileEntityTickExceptionEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import lombok.extern.java.Log;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
@@ -34,19 +34,19 @@ public class CrashInterceptor {
                 }
             });
 
-    @SubscribeEvent
+    @Subscribe
     public void onEntityTickException(EntityTickExceptionEvent event) {
         if (config.get().crashResponse == CrashResponse.SUPPRESS_AND_LOG) {
             logCache.getUnchecked(event.getEntity()).log(event.getThrowable(), () -> getEntityString(event.getEntity()));
-            event.setCanceled(true);
+            event.setCancelled(true);
         }
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onTileEntityTickException(TileEntityTickExceptionEvent event) {
         if (config.get().crashResponse == CrashResponse.SUPPRESS_AND_LOG) {
             logCache.getUnchecked(event.getTileEntity()).log(event.getThrowable(), () -> getTileEntityString(event.getTileEntity()));
-            event.setCanceled(true);
+            event.setCancelled(true);
         }
     }
 

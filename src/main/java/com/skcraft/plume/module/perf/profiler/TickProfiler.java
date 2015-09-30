@@ -2,11 +2,11 @@ package com.skcraft.plume.module.perf.profiler;
 
 import com.google.common.collect.Maps;
 import com.skcraft.plume.common.util.Stopwatch;
+import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.event.tick.EntityTickEvent;
 import com.skcraft.plume.event.tick.TileEntityTickEvent;
 import com.skcraft.plume.util.Worlds;
 import com.skcraft.plume.util.profiling.Profiler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import lombok.Getter;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
@@ -25,14 +25,14 @@ public class TickProfiler implements Profiler {
         return data.values();
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onEntityTick(EntityTickEvent event) {
         Entity entity = event.getEntity();
         stopwatch.set(Worlds.getWorldId(event.getWorld()), entity.getClass().getName(), (int) entity.posX, (int) entity.posY, (int) entity.posZ);
         event.getStopwatches().add(stopwatch);
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onTileEntityTick(TileEntityTickEvent event) {
         TileEntity tileEntity = event.getTileEntity();
         stopwatch.set(Worlds.getWorldId(event.getWorld()), tileEntity.getClass().getName(), tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);

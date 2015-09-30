@@ -1,6 +1,7 @@
 package com.skcraft.plume.asm.transformer;
 
 import com.skcraft.plume.common.util.Stopwatch;
+import com.skcraft.plume.common.util.event.PlumeEventBus;
 import com.skcraft.plume.event.tick.EntityTickEvent;
 import com.skcraft.plume.event.tick.EntityTickExceptionEvent;
 import com.skcraft.plume.event.tick.TileEntityTickEvent;
@@ -8,7 +9,6 @@ import com.skcraft.plume.event.tick.TileEntityTickExceptionEvent;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 
 import java.util.List;
 
@@ -20,8 +20,8 @@ public final class TickCallback {
 
     public static void tickEntity(Entity entity, World world) {
         EntityTickEvent tickEvent = new EntityTickEvent(world, entity);
-        MinecraftForge.EVENT_BUS.post(tickEvent);
-        if (!tickEvent.isCanceled()) {
+        PlumeEventBus.INSTANCE.post(tickEvent);
+        if (!tickEvent.isCancelled()) {
             List<Stopwatch> stopwatches = tickEvent.getStopwatches();
             try {
                 for (int i = 0; i < stopwatches.size(); i++) {
@@ -30,8 +30,8 @@ public final class TickCallback {
                 world.updateEntity(entity);
             } catch (Throwable t) {
                 EntityTickExceptionEvent exceptionEvent = new EntityTickExceptionEvent(world, entity, t);
-                MinecraftForge.EVENT_BUS.post(tickEvent);
-                if (!exceptionEvent.isCanceled()) {
+                PlumeEventBus.INSTANCE.post(tickEvent);
+                if (!exceptionEvent.isCancelled()) {
                     throw t;
                 }
             } finally {
@@ -44,8 +44,8 @@ public final class TickCallback {
 
     public static void tickTileEntity(TileEntity tileEntity, World world) {
         TileEntityTickEvent tickEvent = new TileEntityTickEvent(world, tileEntity);
-        MinecraftForge.EVENT_BUS.post(tickEvent);
-        if (!tickEvent.isCanceled()) {
+        PlumeEventBus.INSTANCE.post(tickEvent);
+        if (!tickEvent.isCancelled()) {
             List<Stopwatch> stopwatches = tickEvent.getStopwatches();
             try {
                 for (int i = 0; i < stopwatches.size(); i++) {
@@ -54,8 +54,8 @@ public final class TickCallback {
                 tileEntity.updateEntity();
             } catch (Throwable t) {
                 TileEntityTickExceptionEvent exceptionEvent = new TileEntityTickExceptionEvent(world, tileEntity, t);
-                MinecraftForge.EVENT_BUS.post(tickEvent);
-                if (!exceptionEvent.isCanceled()) {
+                PlumeEventBus.INSTANCE.post(tickEvent);
+                if (!exceptionEvent.isCancelled()) {
                     throw t;
                 }
             } finally {

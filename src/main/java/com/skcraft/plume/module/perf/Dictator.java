@@ -18,7 +18,6 @@ import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.event.tick.EntityTickEvent;
 import com.skcraft.plume.event.tick.TileEntityTickEvent;
 import com.skcraft.plume.util.Worlds;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.tileentity.TileEntity;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
@@ -74,30 +73,30 @@ public class Dictator {
         ruleCache.invalidateAll();
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onEntityTickEvent(EntityTickEvent event) {
         if (event.getWorld().isRemote) return;
 
         if (!config.get().rules.isEmpty()) {
             Optional<Rule> optional = ruleCache.getUnchecked(event.getEntity().getClass());
             if (optional.isPresent()) {
-                event.setCanceled(!optional.get().mayTick());
+                event.setCancelled(!optional.get().mayTick());
             }
         }
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onTileEntityTickEvent(TileEntityTickEvent event) {
         if (event.getWorld().isRemote) return;
 
         if (!config.get().rules.isEmpty()) {
             Optional<Rule> optional = ruleCache.getUnchecked(event.getTileEntity().getClass());
             if (optional.isPresent()) {
-                event.setCanceled(!optional.get().mayTick());
+                event.setCancelled(!optional.get().mayTick());
             }
         }
 
-        if (!event.isCanceled()) {
+        if (!event.isCancelled()) {
             ClaimRules claimRules = config.get().claimRules;
             double chance = claimRules.unclaimedChance;
             if (chance < 1) {
@@ -106,11 +105,11 @@ public class Dictator {
                 ClaimEntry claimEntry = claimCache.getClaimIfPresent(chunkPosition);
                 if (claimEntry != null && claimEntry.getClaim() == null) {
                     if (chance <= 0) {
-                        event.setCanceled(true);
+                        event.setCancelled(true);
                     } else {
                         double p = Math.abs(random.nextLong() / (double) Long.MAX_VALUE);
                         if (p > chance) {
-                            event.setCanceled(true);
+                            event.setCancelled(true);
                         }
                     }
                 }

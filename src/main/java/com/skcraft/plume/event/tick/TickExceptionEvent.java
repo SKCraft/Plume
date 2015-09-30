@@ -1,9 +1,8 @@
 package com.skcraft.plume.event.tick;
 
-import cpw.mods.fml.common.eventhandler.Event;
 import lombok.Getter;
 
-public class TickExceptionEvent extends Event {
+public class TickExceptionEvent {
 
     @Getter private final Throwable throwable;
 
