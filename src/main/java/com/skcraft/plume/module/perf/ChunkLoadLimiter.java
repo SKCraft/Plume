@@ -106,7 +106,7 @@ public class ChunkLoadLimiter {
 
     private static class LimiterConfig {
         @Setting(comment = "Overall setting to control whether implicit chunk loading is allowed at all")
-        private boolean allowLoading = true;
+        private boolean allowImplicitLoading = true;
 
         @Setting(comment = "If non-empty, restricts implicit chunk loading to the matching tile entities")
         private List<ClassPattern> whitelist = Lists.newArrayList();
@@ -115,10 +115,10 @@ public class ChunkLoadLimiter {
         private List<ClassPattern> blacklist = Lists.newArrayList();
 
         @Setting(comment = "Whether to allow implicit chunk loading during the Forge 'world tick' event")
-        private boolean allowLoadingDuringWorldTick = true;
+        private boolean allowImplicitLoadingDuringWorldTick = true;
 
         @Setting(comment = "Whether to allow implicit chunk loading at other times (other than world tick, tile entity ticking)")
-        private boolean allowLoadingElsewhere = true;
+        private boolean allowImplicitLoadingElsewhere = true;
     }
 
 }
