@@ -2,6 +2,7 @@ package com.skcraft.plume.module.perf.profiler;
 
 import com.google.common.collect.Maps;
 import com.skcraft.plume.common.util.Stopwatch;
+import com.skcraft.plume.common.util.event.PlumeEventBus;
 import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.event.tick.EntityTickEvent;
 import com.skcraft.plume.event.tick.TileEntityTickEvent;
@@ -10,7 +11,6 @@ import com.skcraft.plume.util.profiling.Profiler;
 import lombok.Getter;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.MinecraftForge;
 
 import java.util.Collection;
 import java.util.Map;
@@ -53,12 +53,12 @@ public class TickProfiler implements Profiler {
 
     @Override
     public void start() {
-        MinecraftForge.EVENT_BUS.register(this);
+        PlumeEventBus.INSTANCE.register(this);
     }
 
     @Override
     public void stop() {
-        MinecraftForge.EVENT_BUS.unregister(this);
+        PlumeEventBus.INSTANCE.unregister(this);
     }
 
     public class ReusableStopwatch implements Stopwatch {
