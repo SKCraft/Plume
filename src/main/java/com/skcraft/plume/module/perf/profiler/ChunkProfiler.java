@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
-@Module(name = "chunk-profiler")
+@Module(name = "chunk-profiler", desc = "Builds a report of objects that cause implicit chunk loading")
 public class ChunkProfiler {
 
     public static final String PERMISSION = "plume.chunkprofiler";
