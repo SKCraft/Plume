@@ -3,7 +3,6 @@ package com.skcraft.plume;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Injector;
 import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
-import com.skcraft.plume.common.event.lifecycle.InitializationVerifyEvent;
 import com.skcraft.plume.common.event.lifecycle.PostInitializationEvent;
 import com.skcraft.plume.common.util.FatalError;
 import com.skcraft.plume.common.util.config.SetTypeSerializer;
@@ -65,18 +64,11 @@ public class SharedProxy {
                 .addModule(new PlumeForgeModule())
                 .load();
 
-        InitializationEvent initializationEvent = new InitializationEvent();
-        //noinspection ConstantConditions
-        getEventBus().post(initializationEvent);
-        handleFatalErrors(initializationEvent.getFatalErrors());
+        getEventBus().post(new InitializationEvent(), false);
 
-        InitializationVerifyEvent initializationVerifyEvent = new InitializationVerifyEvent();
-        getEventBus().post(initializationVerifyEvent);
-        handleFatalErrors(initializationVerifyEvent.getFatalErrors());
+        getEventBus().post(new PostInitializationEvent(), false);
 
-        getEventBus().post(new PostInitializationEvent());
-
-        getEventBus().post(event);
+        getEventBus().post(event, false);
     }
 
     public void onInitialization(FMLInitializationEvent event) {
@@ -86,11 +78,11 @@ public class SharedProxy {
     }
 
     public void onServerStarting(FMLServerStartingEvent event) {
-        getEventBus().post(event);
+        getEventBus().post(event, false);
     }
 
     public void onServerStarted(FMLServerStartedEvent event) {
-        getEventBus().post(event);
+        getEventBus().post(event, false);
     }
 
     public void onServerStopping(FMLServerStoppingEvent event) {

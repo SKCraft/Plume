@@ -8,7 +8,4 @@ import java.util.List;
 
 public class InitializationEvent extends LoadConfigEvent {
 
-    @Getter
-    private final List<FatalError> fatalErrors = Lists.newArrayList();
-
 }
