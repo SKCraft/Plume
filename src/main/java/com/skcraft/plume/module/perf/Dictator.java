@@ -18,6 +18,7 @@ import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.event.tick.EntityTickEvent;
 import com.skcraft.plume.event.tick.TileEntityTickEvent;
 import com.skcraft.plume.util.Worlds;
+import com.skcraft.plume.util.config.ClassPattern;
 import net.minecraft.tileentity.TileEntity;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
@@ -30,19 +31,6 @@ import java.util.Optional;
 public class Dictator {
 
     private static final XorRandom random = new XorRandom();
-    private static final LoadingCache<String, Class<?>> CLASS_CACHE = CacheBuilder.newBuilder()
-            .concurrencyLevel(1)
-            .weakValues()
-            .build(new CacheLoader<String, Class<?>>() {
-                @Override
-                public Class<?> load(@Nullable String key) throws Exception {
-                    try {
-                        return Class.forName(key);
-                    } catch (ClassNotFoundException e) {
-                        return void.class;
-                    }
-                }
-            });
 
     @InjectConfig("dictator")
     private Config<DictatorConfig> config;
@@ -132,50 +120,9 @@ public class Dictator {
     }
 
     @ConfigSerializable
-    private static class Rule implements Predicate<Class<?>> {
-        @Setting(comment = "Class names to match")
-        private List<String> instanceOf = Lists.newArrayList();
-
-        @Setting(comment = "Class names to not match")
-        private List<String> notInstanceOf = Lists.newArrayList();
-
+    private static class Rule extends ClassPattern implements Predicate<Class<?>> {
         @Setting(comment = "The chance (0 to 1) of ticking, where 1 is 100% or every time (<= 0 to not tick at all)")
         private double chance = 1;
-
-        @Override
-        public boolean apply(Class<?> input) {
-            if (instanceOf == null) return false;
-
-            boolean matches = false;
-
-            for (String className : instanceOf) {
-                Class<?> clazz = CLASS_CACHE.getUnchecked(className);
-                if (clazz != void.class) {
-                    if (clazz.isAssignableFrom(input)) {
-                        matches = true;
-                    } else {
-                        return false;
-                    }
-                }
-            }
-
-            if (!matches) {
-                return false;
-            }
-
-            if (notInstanceOf != null) {
-                for (String className : notInstanceOf) {
-                    Class<?> clazz = CLASS_CACHE.getUnchecked(className);
-                    if (clazz != void.class) {
-                        if (clazz.isAssignableFrom(input)) {
-                            return false;
-                        }
-                    }
-                }
-            }
-
-            return true;
-        }
 
         public boolean mayTick() {
             if (chance >= 1) {
