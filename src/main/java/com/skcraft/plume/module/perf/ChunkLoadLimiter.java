@@ -70,6 +70,11 @@ public class ChunkLoadLimiter {
 
     @SubscribeEvent
     public void onChunkLoadRequest(ChunkLoadRequestEvent event) {
+        if (!config.get().allowLoading) {
+            event.setCanceled(true);
+            return;
+        }
+
         List<ClassPattern> whitelist = config.get().whitelist;
         List<ClassPattern> blacklist = config.get().blacklist;
 
@@ -100,6 +105,9 @@ public class ChunkLoadLimiter {
     }
 
     private static class LimiterConfig {
+        @Setting(comment = "Overall setting to control whether implicit chunk loading is allowed at all")
+        private boolean allowLoading = true;
+
         @Setting(comment = "If non-empty, restricts implicit chunk loading to the matching tile entities")
         private List<ClassPattern> whitelist = Lists.newArrayList();
 
