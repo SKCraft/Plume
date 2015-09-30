@@ -93,7 +93,7 @@ public class Watchdog {
 
     private static class WatchdogConfig {
         @Setting(comment = "The threshold that the server has been frozen for, in milliseconds, when a thread dump report is created (0 to disable)")
-        private long threadDumpThreshold = 1000;
+        private long threadDumpThreshold = 30000;
     }
 
 }
