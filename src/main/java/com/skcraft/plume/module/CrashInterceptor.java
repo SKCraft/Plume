@@ -8,7 +8,9 @@ import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
+import com.skcraft.plume.event.CrashEvent;
 import com.skcraft.plume.event.tick.EntityTickExceptionEvent;
+import com.skcraft.plume.event.tick.TickExceptionEvent;
 import com.skcraft.plume.event.tick.TileEntityTickExceptionEvent;
 import lombok.extern.java.Log;
 import net.minecraft.entity.Entity;
@@ -46,6 +48,18 @@ public class CrashInterceptor {
     public void onTileEntityTickException(TileEntityTickExceptionEvent event) {
         if (config.get().crashResponse == CrashResponse.SUPPRESS_AND_LOG && event.getThrowable() instanceof Exception) {
             logCache.getUnchecked(event.getTileEntity()).log(event.getThrowable(), () -> getTileEntityString(event.getTileEntity()));
+            event.setCancelled(true);
+        }
+    }
+
+    @Subscribe
+    public void onCrash(CrashEvent event) {
+        if (event instanceof TickExceptionEvent) {
+            return;
+        }
+
+        if (config.get().crashResponse == CrashResponse.SUPPRESS_AND_LOG && event.getThrowable() instanceof Exception) {
+            log.log(Level.WARNING, "Crash intercepted", event.getThrowable());
             event.setCancelled(true);
         }
     }

@@ -1,13 +1,10 @@
 package com.skcraft.plume.event.tick;
 
-import lombok.Getter;
+import com.skcraft.plume.event.CrashEvent;
 
-public class TickExceptionEvent {
-
-    @Getter private final Throwable throwable;
+public class TickExceptionEvent extends CrashEvent {
 
     public TickExceptionEvent(Throwable throwable) {
-        this.throwable = throwable;
+        super(throwable);
     }
-
 }

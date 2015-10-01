@@ -11,7 +11,8 @@ public class PlumePlugin implements IFMLLoadingPlugin {
         return new String[] {
                 "com.skcraft.plume.asm.transformer.PlayerAuthenticateTransformer",
                 "com.skcraft.plume.asm.transformer.TickCallbackTransformer",
-                "com.skcraft.plume.asm.transformer.ChunkLoadTransformer"
+                "com.skcraft.plume.asm.transformer.ChunkLoadTransformer",
+                "com.skcraft.plume.asm.transformer.CrashInterceptorTransformer"
         };
     }
 
