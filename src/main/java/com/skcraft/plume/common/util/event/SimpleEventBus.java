@@ -157,7 +157,7 @@ public class SimpleEventBus implements EventBus {
         for (Handler handler : getHandlerCache(event.getClass()).getHandlers()) {
             try {
                 handler.handle(event);
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 if (!suppressExceptions) {
                     throw new EventPostException(t);
                 }

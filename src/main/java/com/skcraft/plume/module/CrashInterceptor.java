@@ -36,7 +36,7 @@ public class CrashInterceptor {
 
     @Subscribe
     public void onEntityTickException(EntityTickExceptionEvent event) {
-        if (config.get().crashResponse == CrashResponse.SUPPRESS_AND_LOG) {
+        if (config.get().crashResponse == CrashResponse.SUPPRESS_AND_LOG && event.getThrowable() instanceof Exception) {
             logCache.getUnchecked(event.getEntity()).log(event.getThrowable(), () -> getEntityString(event.getEntity()));
             event.setCancelled(true);
         }
@@ -44,7 +44,7 @@ public class CrashInterceptor {
 
     @Subscribe
     public void onTileEntityTickException(TileEntityTickExceptionEvent event) {
-        if (config.get().crashResponse == CrashResponse.SUPPRESS_AND_LOG) {
+        if (config.get().crashResponse == CrashResponse.SUPPRESS_AND_LOG && event.getThrowable() instanceof Exception) {
             logCache.getUnchecked(event.getTileEntity()).log(event.getThrowable(), () -> getTileEntityString(event.getTileEntity()));
             event.setCancelled(true);
         }

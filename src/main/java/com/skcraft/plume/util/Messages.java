@@ -4,8 +4,10 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
@@ -81,4 +83,13 @@ public final class Messages {
     public static void broadcastAlert(String message) {
         broadcast(Messages.error(message));
     }
+
+    public static String toString(TileEntity tileEntity) {
+        return tileEntity.getClass().getName() + " in " + Worlds.getWorldId(tileEntity.getWorldObj()) + " at " + tileEntity.xCoord + "," + tileEntity.yCoord + "," + tileEntity.zCoord;
+    }
+
+    public static String toString(Entity entity) {
+        return entity.getClass().getName() + " in " + Worlds.getWorldId(entity.worldObj) + " at " + entity.posX + "," + entity.posY + "," + entity.posZ;
+    }
+
 }

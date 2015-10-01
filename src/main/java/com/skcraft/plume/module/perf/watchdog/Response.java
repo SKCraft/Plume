@@ -14,16 +14,16 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 @Setter
 class Response implements Comparable<Response> {
 
-    @Setting(comment = "In seconds")
-    private long time = 30;
-    @Setting(comment = "Choose between THREAD_DUMP, GRACEFUL_SHUTDOWN and TERMINATE_SERVER")
+    @Setting(comment = "When this rule is triggered, defined in seconds")
+    private long threshold = 30;
+    @Setting(comment = "Choose THREAD_DUMP, INTERRUPT_TICKING (strongly not recommended), or TERMINATE_SERVER")
     private Action action = Action.THREAD_DUMP;
 
     @Override
     public int compareTo(Response o) {
-        if (time < o.time) {
+        if (threshold < o.threshold) {
             return -1;
-        } else if (time > o.time) {
+        } else if (threshold > o.threshold) {
             return 1;
         } else {
             return 0;
