@@ -106,6 +106,7 @@ public class Watchdog {
         if (catchingTickInterrupt) {
             for (Throwable throwable : Throwables.getCausalChain(event.getThrowable())) {
                 if (throwable instanceof ThreadDeath) {
+                    Thread.interrupted(); // Clear interrupted flag
                     TileEntity tileEntity = event.getTileEntity();
                     log.log(Level.WARNING, "The watchdog has raised tick interruption for " + Messages.toString(tileEntity) + " -- removing tile entity!");
                     tileEntity.getWorldObj().setBlock(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord, Blocks.air);
@@ -122,6 +123,7 @@ public class Watchdog {
             if (catchingTickInterrupt) {
                 for (Throwable throwable : Throwables.getCausalChain(event.getThrowable())) {
                     if (throwable instanceof ThreadDeath) {
+                        Thread.interrupted(); // Clear interrupted flag
                         Entity entity = event.getEntity();
                         log.log(Level.WARNING, "The watchdog has raised tick interruption for " + Messages.toString(entity) + " -- removing entity!");
                         entity.setDead();
