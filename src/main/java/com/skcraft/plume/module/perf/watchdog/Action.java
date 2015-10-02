@@ -8,7 +8,9 @@ import com.skcraft.plume.util.management.ThreadMonitor;
 import cpw.mods.fml.common.FMLCommonHandler;
 import lombok.extern.java.Log;
 import net.minecraft.entity.Entity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentText;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -18,9 +20,15 @@ import java.util.logging.Level;
 @Log
 enum Action {
 
+    BROADCAST {
+        @Override
+        public void execute(Response response, Watchdog watchdog, EventBus eventBus, Thread serverThread, long stallTime) {
+            Messages.broadcast(new ChatComponentText(response.getMessage()));
+        }
+    },
     THREAD_DUMP {
         @Override
-        public void execute(Watchdog watchdog, EventBus eventBus, Thread serverThread, long stallTime) {
+        public void execute(Response response, Watchdog watchdog, EventBus eventBus, Thread serverThread, long stallTime) {
             log.info("[STALL FOR " + stallTime + " SECOND(S)] Executing THREAD_DUMP action...");
             writeThreadDump(watchdog, eventBus, "watchdog-stall");
         }
@@ -28,7 +36,7 @@ enum Action {
     INTERRUPT_TICKING {
         @SuppressWarnings("deprecation")
         @Override
-        public void execute(Watchdog watchdog, EventBus eventBus, Thread serverThread, long stallTime) {
+        public void execute(Response response, Watchdog watchdog, EventBus eventBus, Thread serverThread, long stallTime) {
             synchronized (watchdog.getThreadInterruptLock()) {
                 if (watchdog.getCurrentTickingObject() != null) {
                     log.info("[STALL FOR " + stallTime + " SECOND(S)] Executing INTERRUPT_TICKING action to interrupt the current running tile entity or entity...");
@@ -41,16 +49,31 @@ enum Action {
             }
         }
     },
+    GRACEFUL_SHUTDOWN {
+        @Override
+        public void execute(Response response, Watchdog watchdog, EventBus eventBus, Thread serverThread, long stallTime) {
+            log.info("[STALL FOR " + stallTime + " SECOND(S)] Executing GRACEFUL_SHUTDOWN action...");
+            MinecraftServer server = MinecraftServer.getServer();
+            try  {
+                server.stopServer();
+            } catch (Throwable throwable) {
+                log.log(Level.WARNING, "Exception stopping the server", throwable);
+            } finally {
+                FMLCommonHandler.instance().handleServerStopped();
+                FMLCommonHandler.instance().exitJava(1, true);
+            }
+        }
+    },
     TERMINATE_SERVER {
         @Override
-        public void execute(Watchdog watchdog, EventBus eventBus, Thread serverThread, long stallTime) {
+        public void execute(Response response, Watchdog watchdog, EventBus eventBus, Thread serverThread, long stallTime) {
             log.info("[STALL FOR " + stallTime + " SECOND(S)] Executing TERMINATE_SERVER action... the world will not be saved! A thread dump will also be created.");
             writeThreadDump(watchdog, eventBus, "watchdog-terminate");
             FMLCommonHandler.instance().exitJava(1, true);
         }
     };
 
-    public abstract void execute(Watchdog watchdog, EventBus eventBus, Thread serverThread, long stallTime);
+    public abstract void execute(Response response, Watchdog watchdog, EventBus eventBus, Thread serverThread, long stallTime);
 
     private static void writeThreadDump(Watchdog watchdog, EventBus eventBus, String name) {
         Object currentTickingObject = watchdog.getCurrentTickingObject();

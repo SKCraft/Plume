@@ -38,4 +38,13 @@ public class MethodMatcher {
         }
     }
 
+    public boolean matchesRemappedMethod(String testOwner, String testName) {
+        testOwner = testOwner.replace("/", ".");
+        if ((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")) {
+            return testOwner.equals(className) && testName.equals(devName);
+        } else {
+            return testOwner.equals(className) && testName.equals(name);
+        }
+    }
+
 }

@@ -8,6 +8,7 @@ import com.skcraft.plume.common.event.lifecycle.InitializationEvent;
 import com.skcraft.plume.common.event.lifecycle.LoadConfigEvent;
 import com.skcraft.plume.common.event.lifecycle.ShutdownEvent;
 import com.skcraft.plume.common.util.Stopwatch;
+import com.skcraft.plume.common.util.StringInterpolation;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.event.EventBus;
@@ -27,7 +28,9 @@ import lombok.extern.java.Log;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentText;
 import ninja.leaping.configurate.objectmapping.Setting;
+import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,12 +41,15 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+import static com.skcraft.plume.common.util.SharedLocale.tr;
+
 @Module(name = "watchdog", desc = "Watches the server and detects when it has frozen")
 @Log
 public class Watchdog {
 
     @Inject private EventBus eventBus;
     @InjectConfig("watchdog") private Config<WatchdogConfig> config;
+    @Inject private StallCauseDetector causeDetector;
 
     // Watchdog thread
     private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("Plume Watchdog").build());
@@ -168,18 +174,63 @@ public class Watchdog {
     }
 
     private class WatchdogTask implements Runnable {
+        private boolean wasStalled = false;
+        private long lastStallStartTime = 0;
+        private long lastMessageTime = 0;
+
+        private String getStallMessage(String message, long time) {
+            return StringInterpolation.interpolate(StringInterpolation.BRACE_PATTERN, message, input -> {
+                switch (input) {
+                    case "time":
+                        return String.valueOf(time);
+                    case "cause":
+                        String cause = causeDetector.analyze(serverThread);
+                        if (cause != null) {
+                            return cause;
+                        } else {
+                            return tr("watchdog.cause.unknown");
+                        }
+                    default:
+                        return null;
+                }
+            });
+        }
+
         @Override
         public void run() {
             if (serverThread != null) {
                 long now = System.nanoTime();
+                long stallTime = TimeUnit.NANOSECONDS.toSeconds(now - lastTick);
+
+                if (stallTime >= 1) {
+                    if (!wasStalled) {
+                        lastStallStartTime = System.nanoTime();
+                        lastMessageTime = System.nanoTime();
+                        wasStalled = true;
+                    }
+
+                    if (config.get().broadcastDuringStall.enabled && TimeUnit.NANOSECONDS.toSeconds(now - lastMessageTime) >= config.get().broadcastDuringStall.interval) {
+                        Messages.broadcast(new ChatComponentText(getStallMessage(config.get().broadcastDuringStall.message, stallTime)));
+                        lastMessageTime = System.nanoTime();
+                    }
+                } else {
+                    if (wasStalled) {
+                        long lastStallTime = TimeUnit.NANOSECONDS.toSeconds(now - lastStallStartTime);
+
+                        if (config.get().broadcastOnStallEnd.enabled && lastStallTime >= config.get().broadcastOnStallEnd.threshold) {
+                            Messages.broadcast(new ChatComponentText(getStallMessage(config.get().broadcastOnStallEnd.message, lastStallTime)));
+                        }
+
+                        wasStalled = false;
+                    }
+                }
 
                 synchronized (Watchdog.this) {
                     while (currentResponseIndex < stallResponses.size()) {
                         Response response = stallResponses.get(currentResponseIndex);
-                        long stallTime = TimeUnit.NANOSECONDS.toSeconds(now - lastTick);
                         if (stallTime > response.getThreshold()) {
                             try {
-                                response.getAction().execute(Watchdog.this, eventBus, serverThread, stallTime);
+                                response.getAction().execute(response, Watchdog.this, eventBus, serverThread, stallTime);
                             } catch (Throwable e) {
                                 log.log(Level.WARNING, "While executing an action for the watchdog, an exception occurred", e);
                             }
@@ -194,11 +245,41 @@ public class Watchdog {
     }
 
     private static class WatchdogConfig {
+        @Setting(comment = "Options to adjust a message that can be printed periodically during an ongoing server stall")
+        private StallIntervalMessage broadcastDuringStall = new StallIntervalMessage();
+
+        @Setting(comment = "The message broadcast when a server stall ends")
+        private StallEndMessage broadcastOnStallEnd = new StallEndMessage();
+
         @Setting(comment = "What to do when the server has stalled, depending on how long it has been stalled for")
         private List<Response> stallResponses = Lists.newArrayList(
-                new Response(30, Action.THREAD_DUMP), // 30 seconds
-                new Response(600, Action.TERMINATE_SERVER) // 10 minutes
+                new Response(30, Action.THREAD_DUMP),
+                new Response(590, Action.BROADCAST, "\u00a4The server will be forcefully shutdown shortly."),
+                new Response(600, Action.GRACEFUL_SHUTDOWN), // 10 minutes
+                new Response(610, Action.TERMINATE_SERVER)
         );
+    }
+
+    @ConfigSerializable
+    private static class StallIntervalMessage {
+        private boolean enabled = true;
+
+        @Setting(comment = "The interval (in seconds) between broadcast messages")
+        private long interval = 5;
+
+        @Setting(comment = "The message, with {time} and {cause} as variables")
+        private String message = "\u00a74The server has stalled for {time} seconds (cause: {cause}).";
+    }
+
+    @ConfigSerializable
+    private static class StallEndMessage {
+        private boolean enabled = true;
+
+        @Setting(comment = "The threshold (in seconds) that a stall must persist for")
+        private long threshold = 5;
+
+        @Setting(comment = "The message, with {time} as a variable")
+        private String message = "\u00a72The server has resumed.";
     }
 
 }

@@ -90,9 +90,7 @@ public class ServerBreaker {
 
         if (crash) {
             log.info("Proceeding to crash the server due to /crashserver usage...");
-            while (true) {
-                throw new RuntimeException("Server crash requested with /crashserver");
-            }
+            throw new RuntimeException("Server crash requested with /crashserver");
         }
     }
 
