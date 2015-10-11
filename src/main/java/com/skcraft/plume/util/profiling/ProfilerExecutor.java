@@ -3,14 +3,17 @@ package com.skcraft.plume.util.profiling;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Inject;
+import lombok.extern.java.Log;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Log
 public class ProfilerExecutor<T extends Profiler> {
 
     private final Object lock = new Object();
@@ -47,6 +50,11 @@ public class ProfilerExecutor<T extends Profiler> {
             Run run = currentRun;
             if (run != null) {
                 if (run.profiler == profiler) {
+                    try {
+                        run.profiler.stop();
+                    } catch (Exception e) {
+                        log.log(Level.WARNING, "Failed to stop profiler", e);
+                    }
                     run.timerFuture.cancel(false);
                     run.resultFuture.set(run.profiler);
                 }
