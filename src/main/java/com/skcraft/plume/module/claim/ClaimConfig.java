@@ -1,5 +1,6 @@
 package com.skcraft.plume.module.claim;
 
+import com.google.common.collect.Sets;
 import com.skcraft.plume.util.inventory.Inventories;
 import com.skcraft.plume.util.inventory.SingleItemMatcher;
 import net.minecraft.init.Items;
@@ -7,6 +8,7 @@ import net.minecraft.item.ItemStack;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
+import java.util.Set;
 import java.util.UUID;
 
 public class ClaimConfig {
@@ -68,6 +70,9 @@ public class ClaimConfig {
 
         @Setting(comment = "Whether fake players should be given free reign to do whatever they want")
         public boolean ignoreFakePlayers = true;
+
+        @Setting(comment = "A list of blocks that can be used by anyone in a claim")
+        public Set<String> blocksUsableByAnyone = Sets.newHashSet("minecraft:crafting_table");
 
     }
 

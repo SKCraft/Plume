@@ -1,6 +1,7 @@
 package com.skcraft.plume.module.claim;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.inject.Inject;
 import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.common.service.auth.Authorizer;
@@ -26,6 +27,7 @@ import com.skcraft.plume.event.entity.DamageEntityEvent;
 import com.skcraft.plume.event.entity.DestroyEntityEvent;
 import com.skcraft.plume.event.entity.UseEntityEvent;
 import com.skcraft.plume.module.perf.profiler.CollectAppendersEvent;
+import com.skcraft.plume.util.GameRegistryUtils;
 import com.skcraft.plume.util.Location3i;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.Worlds;
@@ -33,6 +35,7 @@ import com.skcraft.plume.util.profile.Profiles;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntitySlime;
@@ -59,6 +62,8 @@ public class Claims {
 
     // Submodules
     @Inject private ClaimCommands commands;
+
+    private final BlockUseFilter blockUseFilter = new BlockUseFilter();
 
     @Subscribe
     public void onServerStarted(FMLServerStartedEvent event) {
@@ -164,7 +169,7 @@ public class Claims {
     @Subscribe(order = Order.VERY_LATE)
     public void onUseBlock(UseBlockEvent event) {
         if (!event.isCancelled()) {
-            event.filterLocations(new LocationFilter(event.getCause(), true), true);
+            event.filterLocations(new LocationFilter(event.getCause(), true, blockUseFilter), true);
         }
     }
 
@@ -223,17 +228,42 @@ public class Claims {
         return claimCache.getClaimIfPresent(chunkPosition);
     }
 
+    private class BlockUseFilter implements Predicate<Location3i> {
+        @Override
+        public boolean apply(Location3i input) {
+            Block block = input.getWorld().getBlock(input.getX(), input.getY(), input.getZ());
+            if (block != null) {
+                String name = GameRegistryUtils.getBlockId(block);
+                if (name != null) {
+                    return !config.get().protection.blocksUsableByAnyone.contains(name);
+                }
+            }
+
+            return true;
+        }
+    }
+
     private class LocationFilter implements Predicate<Location3i> {
         private final Cause cause;
         private final boolean usage;
+        private final Predicate<Location3i> shouldCheck;
 
         private LocationFilter(Cause cause, boolean usage) {
+            this(cause, usage, Predicates.alwaysTrue());
+        }
+
+        private LocationFilter(Cause cause, boolean usage, Predicate<Location3i> shouldCheck) {
             this.cause = cause;
             this.usage = usage;
+            this.shouldCheck = shouldCheck;
         }
 
         @Override
         public boolean apply(Location3i input) {
+            if (!shouldCheck.apply(input)) {
+                return true;
+            }
+
             EntityPlayerMP player = cause.getFirstPlayerMP();
             ClaimEntry entry = getClaimEntry(input);
 
