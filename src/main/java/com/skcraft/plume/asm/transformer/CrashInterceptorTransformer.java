@@ -22,6 +22,12 @@ public class CrashInterceptorTransformer implements IClassTransformer {
                 new MethodMatcher("net.minecraftforge.common.ForgeHooks", "onPlaceItemIntoWorld", "onPlaceItemIntoWorld", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;IIIIFFF)Z"),
                 new MethodMatcher("net.minecraft.item.Item", "func_77648_a", "onItemUse", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;IIIIFFF)Z")
         ));
+
+        // Creating tile entities
+        catchers.add(new CrashCatcher(
+                new MethodMatcher("net.minecraft.world.chunk.storage.AnvilChunkLoader", "loadEntities", "loadEntities", "(Lnet/minecraft/world/World;Lnet/minecraft/nbt/NBTTagCompound;Lnet/minecraft/world/chunk/Chunk;)V"),
+                new MethodMatcher("net.minecraft.tileentity.TileEntity", "func_145827_c", "createAndLoadEntity", "(Lnet/minecraft/nbt/NBTTagCompound;)Lnet/minecraft/tileentity/TileEntity;")
+        ));
     }
 
     @Override
