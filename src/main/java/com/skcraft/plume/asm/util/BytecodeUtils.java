@@ -68,6 +68,7 @@ public final class BytecodeUtils {
                         mv.visitInsn(ACONST_NULL);
                         break;
                 }
+                break;
             default:
                 throw new RuntimeException("Unknown type: " + type);
         }
