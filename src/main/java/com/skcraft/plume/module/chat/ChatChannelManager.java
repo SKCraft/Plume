@@ -10,6 +10,7 @@ import com.skcraft.plume.util.concurrent.BackgroundExecutor;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
 import com.skcraft.plume.util.profile.Profiles;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 
@@ -34,7 +35,7 @@ public class ChatChannelManager {
     private Map<UserId, String> users = new HashMap<>();
     private Map<String, List<UserId>> channels = new HashMap<>();
 
-    private boolean addPlayerToChannel(String name, EntityPlayer player) throws ChannelException {
+    private void addPlayerToChannel(String name, EntityPlayer player) throws ChannelException {
         boolean success;
         UserId uid = Profiles.fromPlayer(player);
         if (users.get(uid) != null) {
@@ -46,10 +47,10 @@ public class ChatChannelManager {
             channels.put(name, new ArrayList<>());
             success = channels.get(name).add(uid);
         }
-        if (success) {
-            users.put(uid, name);
+        if (!success) {
+            throw new ChannelException();
         }
-        return success;
+        users.put(uid, name);
     }
 
     private void removePlayerFromChannel(EntityPlayer player) throws ChannelException {
@@ -73,7 +74,8 @@ public class ChatChannelManager {
                     return channel;
                 }, bgExecutor.getExecutor())
                 .done(chanName -> {
-                    sendMessageToChannel(channel, Messages.info(tr("chatChannel.join.success", player.getDisplayName(), channel)));
+                    sendMessageToChannel(chanName,
+                            Messages.info(tr("chatChannel.join.success", player.getDisplayName(), chanName)));
                 }, tickExecutorService)
                 .fail(e -> {
                     if (e instanceof AlreadyInChannelException) {
@@ -97,7 +99,9 @@ public class ChatChannelManager {
                     return channel;
                 }, bgExecutor.getExecutor())
                 .done(chanName -> {
-                    sendMessageToChannel(channel, Messages.info(tr("chatChannel.leave.success", player.getDisplayName(), channel)));
+                    ChatComponentText leaveMsg = Messages.info(tr("chatChannel.leave.success", player.getDisplayName(), channel));
+                    sendMessageToChannel(channel, leaveMsg);
+                    player.addChatMessage(leaveMsg);
                 }, tickExecutorService)
                 .fail(e -> {
                     if (e instanceof NoChannelException) {
@@ -126,12 +130,17 @@ public class ChatChannelManager {
         return getChannel(Profiles.fromPlayer(player));
     }
 
+    @Nullable
+    public List<UserId> getUsers(String channel) {
+        return channels.get(channel);
+    }
+
     public void sendChatToChannel(String channel, ChatComponentTranslation msg) {
         if (channels.containsKey(channel)) {
             for (UserId u : channels.get(channel)) {
                 EntityPlayer player = u.getEntityPlayer();
                 if (player == null) return;
-                listener.sendChatMessage(player, msg);
+                listener.sendChatMessage(player, listener.format(msg, player, false, true));
             }
         }
     }

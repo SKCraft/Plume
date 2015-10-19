@@ -1,10 +1,15 @@
 package com.skcraft.plume.module.chat;
 
+import com.google.inject.Inject;
+import com.skcraft.plume.common.util.logging.Log4jRedirect;
 import com.skcraft.plume.common.util.module.AutoRegister;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import lombok.extern.java.Log;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.play.server.S29PacketSoundEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentStyle;
 import net.minecraft.util.ChatComponentText;
@@ -23,6 +28,12 @@ public class ChatListener {
     protected ChatChannelManager manager;
     protected ChatHighlighter highlighter;
 
+    @Inject
+    void init() {
+        log.setUseParentHandlers(false);
+        log.addHandler(new Log4jRedirect(FMLLog.getLogger(), "chat"));
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPlayerChat(ServerChatEvent e) {
         if (!(manager != null && manager.isInChatChannel(e.player)) || e.message.endsWith("/")) {
@@ -32,7 +43,7 @@ public class ChatListener {
         e.setCanceled(true);
 
         String channel = manager.getChannel(e.player);
-        log.info("[#" + channel + "] " + e.username + ": " + e.message);
+        log.info("[#" + channel + "] <" + e.username + "> " + e.message);
 
         manager.sendChatToChannel(channel, e.component);
     }
@@ -41,24 +52,29 @@ public class ChatListener {
     public void onPlayerPublicChat(ServerChatEvent e) {
         e.setCanceled(true);
 
-        log.info("[#] " + e.username + ": " + e.message);
+        log.info("[#] <" + e.username + "> " + e.message);
 
         @SuppressWarnings("unchecked")
         List<EntityPlayer> online = (List<EntityPlayer>) MinecraftServer.getServer().getConfigurationManager().playerEntityList;
         for (EntityPlayer recipient : online) {
             if (!recipient.getUniqueID().equals(e.player.getUniqueID())) {
-                ChatComponentTranslation formatted = e.component.createCopy();
-                if (manager != null && manager.isInChatChannel(recipient)) {
-                    formatted = darken(formatted);
-                }
-                if (highlighter != null) {
-                    formatted = highlight(formatted, highlighter.getKeywords(recipient), colorFromName(recipient));
-                }
-                sendChatMessage(recipient, formatted);
+                sendChatMessage(recipient, this.format(e.component, recipient, true, true));
             } else {
                 sendChatMessage(recipient, e.component);
             }
         }
+    }
+
+    ChatComponentTranslation format(ChatComponentTranslation component, EntityPlayer recipient, boolean tryDarken, boolean tryHighlight) {
+        ChatComponentTranslation formatted = component.createCopy();
+        if (tryDarken && manager != null && manager.isInChatChannel(recipient)) {
+            formatted = darken(formatted);
+        }
+        if (tryHighlight && highlighter != null) {
+            formatted = highlight(formatted, highlighter.getKeywords(recipient),
+                    colorFromName(recipient), highlighter.isSoundEnabled(recipient) ? recipient : null);
+        }
+        return formatted;
     }
 
     private static EnumChatFormatting colorFromName(EntityPlayer player) {
@@ -78,11 +94,13 @@ public class ChatListener {
     }
 
     @SuppressWarnings("unchecked")
-    private static ChatComponentTranslation highlight(ChatComponentTranslation original, String[] keywords, EnumChatFormatting color) {
+    private ChatComponentTranslation highlight(ChatComponentTranslation original, String[] keywords,
+                                                      EnumChatFormatting color, EntityPlayer playSoundTo) {
         if (keywords == null || keywords.length == 0) return original; // nothing to do
         ChatStyle origStyle = original.getChatStyle();
         Object[] args = original.getFormatArgs();
         Object[] copyArgs = new Object[args.length];
+        boolean found = false;
         for (int i = 0; i < args.length; i++) {
             if (args[i] instanceof IChatComponent) {
                 IChatComponent sub = ((IChatComponent) args[i]);
@@ -93,6 +111,7 @@ public class ChatListener {
                 for (String keyword : keywords) {
 
                     if (unformatted.contains(keyword)) {
+                        found = true;
                         String[] split = unformatted.split(keyword);
 
 
@@ -122,6 +141,14 @@ public class ChatListener {
                 }
             } else {
                 copyArgs[i] = args[i];
+            }
+        }
+        if (found && playSoundTo != null) {
+            if (playSoundTo instanceof EntityPlayerMP) {
+                EntityPlayerMP playerMP = ((EntityPlayerMP) playSoundTo);
+                S29PacketSoundEffect packet29 = new S29PacketSoundEffect(
+                        highlighter.getSound(playerMP), playerMP.posX, playerMP.posY, playerMP.posZ, 1.0f, 1.0f);
+                playerMP.playerNetServerHandler.sendPacket(packet29);
             }
         }
         ChatComponentTranslation highlighted = new ChatComponentTranslation(original.getKey(), copyArgs);
