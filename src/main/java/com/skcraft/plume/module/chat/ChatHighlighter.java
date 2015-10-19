@@ -40,7 +40,7 @@ public class ChatHighlighter {
 
     @Command(aliases = "highlight",
             desc = "Sets your desired keywords to highlight in chat.",
-            usage = "/highlight [-s: sound.name] [keyword] [keyword2] [...]")
+            usage = "/highlight [keyword] [keyword2] [...]")
     @Require("plume.chathighlight")
     public void highlight(@Sender EntityPlayer sender, @Optional("") @Text String keyword) {
         String[] keywords = keyword.split(" ");
@@ -55,14 +55,19 @@ public class ChatHighlighter {
 
     @Command(aliases = "highlightsound",
             desc = "Customizes sound notificatons for chat highlights",
-            usage = "/highlightsound [-d] [sound name]")
+            usage = "/highlightsound [-d] [sound name]",
+    help = "/highlightsound [-d] [sound name]\n" +
+           " -d flag disables sound\n" +
+           " Specifying a sound name will set that sound to your highlight.\n" +
+           " If you omit it it will use the default sound.")
     @Require("plume.chathighlight")
     public void highlightSound(@Sender EntityPlayer sender, @Optional("") String sound, @Switch('d') boolean toggle) {
         UserId uid = Profiles.fromPlayer(sender);
-        sounds.put(uid, !toggle);
-        soundNames.put(uid, (sound.isEmpty() ? config.get().soundName : sound));
+        sounds.put(uid, !toggle || !sound.isEmpty());
+        String soundName = sound.isEmpty() ? config.get().soundName : sound;
+        soundNames.put(uid, soundName);
         if (!toggle) {
-            sender.addChatMessage(Messages.info(tr("highlights.sound.on", sound)));
+            sender.addChatMessage(Messages.info(tr("highlights.sound.on", soundName)));
         } else {
             sender.addChatMessage(Messages.info(tr("highlights.sound.off")));
         }

@@ -1,5 +1,6 @@
 package com.skcraft.plume.module.chat;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 import com.skcraft.plume.common.util.logging.Log4jRedirect;
 import com.skcraft.plume.common.util.module.AutoRegister;
@@ -20,6 +21,8 @@ import net.minecraft.util.IChatComponent;
 import net.minecraftforge.event.ServerChatEvent;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @AutoRegister
 @Log
@@ -101,44 +104,37 @@ public class ChatListener {
         Object[] args = original.getFormatArgs();
         Object[] copyArgs = new Object[args.length];
         boolean found = false;
+        Pattern pattern = Pattern.compile("(" + Joiner.on('|').join(keywords) + ")", Pattern.CASE_INSENSITIVE);
         for (int i = 0; i < args.length; i++) {
             if (args[i] instanceof IChatComponent) {
                 IChatComponent sub = ((IChatComponent) args[i]);
                 ChatStyle subStyle = sub.getChatStyle();
                 IChatComponent base = new ChatComponentText("");
                 String unformatted = sub.getUnformattedText();
-                // TODO allow multiple match highlighting
-                for (String keyword : keywords) {
-
-                    if (unformatted.contains(keyword)) {
-                        found = true;
-                        String[] split = unformatted.split(keyword);
-
-
-                        if (split.length > 0) {
-                            IChatComponent before = new ChatComponentText(split[0]);
-                            before.setChatStyle(subStyle);
-                            base.appendSibling(before);
-                        }
-
-                        IChatComponent highlight = new ChatComponentText(keyword);
-                        highlight.setChatStyle(subStyle.createShallowCopy());
-                        highlight.getChatStyle().setColor(color);
-                        base.appendSibling(highlight);
-
-                        if (split.length > 1) {
-                            IChatComponent after = new ChatComponentText(split[1]);
-                            after.setChatStyle(subStyle);
-                            base.appendSibling(after);
-                        }
-
-                        base.setChatStyle(subStyle);
-                        copyArgs[i] = base;
-                        break;
-                    } else {
-                        copyArgs[i] = sub;
-                    }
+                Matcher matcher = pattern.matcher(unformatted);
+                int prevEnd = 0;
+                while (matcher.find()) {
+                    found = true;
+                    String match = matcher.group();
+                    IChatComponent before = new ChatComponentText(
+                            unformatted.substring(prevEnd, matcher.start()));
+                    prevEnd = matcher.end();
+                    before.setChatStyle(subStyle);
+                    base.appendSibling(before);
+                    IChatComponent highlight = new ChatComponentText(match);
+                    highlight.setChatStyle(subStyle.createShallowCopy());
+                    highlight.getChatStyle().setColor(color);
+                    base.appendSibling(highlight);
                 }
+                if (prevEnd != 0) {
+                    IChatComponent after = new ChatComponentText(
+                            unformatted.substring(prevEnd, unformatted.length()));
+                    after.setChatStyle(subStyle);
+                    base.appendSibling(after);
+                }
+
+                base.setChatStyle(subStyle);
+                copyArgs[i] = found ? base : sub;
             } else {
                 copyArgs[i] = args[i];
             }
