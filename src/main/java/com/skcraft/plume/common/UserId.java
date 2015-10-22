@@ -2,9 +2,10 @@ package com.skcraft.plume.common;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
@@ -26,13 +27,14 @@ public class UserId implements Serializable {
         this.name = name;
     }
 
-    public EntityPlayerMP getPlayerOfThis() {
-        if (MinecraftServer.getServer().getConfigurationManager().playerEntityList == null)
-            return null;
-
-        for (EntityPlayerMP p : (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList)
-            if (p.getGameProfile().getId().equals(this.getUuid()))
+    @Nullable
+    @SuppressWarnings("unchecked")
+    public EntityPlayer getEntityPlayer() {
+        for (EntityPlayer p : (List<EntityPlayer>) MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
+            if (p.getGameProfile().getId().equals(this.getUuid())) {
                 return p;
+            }
+        }
         return null;
     }
 }

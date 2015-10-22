@@ -22,7 +22,7 @@ public class FancyName {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onNameFormat(NameFormat event) {
         List<EnumChatFormatting> colors = config.get().colors;
-        if (colors.size() > 0) {
+        if (!colors.isEmpty()) {
             EnumChatFormatting color = colors.get(random.nextInt(colors.size()));
             event.displayname = color + event.username;
         }
