@@ -100,7 +100,7 @@ public class Restarts {
                 timer.purge();
                 timer = null;
                 tickExecutor.execute(() -> {
-                    Server.shutdown(tr("restart.kickMessage"));
+                    Server.shutdown(config.get().kickMessage);
                 });
             }
 
@@ -122,5 +122,8 @@ public class Restarts {
 
         @Setting(comment = "The sound to play when shutting down")
         public String shutdownSound = "records.stal";
+
+        @Setting(comment = "The message to print when users are kicked")
+        public String kickMessage = "Server is shutting down. If it is being restarted, wait 30 seconds before rejoining.";
     }
 }
