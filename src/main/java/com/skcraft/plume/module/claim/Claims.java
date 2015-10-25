@@ -26,7 +26,7 @@ import com.skcraft.plume.event.block.UseBlockEvent;
 import com.skcraft.plume.event.entity.DamageEntityEvent;
 import com.skcraft.plume.event.entity.DestroyEntityEvent;
 import com.skcraft.plume.event.entity.UseEntityEvent;
-import com.skcraft.plume.module.perf.profiler.CollectAppendersEvent;
+import com.skcraft.plume.event.report.DecorateReportEvent;
 import com.skcraft.plume.util.GameRegistryUtils;
 import com.skcraft.plume.util.Location3i;
 import com.skcraft.plume.util.Messages;
@@ -109,8 +109,8 @@ public class Claims {
     }
 
     @Subscribe
-    public void onCollectAppenders(CollectAppendersEvent event) {
-        event.getAppenders().add(new ClaimAppender(event.getTimings(), claimMap));
+    public void onCollectAppenders(DecorateReportEvent event) {
+        event.getDecorators().add(new ClaimDecorator(event.getRows(), claimMap));
     }
 
     public boolean mayAccess(Cause cause, ClaimEntry entry) {

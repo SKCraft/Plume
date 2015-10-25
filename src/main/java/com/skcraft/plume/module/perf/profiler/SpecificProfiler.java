@@ -17,6 +17,8 @@ import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.event.EventBus;
 import com.skcraft.plume.common.util.module.Module;
+import com.skcraft.plume.event.report.Decorator;
+import com.skcraft.plume.event.report.DecorateReportEvent;
 import com.skcraft.plume.util.Broadcaster;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
@@ -88,23 +90,23 @@ public class SpecificProfiler {
     private String generateReport(TickProfiler profiler) throws IOException {
         StringWriter writer = new StringWriter();
 
-        CollectAppendersEvent event = new CollectAppendersEvent(profiler.getTimings());
+        DecorateReportEvent event = new DecorateReportEvent(profiler.getTimings());
         eventBus.post(event);
 
-        List<Appender> appenders = Lists.newArrayList(new TimingAppender());
-        appenders.addAll(event.getAppenders());
+        List<Decorator> decorators = Lists.newArrayList(new TimingDecorator());
+        decorators.addAll(event.getDecorators());
 
         try (CSVWriter csv = new CSVWriter(writer)) {
             List<String> columns = Lists.newArrayList();
-            for (Appender appender : appenders) {
-                columns.addAll(appender.getColumns());
+            for (Decorator decorator : decorators) {
+                columns.addAll(decorator.getColumns());
             }
             csv.writeNext(columns.toArray(new String[columns.size()]));
 
             for (Timing timing : profiler.getTimings()) {
                 List<String> values = Lists.newArrayList();
-                for (Appender appender : appenders) {
-                    values.addAll(appender.getValues(timing));
+                for (Decorator decorator : decorators) {
+                    values.addAll(decorator.getValues(timing));
                 }
                 csv.writeNext(values.toArray(new String[values.size()]));
             }

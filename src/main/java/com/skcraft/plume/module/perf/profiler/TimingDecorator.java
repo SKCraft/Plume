@@ -1,10 +1,12 @@
 package com.skcraft.plume.module.perf.profiler;
 
 import com.google.common.collect.Lists;
+import com.skcraft.plume.event.report.Decorator;
+import com.skcraft.plume.event.report.Row;
 
 import java.util.List;
 
-class TimingAppender implements Appender {
+class TimingDecorator implements Decorator {
     
     @Override
     public List<String> getColumns() {
@@ -12,7 +14,8 @@ class TimingAppender implements Appender {
     }
 
     @Override
-    public List<String> getValues(Timing timing) {
+    public List<String> getValues(Row entry) {
+        Timing timing = (Timing) entry;
         return Lists.newArrayList(
                 timing.getWorld(),
                 String.valueOf(timing.getX()),

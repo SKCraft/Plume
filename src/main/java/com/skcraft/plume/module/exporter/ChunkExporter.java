@@ -2,6 +2,11 @@ package com.skcraft.plume.module.exporter;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.skcraft.plume.common.util.event.EventBus;
+import com.skcraft.plume.event.report.DecorateReportEvent;
+import com.skcraft.plume.event.report.Decorator;
+import com.skcraft.plume.event.report.Row;
 import com.skcraft.plume.util.Worlds;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
@@ -11,7 +16,13 @@ import java.util.List;
 
 public class ChunkExporter implements CSVExporter {
 
-    private final List<String[]> data = Lists.newArrayList();
+    private final EventBus eventBus;
+    private final List<ChunkRow> data = Lists.newArrayList();
+
+    @Inject
+    public ChunkExporter(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
 
     @Override
     public void collectData() {
@@ -24,7 +35,7 @@ public class ChunkExporter implements CSVExporter {
                     entityCount += list.size();
                 }
 
-                data.add(new String[] {
+                data.add(new ChunkRow(Worlds.getWorldId(world), chunk.xPosition, chunk.zPosition, new String[] {
                         Worlds.getWorldId(world),
                         String.valueOf(chunk.xPosition),
                         String.valueOf(chunk.zPosition),
@@ -36,14 +47,17 @@ public class ChunkExporter implements CSVExporter {
                         String.valueOf(chunk.heightMapMinimum),
                         String.valueOf(chunk.inhabitedTime)
 
-                });
+                }));
             }
         }
     }
 
     @Override
     public void writeData(CSVWriter writer) {
-        writer.writeNext(new String[] {
+        DecorateReportEvent event = new DecorateReportEvent(data);
+        eventBus.post(event);
+
+        List<String> columns = Lists.newArrayList(
                 "World",
                 "X",
                 "Z",
@@ -53,9 +67,50 @@ public class ChunkExporter implements CSVExporter {
                 "Has Entities Flag",
                 "Last Save Time",
                 "Height Map Minimum",
-                "Inhabited Time"
-        });
-        writer.writeAll(data);
+                "Inhabited Time");
+
+        for (Decorator decorator : event.getDecorators()) {
+            columns.addAll(decorator.getColumns());
+        }
+
+        writer.writeNext(columns.toArray(new String[columns.size()]));
+
+        for (ChunkRow row : data) {
+            List<String> values = Lists.newArrayList(row.values);
+            for (Decorator decorator : event.getDecorators()) {
+                values.addAll(decorator.getValues(row));
+                writer.writeNext(values.toArray(new String[values.size()]));
+            }
+        }
+    }
+
+    private static class ChunkRow implements Row {
+        private final String world;
+        private final int x;
+        private final int z;
+        private final String[] values;
+
+        private ChunkRow(String world, int x, int z, String[] values) {
+            this.world = world;
+            this.x = x;
+            this.z = z;
+            this.values = values;
+        }
+
+        @Override
+        public String getWorld() {
+            return world;
+        }
+
+        @Override
+        public int getChunkX() {
+            return x;
+        }
+
+        @Override
+        public int getChunkZ() {
+            return z;
+        }
     }
 
 }

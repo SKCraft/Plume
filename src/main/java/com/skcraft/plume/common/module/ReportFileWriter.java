@@ -62,7 +62,7 @@ public class ReportFileWriter {
 
     private static class WriterConfig {
         @Setting(comment = "The path where the reports are written")
-        private String reportPath = "reports/{name}_%Y-%m-%d-%h-%i-%s.{ext}";
+        private String reportPath = "reports/{name}_%Y-%m-%d-%H-%i-%s.{ext}";
     }
 
 }

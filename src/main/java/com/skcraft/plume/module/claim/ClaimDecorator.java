@@ -7,22 +7,22 @@ import com.google.common.collect.Sets;
 import com.skcraft.plume.common.service.claim.Claim;
 import com.skcraft.plume.common.service.claim.ClaimMap;
 import com.skcraft.plume.common.util.WorldVector3i;
-import com.skcraft.plume.module.perf.profiler.Appender;
-import com.skcraft.plume.module.perf.profiler.Timing;
+import com.skcraft.plume.event.report.Decorator;
+import com.skcraft.plume.event.report.Row;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ClaimAppender implements Appender {
+public class ClaimDecorator implements Decorator {
 
     private final Map<WorldVector3i, Claim> cache;
 
-    public ClaimAppender(Collection<Timing> timings, ClaimMap claimMap) {
+    public ClaimDecorator(Collection<? extends Row> rows, ClaimMap claimMap) {
         Set<WorldVector3i> locations = Sets.newHashSet();
-        for (Timing timing : timings) {
-            locations.add(new WorldVector3i(timing.getWorld(), timing.getX() >> 4, 0, timing.getZ() >> 4));
+        for (Row row : rows) {
+            locations.add(new WorldVector3i(row.getWorld(), row.getChunkX(), 0, row.getChunkZ()));
         }
         if (!locations.isEmpty()) {
             cache = claimMap.findClaimsByPosition(locations);
@@ -37,8 +37,8 @@ public class ClaimAppender implements Appender {
     }
 
     @Override
-    public List<String> getValues(Timing timing) {
-        WorldVector3i location = new WorldVector3i(timing.getWorld(), timing.getX() >> 4, 0, timing.getZ() >> 4);
+    public List<String> getValues(Row row) {
+        WorldVector3i location = new WorldVector3i(row.getWorld(), row.getChunkX(), 0, row.getChunkZ());
         Claim claim = cache.get(location);
         if (claim != null) {
             return Lists.newArrayList(claim.getOwner().getUuid().toString(), claim.getOwner().getName(), Strings.nullToEmpty(claim.getParty()));

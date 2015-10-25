@@ -1,9 +1,10 @@
 package com.skcraft.plume.module.perf.profiler;
 
+import com.skcraft.plume.event.report.Row;
 import lombok.Getter;
 
 @Getter
-public class Timing {
+public class Timing implements Row {
 
     private final String className;
     private final String world;
@@ -25,6 +26,16 @@ public class Timing {
 
     public void increment(long time) {
         this.time += time;
+    }
+
+    @Override
+    public int getChunkX() {
+        return x >> 4;
+    }
+
+    @Override
+    public int getChunkZ() {
+        return z >> 4;
     }
 
     private int generateHashCode() {

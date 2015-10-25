@@ -7,6 +7,7 @@ import com.google.common.io.CharSource;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
 import com.skcraft.plume.command.Sender;
@@ -31,6 +32,7 @@ public class Exporter {
     private final ListeningExecutorService executorService = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
     @Inject private TickExecutorService tickExecutor;
     @Inject private EventBus eventBus;
+    @Inject private Injector injector;
 
     public Exporter() {
         exporters.put("chunks", ChunkExporter.class);
@@ -46,7 +48,7 @@ public class Exporter {
         if (exporterClass != null) {
             Deferreds
                     .when(() -> {
-                        CSVExporter exporter = exporterClass.newInstance();
+                        CSVExporter exporter = injector.getInstance(exporterClass);
                         sender.addChatMessage(Messages.subtle(tr("exporter.collectingData")));
                         exporter.collectData();
                         return exporter;
