@@ -155,6 +155,7 @@ shadowJar {
         include(dependency('org.beanshell:bsh:.*'))
         include(dependency('io.dropwizard.metrics:.*'))
         include(dependency('net.sf.opencsv:opencsv:.*'))
+        include(dependency('redis.clients:jedis:.*'))
 
         relocate 'com.sk89q.intake', 'com.skcraft.plume.internal.intake'
         relocate 'com.google.inject', 'com.skcraft.plume.internal.inject'
