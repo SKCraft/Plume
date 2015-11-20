@@ -53,11 +53,14 @@ dependencies {
     compile 'com.sk89q:squirrelid:0.1.0' // Mojang name -> UUID
     compile 'joda-time:joda-time:2.8.2' // Time library; used for period matcher not found in Java 8+
     compile 'com.googlecode.json-simple:json-simple:1.1.1' // JSON parsing and emitting
+    compile 'com.fasterxml.jackson.core:jackson-core:2.6.3' // JSON parsing
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.6.3' // JSON parsing
     compile 'org.beanshell:bsh:2.0b5' // BeanShell REPL
     compile 'io.dropwizard.metrics:metrics-core:3.1.0' // Metrics
     compile 'io.dropwizard.metrics:metrics-graphite:3.1.0' // Metrics + Graphite
     compile 'io.dropwizard.metrics:metrics-jvm:3.1.0' // Metrics + JVM
     compile 'net.sf.opencsv:opencsv:2.3' // CSV read/write
+    compile 'redis.clients:jedis:2.7.3' // Redis
 
     // SQL and JDBC
     compile 'org.jooq:jooq:3.6.2' // SQL DSL
@@ -144,6 +147,7 @@ shadowJar {
         include(dependency('com.sk89q:squirrelid:.*'))
         include(dependency('joda-time:joda-time:.*'))
         include(dependency('com.googlecode.json-simple:json-simple:.*'))
+        include(dependency('com.fasterxml.jackson.core:jackson-.*:.*'))
         include(dependency('org.jooq:jooq:.*'))
         include(dependency('org.modelmapper:modelmapper:.*'))
         include(dependency('org.modelmapper.extensions:modelmapper-jooq:.*'))
