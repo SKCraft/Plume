@@ -124,6 +124,7 @@ public class Commune {
     @SubscribeEvent
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         Presence presence = new Presence();
+        presence.setSource(getSource());
         presence.setName(event.player.getGameProfile().getName());
         presence.setStatus(Presence.Status.ONLINE);
         publish(presence);
