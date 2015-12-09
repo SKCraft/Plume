@@ -11,6 +11,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
+import net.minecraftforge.common.ForgeHooks;
 
 @Log
 @Data
@@ -32,7 +33,13 @@ public class Chat extends Message {
             }
         }
 
-        IChatComponent text = new ChatComponentText("(").appendSibling(senderText).appendText(") " + message);
+        IChatComponent parsed;
+        try {
+            parsed = ForgeHooks.newChatWithLinks(message);
+        } catch (Exception e) { // newChatWithLinks has bugs
+            parsed = new ChatComponentText(message);
+        }
+        IChatComponent text = new ChatComponentText("(").appendSibling(senderText).appendText(") ").appendSibling(parsed);
 
         FMLLog.getLogger().info("commune: (" + sender + ") " + message);
 
