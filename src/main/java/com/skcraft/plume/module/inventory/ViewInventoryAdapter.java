@@ -44,8 +44,8 @@ class ViewInventoryAdapter extends PlayerInventoryChestAdapter {
     }
 
     @Override
-    public void closeInventory() {
-        super.closeInventory();
+    public void closeInventory(EntityPlayer player) {
+        super.closeInventory(player);
 
         if (!online) {
             File saveFile = PlayerDataFiles.getPlayerDataFile(userId);

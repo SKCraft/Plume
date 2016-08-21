@@ -11,9 +11,10 @@ import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Server;
 import com.skcraft.plume.util.Worlds;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
-import cpw.mods.fml.relauncher.Side;
+import net.minecraft.util.ITickable;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityFallingBlock;
@@ -155,7 +156,7 @@ public class ServerMetrics {
 
             for (TileEntity tileEntity : (List<TileEntity>) world.loadedTileEntityList) {
                 tileEntities++;
-                if (tileEntity.canUpdate()) {
+                if (tileEntity instanceof ITickable) {
                     tickingTileEntities++;
                 }
             }

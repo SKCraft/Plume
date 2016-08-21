@@ -15,16 +15,17 @@ import com.skcraft.plume.event.entity.UseEntityEvent;
 import com.skcraft.plume.util.BlockState;
 import com.skcraft.plume.util.Events;
 import com.skcraft.plume.util.Location3i;
-import cpw.mods.fml.common.eventhandler.Event.Result;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.BlockPos;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class EventAbstractionListener {
     }
 
     private static Location3i getLocation3i(BlockEvent event) {
-        return new Location3i(event.world, event.x, event.y, event.z);
+        return new Location3i(event.world, event.pos.getX(), event.pos.getY(), event.pos.getZ());
     }
 
     //-------------------------------------------------------------------------
@@ -52,7 +53,7 @@ public class EventAbstractionListener {
         if (event.world.isRemote) return;
 
         Location3i location = getLocation3i(event);
-        BlockState current = BlockState.create(event.block, event.blockMetadata);
+        BlockState current = BlockState.create(event.state);
         List<BlockChange> changes = Lists.newArrayList(new BlockChange(location, current, AIR_STATE));
 
         Events.postDelegate(eventBus, new BreakBlockEvent(Cause.create(event.getPlayer()), event.getPlayer().worldObj, changes), event);
@@ -63,7 +64,7 @@ public class EventAbstractionListener {
         if (event.world.isRemote) return;
 
         Location3i location = getLocation3i(event);
-        BlockState current = BlockState.create(event.block, event.blockMetadata);
+        BlockState current = BlockState.create(event.state);
         List<BlockChange> changes = Lists.newArrayList(new BlockChange(location, current, BlockState.wrap(event.blockSnapshot)));
 
         Events.postDelegate(eventBus, new PlaceBlockEvent(Cause.create(event.player), event.player.worldObj, changes), event);
@@ -93,12 +94,12 @@ public class EventAbstractionListener {
             case LEFT_CLICK_BLOCK:
             case RIGHT_CLICK_BLOCK:
                 if (event.useBlock != Result.DENY) {
-                    Location3i location = new Location3i(event.world, event.x, event.y, event.z);
-                    Block block = event.world.getBlock(location.getX(), location.getY(), location.getZ());
+                    Location3i location = new Location3i(event.world, event.pos.getX(), event.pos.getY(), event.pos.getZ());
+                    Block block = event.world.getBlockState(new BlockPos(location.getX(), location.getY(), location.getZ())).getBlock();
 
                     if (block == Blocks.air) {
                         location = new Location3i(event.world, (int) event.entityPlayer.posX, (int) event.entityPlayer.posY, (int) event.entityPlayer.posZ);
-                        block = event.world.getBlock(location.getX(), location.getY(), location.getZ());
+                        block = event.world.getBlockState(new BlockPos(location.getX(), location.getY(), location.getZ())).getBlock();
                     }
 
                     if (block != Blocks.air) {

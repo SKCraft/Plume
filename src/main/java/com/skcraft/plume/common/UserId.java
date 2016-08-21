@@ -7,7 +7,6 @@ import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.List;
 import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -30,7 +29,7 @@ public class UserId implements Serializable {
     @Nullable
     @SuppressWarnings("unchecked")
     public EntityPlayer getEntityPlayer() {
-        for (EntityPlayer p : (List<EntityPlayer>) MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
+        for (EntityPlayer p : MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
             if (p.getGameProfile().getId().equals(this.getUuid())) {
                 return p;
             }

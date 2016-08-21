@@ -4,8 +4,8 @@ import com.mojang.authlib.GameProfile;
 import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import lombok.extern.java.Log;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
@@ -23,10 +23,10 @@ public class OperatorCheck {
         if (config.get().deopOnJoin) {
             ServerConfigurationManager configManager = MinecraftServer.getServer().getConfigurationManager();
             GameProfile gameProfile = event.player.getGameProfile();
-            if (configManager.func_152596_g(gameProfile)) { /* isOp() */
+            if (configManager.getOppedPlayers().func_183026_b(gameProfile)) { /* isOp() */
                 log.info("Removing op from " + gameProfile.getName() + " (" + gameProfile.getId() + ")");
                 // Warning: Blocks thread -- underlying map not thread-safe
-                configManager.func_152610_b(gameProfile); /* deop() */
+                configManager.getOppedPlayers().removeEntry(gameProfile); /* deop() */
             }
         }
     }

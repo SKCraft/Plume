@@ -3,8 +3,8 @@ package com.skcraft.plume.util.concurrent;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.AbstractListeningExecutorService;
 import com.skcraft.plume.common.util.module.AutoRegister;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import lombok.extern.java.Log;
 
 import java.util.List;

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IChatComponent;
 
 import java.util.List;
 
@@ -74,23 +75,13 @@ public class InventoryView implements IInventory {
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int p_70304_1_) {
-        return inventory.getStackInSlotOnClosing(p_70304_1_);
+    public ItemStack removeStackFromSlot(int index) {
+        return inventory.removeStackFromSlot(index);
     }
 
     @Override
     public void setInventorySlotContents(int p_70299_1_, ItemStack p_70299_2_) {
         inventory.setInventorySlotContents(p_70299_1_, p_70299_2_);
-    }
-
-    @Override
-    public String getInventoryName() {
-        return inventory.getInventoryName();
-    }
-
-    @Override
-    public boolean hasCustomInventoryName() {
-        return inventory.hasCustomInventoryName();
     }
 
     @Override
@@ -109,18 +100,53 @@ public class InventoryView implements IInventory {
     }
 
     @Override
-    public void openInventory() {
-        inventory.openInventory();
+    public void openInventory(EntityPlayer player) {
+        inventory.openInventory(player);
     }
 
     @Override
-    public void closeInventory() {
-        inventory.closeInventory();
+    public void closeInventory(EntityPlayer player) {
+        inventory.closeInventory(player);
     }
 
     @Override
     public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_) {
         return inventory.isItemValidForSlot(p_94041_1_, p_94041_2_);
+    }
+
+    @Override
+    public int getField(int id) {
+        return inventory.getField(id);
+    }
+
+    @Override
+    public void setField(int id, int value) {
+        inventory.setField(id, value);
+    }
+
+    @Override
+    public int getFieldCount() {
+        return inventory.getFieldCount();
+    }
+
+    @Override
+    public void clear() {
+        inventory.clear();
+    }
+
+    @Override
+    public String getName() {
+        return inventory.getName();
+    }
+
+    @Override
+    public boolean hasCustomName() {
+        return inventory.hasCustomName();
+    }
+
+    @Override
+    public IChatComponent getDisplayName() {
+        return inventory.getDisplayName();
     }
 
 }

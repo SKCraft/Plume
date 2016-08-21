@@ -5,8 +5,8 @@ import com.sk89q.intake.Require;
 import com.skcraft.plume.command.Sender;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.PlayerData;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -37,7 +37,7 @@ public class ModMode {
                     backupData.save();
                     modInv.load();
                     modInv.putInventory(player);
-                    MinecraftServer.getServer().getConfigurationManager().func_152605_a(player.getGameProfile());
+                    MinecraftServer.getServer().getConfigurationManager().addOp(player.getGameProfile());
                     player.setGameType(WorldSettings.GameType.CREATIVE);
                     player.addChatMessage(new ChatComponentText(tr("modMode.enter")));
                 } catch (IOException e) {
@@ -64,7 +64,7 @@ public class ModMode {
                     backupData.load();
                     backupData.putAll(player);
                     backupData.getFile().delete();
-                    MinecraftServer.getServer().getConfigurationManager().func_152610_b(player.getGameProfile());
+                    MinecraftServer.getServer().getConfigurationManager().removeOp(player.getGameProfile());
                     player.fallDistance = 0;
                     player.setGameType(WorldSettings.GameType.SURVIVAL);
                 } catch (IOException e) {
@@ -88,7 +88,7 @@ public class ModMode {
                 backupData.load();
                 backupData.putAll((EntityPlayerMP) event.player);
                 backupData.getFile().delete();
-                MinecraftServer.getServer().getConfigurationManager().func_152610_b(event.player.getGameProfile());
+                MinecraftServer.getServer().getConfigurationManager().removeOp(event.player.getGameProfile());
                 event.player.setGameType(WorldSettings.GameType.SURVIVAL);
             } catch (IOException e) {
                 log.log(Level.WARNING, "Failed to leave mod mode on join", e);

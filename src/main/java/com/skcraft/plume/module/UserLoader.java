@@ -16,11 +16,11 @@ import com.skcraft.plume.event.network.PlayerAuthenticateEvent;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.Server;
 import com.skcraft.plume.util.profile.Profiles;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import ninja.leaping.configurate.objectmapping.Setting;
 
 import java.util.Calendar;
@@ -43,10 +43,10 @@ public class UserLoader {
     @Inject private Environment environment;
 
     @SubscribeEvent
-    public void onAuthenticate(PlayerAuthenticateEvent event) {
+    public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (userCache != null) {
             Date now = new Date();
-            UserId userId = Profiles.fromProfile(event.getProfile());
+            UserId userId = Profiles.fromPlayer(event.player);
             User user = userCache.load(userId);
 
             if (user != null) {
@@ -55,42 +55,30 @@ public class UserLoader {
                 expireCache.put(user, true);
 
                 if (user.getSubject().hasPermission("whitelist", environment.update(new Context.Builder()).build())) {
-                    user.getUserId().setName(event.getProfile().getName());
+                    user.getUserId().setName(event.player.getGameProfile().getName());
                     if (user.getJoinDate() == null && user.getCreateDate() != null) {
                         user.setJoinDate(now);
                     }
                     user.setLastOnline(now);
                     userCache.getHive().saveUser(user, false);
+                    online.put(userId, user);
+
+                    Date joinDate = user.getJoinDate();
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.add(Calendar.MINUTE, -1);
+                    Date after = calendar.getTime();
+
+                    if (config.get().announceNewPlayers && joinDate != null && joinDate.after(after)) {
+                        ChatComponentText message = new ChatComponentText(tr("users.newMember", event.player.getGameProfile().getName()));
+                        message.getChatStyle().setColor(EnumChatFormatting.GOLD);
+                        Messages.broadcast(message, player -> !player.equals(event.player));
+                    }
                 } else {
-                    event.getNetHandler().func_147322_a(config.get().notWhitelistedMessage);
+                    Server.kick((EntityPlayerMP) event.player, config.get().notWhitelistedMessage);
                 }
             } else {
                 // TODO: Allow user creation via config
-                event.getNetHandler().func_147322_a(config.get().noUserMessage);
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (userCache != null) {
-            UserId userId = Profiles.fromPlayer(event.player);
-            User user = userCache.getIfPresent(userId);
-            if (user != null) {
-                online.put(userId, user);
-
-                Date joinDate = user.getJoinDate();
-                Calendar calendar = Calendar.getInstance();
-                calendar.add(Calendar.MINUTE, -1);
-                Date after = calendar.getTime();
-
-                if (config.get().announceNewPlayers && joinDate != null && joinDate.after(after)) {
-                    ChatComponentText message = new ChatComponentText(tr("users.newMember", event.player.getGameProfile().getName()));
-                    message.getChatStyle().setColor(EnumChatFormatting.GOLD);
-                    Messages.broadcast(message, player -> !player.equals(event.player));
-                }
-            } else if (!config.get().allowLoginWithoutLoadedUser) {
-                Server.kick((EntityPlayerMP) event.player, tr("users.profileNotLoaded"));
+                Server.kick((EntityPlayerMP) event.player, config.get().noUserMessage);
             }
         }
     }

@@ -8,10 +8,10 @@ import com.skcraft.plume.util.Materials;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.TeleportHelper;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.util.BlockPos;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 
@@ -37,19 +37,19 @@ public class EnderPearlHomes {
             Location3d target = new Location3d(world, event.targetX, event.targetY, event.targetZ);
             Location3d current = Locations.getLocation3d(player);
 
-            boolean inWater = Materials.isWater(world.getBlock((int) player.posX, (int) player.posY, (int) player.posZ));
+            boolean inWater = Materials.isWater(world.getBlockState(player.getPosition()).getBlock());
             double distanceSq = current.distanceSq(target);
             double horizDistanceSq =  current.setY(0).distanceSq(target.setY(0));
 
             if (inWater && (distanceSq <= HOME_DISTANCE_SQ || horizDistanceSq < SPAWN_HORIZ_DISTANCE_SQ && current.getY() <= target.getY() + SPAWN_HEAD_BUFFER)) {
-                ChunkCoordinates coords = spawnWorld.getSpawnPoint();
+                BlockPos coords = spawnWorld.getSpawnPoint();
                 event.setCanceled(true);
                 tickExecutor.execute(() -> {
                     TeleportHelper.teleport(player, Locations.getLocation3d(spawnWorld, coords));
                     player.addChatMessage(Messages.info(tr("enderpearlHomes.toSpawn")));
                 });
             } else if (current.distanceSq(target) <= HOME_DISTANCE_SQ) {
-                ChunkCoordinates coords = player.getBedLocation(spawnWorld.provider.dimensionId);
+                BlockPos coords = player.getBedLocation(spawnWorld.provider.getDimensionId());
                 if (coords != null) {
                     tickExecutor.execute(() -> {
                         TeleportHelper.teleport(player, Locations.getLocation3d(spawnWorld, coords));

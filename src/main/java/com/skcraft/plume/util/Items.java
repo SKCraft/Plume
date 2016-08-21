@@ -15,7 +15,7 @@ public final class Items {
         checkNotNull(world, "world");
         checkNotNull(itemStack, "itemStack");
         EntityItem entity = new EntityItem(world, x, y, z, itemStack);
-        entity.delayBeforeCanPickup = 10;
+        entity.setPickupDelay(10);
         world.spawnEntityInWorld(entity);
     }
 

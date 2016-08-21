@@ -6,12 +6,12 @@ import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.concurrent.TickExecutorService;
-import cpw.mods.fml.common.eventhandler.Event.Result;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.BlockPos;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import ninja.leaping.configurate.objectmapping.Setting;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
@@ -31,15 +31,15 @@ public class AnytimeSleep {
         switch (event.action) {
             case RIGHT_CLICK_BLOCK:
                 if (event.useBlock != Result.DENY) {
-                    Block block = event.world.getBlock(event.x, event.y, event.z);
+                    Block block = event.world.getBlockState(new BlockPos(event.pos.getX(), event.pos.getY(), event.pos.getZ())).getBlock();
 
                     if (block == Blocks.bed) {
                         boolean forceSpawn = config.get().forceSpawn;
 
                         // Run it later so we bypass the bed set
                         tickExecutor.execute(() -> {
-                            ChunkCoordinates coords = new ChunkCoordinates(event.x, event.y, event.z);
-                            event.entityPlayer.setSpawnChunk(coords, forceSpawn, event.world.provider.dimensionId);
+                            BlockPos coords = new BlockPos(event.pos.getX(), event.pos.getY(), event.pos.getZ());
+                            event.entityPlayer.setSpawnChunk(coords, forceSpawn, event.world.provider.getDimensionId());
 
                             if (forceSpawn) {
                                 event.entityPlayer.addChatComponentMessage(Messages.info(tr("anytimeSleep.respawnHereRegardless")));

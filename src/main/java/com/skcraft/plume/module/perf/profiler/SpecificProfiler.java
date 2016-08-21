@@ -55,7 +55,7 @@ public class SpecificProfiler {
         try {
             delay = config.get().clampDelay(delay);
             ListenableFuture<TickProfiler> future = profilerExecutor.submit(new TickProfiler(), delay, TimeUnit.SECONDS);
-            broadcaster.broadcast(Messages.info(tr("specificProfiler.started", delay, sender.getCommandSenderName())), PERMISSION);
+            broadcaster.broadcast(Messages.info(tr("specificProfiler.started", delay, sender.getName())), PERMISSION);
 
             Deferreds.makeDeferred(future)
                     .tap(() -> {

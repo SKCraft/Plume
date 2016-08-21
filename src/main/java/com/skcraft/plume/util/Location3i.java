@@ -79,12 +79,12 @@ public class Location3i {
 
     public static Location3i fromBlockSnapshot(BlockSnapshot snapshot) {
         checkNotNull(snapshot, "snapshot");
-        return new Location3i(snapshot.world, snapshot.x, snapshot.y, snapshot.z);
+        return new Location3i(snapshot.world, snapshot.pos.getX(), snapshot.pos.getY(), snapshot.pos.getZ());
     }
 
     public static Location3i fromObjectPosition(World world, MovingObjectPosition target) {
         checkNotNull(target, "target");
-        return new Location3i(world, target.blockX, target.blockY, target.blockZ);
+        return new Location3i(world, target.getBlockPos().getX(), target.getBlockPos().getY(), target.getBlockPos().getZ());
     }
 
     public Location3d toCenteredLocation3d() {

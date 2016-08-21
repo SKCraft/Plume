@@ -3,6 +3,7 @@ package com.skcraft.plume.util.config;
 import com.google.common.reflect.TypeToken;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
@@ -45,7 +46,7 @@ public class ItemStackTypeSerializer implements TypeSerializer<ItemStack> {
             name = node.getString();
         }
 
-        Item item = (Item) Item.itemRegistry.getObject(name);
+        Item item = (Item) Item.itemRegistry.getObject(new ResourceLocation(name));
         if (item != null) {
             return new ItemStack(item, amount, damage);
         } else {
@@ -55,7 +56,7 @@ public class ItemStackTypeSerializer implements TypeSerializer<ItemStack> {
 
     @Override
     public void serialize(TypeToken<?> type, ItemStack obj, ConfigurationNode value) throws ObjectMappingException {
-        String name = Item.itemRegistry.getNameForObject(obj.getItem());
+        String name = Item.itemRegistry.getNameForObject(obj.getItem()).toString();
         int damage = obj.getItemDamage();
         int amount = obj.stackSize;
         if (damage == 0 && amount == 1) {

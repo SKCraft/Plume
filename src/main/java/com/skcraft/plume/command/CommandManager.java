@@ -28,7 +28,7 @@ import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Contexts;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.profile.Profiles;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;

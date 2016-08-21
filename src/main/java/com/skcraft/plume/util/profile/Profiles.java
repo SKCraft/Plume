@@ -30,7 +30,7 @@ public final class Profiles {
         } else if (sender instanceof MinecraftServer) {
             return new UserId(UUID.fromString("00000000-0000-0000-0000-000000000000"), "*CONSOLE*");
         } else {
-            return new UserId(UUID.nameUUIDFromBytes(sender.getCommandSenderName().getBytes()), sender.getCommandSenderName());
+            return new UserId(UUID.nameUUIDFromBytes(sender.getName().getBytes()), sender.getName());
         }
     }
 

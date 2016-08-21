@@ -10,7 +10,7 @@ public final class Worlds {
     }
 
     public static String getWorldId(World world) {
-        return String.valueOf(world.provider.dimensionId);
+        return String.valueOf(world.provider.getDimensionId());
     }
 
     public static World getWorldFromId(String name) throws NoSuchWorldException {

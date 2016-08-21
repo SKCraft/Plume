@@ -19,16 +19,15 @@ import com.skcraft.plume.event.tick.EntityTickExceptionEvent;
 import com.skcraft.plume.event.tick.TileEntityTickEvent;
 import com.skcraft.plume.event.tick.TileEntityTickExceptionEvent;
 import com.skcraft.plume.util.Messages;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
 import net.minecraft.entity.Entity;
-import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
@@ -109,7 +108,7 @@ public class Watchdog {
                     Thread.interrupted(); // Clear interrupted flag
                     TileEntity tileEntity = event.getTileEntity();
                     log.log(Level.WARNING, "The watchdog has raised tick interruption for " + Messages.toString(tileEntity) + " -- removing tile entity!");
-                    tileEntity.getWorldObj().setBlock(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord, Blocks.air);
+                    tileEntity.getWorld().setBlockToAir(tileEntity.getPos());
                     event.setCancelled(true);
                     break;
                 }

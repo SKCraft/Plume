@@ -3,12 +3,6 @@ package com.skcraft.plume.network;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.skcraft.plume.Plume;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.network.FMLEventChannel;
-import cpw.mods.fml.common.network.FMLNetworkEvent;
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
@@ -17,6 +11,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLEventChannel;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -91,7 +92,7 @@ public class PlumePacketHandler {
             out.writeChar(id);
             packet.write(out);
 
-            FMLProxyPacket proxyPacket = new FMLProxyPacket(out.buffer(), Plume.CHANNEL_ID);
+            FMLProxyPacket proxyPacket = new FMLProxyPacket(new PacketBuffer(out.buffer()), Plume.CHANNEL_ID);
             eventChannel.sendToServer(proxyPacket);
         } catch (IOException e) {
             log.log(Level.WARNING, "Failed to build packet to send", e);
@@ -114,7 +115,7 @@ public class PlumePacketHandler {
             out.writeChar(id);
             packet.write(out);
 
-            FMLProxyPacket proxyPacket = new FMLProxyPacket(out.buffer(), Plume.CHANNEL_ID);
+            FMLProxyPacket proxyPacket = new FMLProxyPacket(new PacketBuffer(out.buffer()), Plume.CHANNEL_ID);
             if (players == null) {
                 eventChannel.sendToAll(proxyPacket);
             } else {

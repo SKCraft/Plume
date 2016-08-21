@@ -8,11 +8,13 @@ import com.skcraft.plume.event.report.DecorateReportEvent;
 import com.skcraft.plume.event.report.Decorator;
 import com.skcraft.plume.event.report.Row;
 import com.skcraft.plume.util.Worlds;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 
 import java.util.List;
+import java.util.Set;
 
 public class ChunkExporter implements CSVExporter {
 
@@ -31,7 +33,7 @@ public class ChunkExporter implements CSVExporter {
                 Chunk chunk = (Chunk) object;
 
                 int entityCount = 0;
-                for (List list : chunk.entityLists) {
+                for (Set<Entity> list : chunk.getEntityLists()) {
                     entityCount += list.size();
                 }
 
@@ -40,12 +42,10 @@ public class ChunkExporter implements CSVExporter {
                         String.valueOf(chunk.xPosition),
                         String.valueOf(chunk.zPosition),
                         String.valueOf(entityCount),
-                        chunk.isTerrainPopulated ? "Yes" : "No",
-                        chunk.isLightPopulated ? "Yes" : "No",
-                        chunk.hasEntities ? "Yes" : "No",
-                        String.valueOf(chunk.lastSaveTime),
-                        String.valueOf(chunk.heightMapMinimum),
-                        String.valueOf(chunk.inhabitedTime)
+                        chunk.isTerrainPopulated() ? "Yes" : "No",
+                        chunk.isLightPopulated() ? "Yes" : "No",
+                        String.valueOf(chunk.getLowestHeight()),
+                        String.valueOf(chunk.getInhabitedTime())
 
                 }));
             }
@@ -64,8 +64,6 @@ public class ChunkExporter implements CSVExporter {
                 "Entity Count",
                 "Terrain Populated",
                 "Light Populated",
-                "Has Entities Flag",
-                "Last Save Time",
                 "Height Map Minimum",
                 "Inhabited Time");
 

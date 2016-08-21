@@ -1,7 +1,7 @@
 package com.skcraft.plume;
 
 import com.skcraft.plume.common.util.module.LoaderException;
-import cpw.mods.fml.common.event.*;
+import net.minecraftforge.fml.common.event.*;
 
 public class ClientProxy extends SharedProxy {
 

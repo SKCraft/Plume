@@ -9,8 +9,8 @@ import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.event.tick.TileEntityTickEvent;
 import com.skcraft.plume.util.Messages;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
 
@@ -27,21 +27,21 @@ public class ServerBreaker {
     @Command(aliases = "stallserver", desc = "Stall the server")
     @Require("plume.serverbreaker.stall")
     public void stallServer(@Sender ICommandSender sender, int time) {
-        Messages.broadcast(Messages.info(tr("serverBreaker.stallServerCalled", sender.getCommandSenderName())));
+        Messages.broadcast(Messages.info(tr("serverBreaker.stallServerCalled", sender.getName())));
         stall = time > 0 ? time : 1;
     }
 
     @Command(aliases = "stalltileentity", desc = "Stall the next tile entity")
     @Require("plume.serverbreaker.stall")
     public void stallNextTileEntity(@Sender ICommandSender sender, int time) {
-        Messages.broadcast(Messages.info(tr("serverBreaker.stallTileEntityCalled", sender.getCommandSenderName())));
+        Messages.broadcast(Messages.info(tr("serverBreaker.stallTileEntityCalled", sender.getName())));
         stallTick = time > 0 ? time : 1;
     }
 
     @Command(aliases = "crashserver", desc = "Crash the server")
     @Require("plume.serverbreaker.crash")
     public void crashServer(@Sender ICommandSender sender) {
-        Messages.broadcast(Messages.info(tr("serverBreaker.crashServerCalled", sender.getCommandSenderName())));
+        Messages.broadcast(Messages.info(tr("serverBreaker.crashServerCalled", sender.getName())));
         crash = true;
     }
 

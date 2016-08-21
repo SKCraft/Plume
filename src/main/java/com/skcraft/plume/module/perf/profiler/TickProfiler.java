@@ -35,7 +35,7 @@ public class TickProfiler implements Profiler {
     @Subscribe
     public void onTileEntityTick(TileEntityTickEvent event) {
         TileEntity tileEntity = event.getTileEntity();
-        stopwatch.set(Worlds.getWorldId(event.getWorld()), tileEntity.getClass().getName(), tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
+        stopwatch.set(Worlds.getWorldId(event.getWorld()), tileEntity.getClass().getName(), tileEntity.getPos().getX(), tileEntity.getPos().getY(), tileEntity.getPos().getZ());
         event.getStopwatches().add(stopwatch);
     }
 

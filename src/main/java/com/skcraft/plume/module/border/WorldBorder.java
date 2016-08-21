@@ -16,9 +16,9 @@ import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.SafeBlockFinder;
 import com.skcraft.plume.util.SafeBlockFinder.NoSafeLocationException;
 import com.skcraft.plume.util.TeleportHelper;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 
 import java.util.UUID;

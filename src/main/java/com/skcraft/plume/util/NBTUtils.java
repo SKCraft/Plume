@@ -109,7 +109,7 @@ public final class NBTUtils {
     public static void copy(NBTTagCompound from, NBTTagCompound to) {
         checkNotNull(from, "from");
         checkNotNull(to, "to");
-        for (String key : (Iterable<String>) from.func_150296_c()) {
+        for (String key : from.getKeySet()) {
             NBTBase value = from.getTag(key);
             if (value != null) {
                 to.setTag(key, value.copy());

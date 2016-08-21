@@ -4,9 +4,9 @@ import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 import com.skcraft.plume.common.util.logging.Log4jRedirect;
 import com.skcraft.plume.common.util.module.AutoRegister;
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.eventhandler.EventPriority;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import lombok.extern.java.Log;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -58,7 +58,7 @@ public class ChatListener {
         log.info("[#] <" + e.username + "> " + e.message);
 
         @SuppressWarnings("unchecked")
-        List<EntityPlayer> online = (List<EntityPlayer>) MinecraftServer.getServer().getConfigurationManager().playerEntityList;
+        List<EntityPlayerMP> online = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
         for (EntityPlayer recipient : online) {
             if (!recipient.getUniqueID().equals(e.player.getUniqueID())) {
                 sendChatMessage(recipient, this.format(e.component, recipient, true, true));
@@ -81,10 +81,10 @@ public class ChatListener {
     }
 
     private static EnumChatFormatting colorFromName(EntityPlayer player) {
-        if (player.getDisplayName().matches("^\u00a7[0-9A-Fa-f].*")) {
-            char control = player.getDisplayName().charAt(1);
+        if (player.getName().matches("^\u00a7[0-9A-Fa-f].*")) {
+            char control = player.getName().charAt(1);
             for (EnumChatFormatting col : EnumChatFormatting.values()) {
-                if (col.getFormattingCode() == control) {
+                if (col.toString().equals("\u00a7" + control)) {
                     return col;
                 }
             }

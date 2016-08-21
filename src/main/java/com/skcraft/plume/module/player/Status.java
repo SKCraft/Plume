@@ -7,7 +7,7 @@ import com.sk89q.intake.parametric.annotation.Switch;
 import com.skcraft.plume.command.Sender;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Messages;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;

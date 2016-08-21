@@ -11,30 +11,16 @@ import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.AutoRegister;
-import com.skcraft.plume.module.backtrack.action.Action;
-import com.skcraft.plume.module.backtrack.action.BlockBreakAction;
-import com.skcraft.plume.module.backtrack.action.BlockExplodeAction;
-import com.skcraft.plume.module.backtrack.action.BlockPlaceAction;
-import com.skcraft.plume.module.backtrack.action.BucketFillAction;
-import com.skcraft.plume.module.backtrack.action.EntityDamageAction;
-import com.skcraft.plume.module.backtrack.action.ItemDropAction;
-import com.skcraft.plume.module.backtrack.action.ItemPickupAction;
-import com.skcraft.plume.module.backtrack.action.PlayerChatAction;
-import com.skcraft.plume.module.backtrack.action.PlayerCommandAction;
-import com.skcraft.plume.module.backtrack.action.PlayerDeathAction;
+import com.skcraft.plume.module.backtrack.action.*;
 import com.skcraft.plume.util.BlockSnapshot;
 import com.skcraft.plume.util.NamedEntity;
 import com.skcraft.plume.util.Worlds;
 import com.skcraft.plume.util.inventory.Inventories;
 import com.skcraft.plume.util.profile.Profiles;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.event.FMLServerStoppingEvent;
-import cpw.mods.fml.common.eventhandler.EventPriority;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import lombok.extern.java.Log;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.world.ChunkPosition;
+import net.minecraft.util.BlockPos;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
@@ -45,6 +31,10 @@ import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ExplosionEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -89,9 +79,9 @@ public class LoggerListener {
 
         UserId userId = Profiles.fromPlayer(event.getPlayer());
         BlockBreakAction action = new BlockBreakAction();
-        action.setBefore(BlockSnapshot.toSnapshot(event.world, event.x, event.y, event.z));
+        action.setBefore(BlockSnapshot.toSnapshot(event.world, event.pos.getX(), event.pos.getY(), event.pos.getZ()));
         action.setAfter(AIR_SNAPSHOT);
-        addRecord(userId, new WorldVector3i(Worlds.getWorldId(event.world), event.x, event.y, event.z), action);
+        addRecord(userId, new WorldVector3i(Worlds.getWorldId(event.world), event.pos.getX(), event.pos.getY(), event.pos.getZ()), action);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -102,8 +92,8 @@ public class LoggerListener {
         UserId userId = Profiles.fromPlayer(event.player);
         BlockPlaceAction action = new BlockPlaceAction();
         action.setBefore(AIR_SNAPSHOT);
-        action.setAfter(BlockSnapshot.toSnapshot(event.world, event.x, event.y, event.z));
-        addRecord(userId, new WorldVector3i(Worlds.getWorldId(event.world), event.x, event.y, event.z), action);
+        action.setAfter(BlockSnapshot.toSnapshot(event.world, event.pos.getX(), event.pos.getY(), event.pos.getZ()));
+        addRecord(userId, new WorldVector3i(Worlds.getWorldId(event.world), event.pos.getX(), event.pos.getY(), event.pos.getZ()), action);
     }
 
     @SubscribeEvent
@@ -115,9 +105,9 @@ public class LoggerListener {
 
         for (net.minecraftforge.common.util.BlockSnapshot snapshot : event.getReplacedBlockSnapshots()) {
             BlockPlaceAction action = new BlockPlaceAction();
-            action.setBefore(BlockSnapshot.toSnapshot(event.world, snapshot.x, snapshot.y, snapshot.z));
+            action.setBefore(BlockSnapshot.toSnapshot(event.world, snapshot.pos.getX(), snapshot.pos.getY(), snapshot.pos.getZ()));
             action.setAfter(BlockSnapshot.toSnapshot(snapshot));
-            addRecord(userId, new WorldVector3i(Worlds.getWorldId(event.world), snapshot.x, snapshot.y, snapshot.z), action);
+            addRecord(userId, new WorldVector3i(Worlds.getWorldId(event.world), snapshot.pos.getX(), snapshot.pos.getY(), snapshot.pos.getZ()), action);
         }
     }
 
@@ -126,12 +116,12 @@ public class LoggerListener {
         if (event.world.isRemote) return;
         if (!config.get().events.explosion) return;
 
-        for (ChunkPosition position : event.getAffectedBlocks()) {
+        for (BlockPos position : event.getAffectedBlocks()) {
             BlockExplodeAction action = new BlockExplodeAction();
-            if (event.world.getBlock(position.chunkPosX, position.chunkPosY, position.chunkPosZ) != Blocks.air) {
-                action.setBefore(BlockSnapshot.toSnapshot(event.world, position.chunkPosX, position.chunkPosY, position.chunkPosZ));
+            if (event.world.getBlockState(position).getBlock() != Blocks.air) {
+                action.setBefore(BlockSnapshot.toSnapshot(event.world, position.getX(), position.getY(), position.getZ()));
                 action.setAfter(AIR_SNAPSHOT);
-                addRecord(null, new WorldVector3i(Worlds.getWorldId(event.world), position.chunkPosX, position.chunkPosY, position.chunkPosZ), action);
+                addRecord(null, new WorldVector3i(Worlds.getWorldId(event.world), position.getX(), position.getY(), position.getZ()), action);
             }
         }
     }
@@ -143,9 +133,9 @@ public class LoggerListener {
 
         UserId userId = Profiles.fromPlayer(event.entityPlayer);
         BucketFillAction action = new BucketFillAction();
-        action.setBefore(BlockSnapshot.toSnapshot(event.world, event.target.blockX, event.target.blockY, event.target.blockZ));
+        action.setBefore(BlockSnapshot.toSnapshot(event.world, event.target.getBlockPos().getX(), event.target.getBlockPos().getY(), event.target.getBlockPos().getZ()));
         action.setAfter(AIR_SNAPSHOT);
-        addRecord(userId, new WorldVector3i(Worlds.getWorldId(event.world), event.target.blockX, event.target.blockY, event.target.blockZ), action);
+        addRecord(userId, new WorldVector3i(Worlds.getWorldId(event.world), event.target.getBlockPos().getX(), event.target.getBlockPos().getY(), event.target.getBlockPos().getZ()), action);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

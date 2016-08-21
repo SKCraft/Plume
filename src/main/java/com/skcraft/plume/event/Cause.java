@@ -6,7 +6,7 @@ import com.skcraft.plume.common.UserId;
 import com.skcraft.plume.util.profile.Profiles;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityTNTPrimed;
-import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
@@ -211,9 +211,9 @@ public final class Cause {
                     } else if (o instanceof Entity && ((Entity) o).riddenByEntity != null) {
                         indirect = true;
                         addAll(((Entity) o).riddenByEntity);
-                    } else if (o instanceof EntityAnimal && ((EntityAnimal) o).func_146083_cb() != null) {
+                    } else if (o instanceof EntityTameable && ((EntityTameable) o).getOwner() != null) {
                         indirect = true;
-                        addAll(((EntityAnimal) o).func_146083_cb());
+                        addAll(((EntityTameable) o).getOwner());
                     }
 
                     causes.add(o);

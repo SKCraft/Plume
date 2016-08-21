@@ -18,7 +18,7 @@ public class NetherCoords {
     @Command(aliases = "nethercoords", desc = "Displays your corresponding nether or overworld coords")
     @Require("plume.nethercoords")
     public void nethercoords(@Sender EntityPlayer sender) {
-        switch (sender.getEntityWorld().provider.dimensionId) {
+        switch (sender.getEntityWorld().provider.getDimensionId()) {
             case -1: //nether
                 sender.addChatMessage(Messages.info(tr("netherCoords.overworld",
                         Math.floor(sender.posX * 8), Math.floor(sender.posY), Math.floor(sender.posZ * 8))));

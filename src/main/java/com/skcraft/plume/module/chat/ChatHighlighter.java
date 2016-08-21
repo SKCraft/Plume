@@ -17,8 +17,8 @@ import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.profile.Profiles;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraft.entity.player.EntityPlayer;
 import ninja.leaping.configurate.objectmapping.Setting;
 
@@ -94,7 +94,7 @@ public class ChatHighlighter {
         File userFile = new File(highlightDir, uid.getUuid().toString());
         boolean enabled = config.get().soundEnabled;
         String sound =  config.get().soundName;
-        String keywords = event.player.getCommandSenderName();
+        String keywords = event.player.getName();
         if (!userFile.exists()) {
             writeFile(userFile, enabled, sound, keywords);
         } else {

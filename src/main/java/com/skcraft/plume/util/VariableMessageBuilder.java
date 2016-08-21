@@ -10,7 +10,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
@@ -48,17 +47,17 @@ public class VariableMessageBuilder {
                 case "spawnProtectionSize": return String.valueOf(MinecraftServer.getServer().getSpawnProtectionSize());
                 case "online.names": return Joiner.on(tr("listSeparator") + " ")
                         .join(Lists.transform(
-                                (List<EntityPlayer>) MinecraftServer.getServer().getConfigurationManager().playerEntityList,
+                                MinecraftServer.getServer().getConfigurationManager().playerEntityList,
                                 input -> input.getGameProfile().getName()));
                 case "online.displayNames": return Joiner.on(tr("listSeparator") + " ")
                         .join(Lists.transform(
-                                (List<EntityPlayer>) MinecraftServer.getServer().getConfigurationManager().playerEntityList,
+                                MinecraftServer.getServer().getConfigurationManager().playerEntityList,
                                 input -> input.getDisplayName()));
             }
 
             if (player != null) {
                 switch (s) {
-                    case "player.displayName": return player.getDisplayName();
+                    case "player.displayName": return player.getDisplayName().getFormattedText();
                     case "player.uuid": return player.getGameProfile().getId().toString();
                     case "player.name": return player.getGameProfile().getName();
                     case "player.score": return String.valueOf(player.getScore());

@@ -51,7 +51,7 @@ public class Restarts {
                 } else if (time > config.get().maxCountdown || time < 0) {
                     sender.addChatMessage(Messages.error(tr("restart.outOfRange", config.get().maxCountdown)));
                 } else {
-                    log.info(sender.getCommandSenderName() + " has started shutdown with timeout of " + time + " seconds");
+                    log.info(sender.getName() + " has started shutdown with timeout of " + time + " seconds");
 
                     restarting = true;
                     timer = new Timer();

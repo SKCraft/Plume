@@ -7,6 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.Collections;
@@ -20,7 +21,7 @@ public class SafeBlockFinder {
     @Getter private int searchRadius = 5;
     @Getter private int multiplier = 4;
     @Getter private Function<Location3i, Double> blockWeightFunction = location -> {
-        Block block = location.getWorld().getBlock(location.getX(), location.getY(), location.getZ());
+        Block block = location.getWorld().getBlockState(new BlockPos(location.getX(), location.getY(), location.getZ())).getBlock();
         Material material = block.getMaterial();
         if (block instanceof BlockLeaves) {
             return null;
@@ -53,7 +54,7 @@ public class SafeBlockFinder {
         World world = location.getWorld();
         for (int x = location.getX() - searchRadius * multiplier; x <= location.getX() + searchRadius * multiplier; x += multiplier) {
             for (int z = location.getZ() - searchRadius * multiplier; z <= location.getZ() + searchRadius * multiplier; z += multiplier) {
-                int skyY = world.getHeightValue(x, z);
+                int skyY = world.getHeight(new BlockPos(x, 0, z)).getY();
                 if (skyY == 0) { // Sometimes the height value is incorrectly returned as 0
                     skyY = world.getHeight();
                 }
@@ -62,7 +63,7 @@ public class SafeBlockFinder {
                     Double weight = blockWeightFunction.apply(candidate);
                     if (weight != null) {
                         // Penalize locations that don't consist of an open space
-                        if (location.getWorld().getBlock(x, y + 1, z) != Blocks.air || location.getWorld().getBlock(x, y + 2, z) != Blocks.air) {
+                        if (location.getWorld().getBlockState(new BlockPos(x, y + 1, z)) != Blocks.air || location.getWorld().getBlockState(new BlockPos(x, y + 2, z)) != Blocks.air) {
                             weight -= 400;
                         }
                         candidates.add(new WeightedEntry<>(candidate.add(0, 1, 0), weight + -candidate.setY(0).distanceSq(location.setY(0))));

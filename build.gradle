@@ -12,8 +12,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
         classpath 'org.jooq:jooq-codegen:3.6.2'
         classpath 'mysql:mysql-connector-java:5.1.36'
     }
@@ -21,7 +21,7 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'maven'
-apply plugin: 'forge'
+apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 version = "1.0.0"
@@ -61,6 +61,8 @@ dependencies {
     compile 'io.dropwizard.metrics:metrics-jvm:3.1.0' // Metrics + JVM
     compile 'net.sf.opencsv:opencsv:2.3' // CSV read/write
     compile 'redis.clients:jedis:2.7.3' // Redis
+    compile 'org.apache.commons:commons-pool2:2.4.2'
+
 
     // SQL and JDBC
     compile 'org.jooq:jooq:3.6.2' // SQL DSL
@@ -84,9 +86,13 @@ dependencies {
     testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
 }
 
+
+ext.forgeVersion = "11.15.1.1760"
+
 minecraft {
-    ext.forgeVersion = "10.13.4.1492-1.7.10"
-    version = "1.7.10-$forgeVersion"
+    version = "1.8.9-${project.forgeVersion}"
+    mappings = "snapshot_20160111"
+    runDir = 'run'
 
     replaceIn "com/skcraft/plume/Plume.java"
     replace "%VERSION%", project.version
@@ -96,7 +102,7 @@ project.archivesBaseName = "${project.archivesBaseName}-mc${minecraft.version}"
 
 processResources {
     from (sourceSets.main.resources.srcDirs) {
-        expand 'version': project.version, 'mcversion': project.minecraft.version, 'forgeVersion': project.minecraft.forgeVersion
+        expand 'version': project.version, 'mcversion': project.minecraft.version, 'forgeVersion': project.forgeVersion
         include 'mcmod.info'
     }
 
@@ -172,8 +178,10 @@ shadowJar {
     }
 }
 
-reobf.reobf(shadowJar) { spec ->
-    spec.classpath = sourceSets.main.compileClasspath;
+reobf {
+    shadowJar {
+        mappingType = 'SEARGE'
+    }
 }
 
 task deobfJar(type: Jar) {

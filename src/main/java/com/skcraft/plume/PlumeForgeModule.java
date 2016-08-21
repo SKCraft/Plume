@@ -10,7 +10,7 @@ import com.sk89q.intake.Command;
 import com.skcraft.plume.command.CommandManager;
 import com.skcraft.plume.common.util.module.AutoRegister;
 import com.skcraft.plume.common.util.module.Module;
-import cpw.mods.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.lang.reflect.Method;

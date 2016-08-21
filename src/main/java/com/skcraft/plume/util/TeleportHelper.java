@@ -10,11 +10,11 @@ import net.minecraftforge.common.DimensionManager;
 public class TeleportHelper {
 
     public static void teleport(EntityPlayerMP player, Location3d dest) {
-        teleport(player, dest.getX(), dest.getY(), dest.getZ(), dest.getWorld().provider.dimensionId);
+        teleport(player, dest.getX(), dest.getY(), dest.getZ(), dest.getWorld().provider.getDimensionId());
     }
 
     public static void teleport(EntityPlayerMP player, EntityPlayerMP target) {
-        teleport(player, target.posX, target.posY, target.posZ, target.worldObj.provider.dimensionId);
+        teleport(player, target.posX, target.posY, target.posZ, target.worldObj.provider.getDimensionId());
     }
 
     public static void teleport(EntityPlayerMP player, double x, double y, double z, int dimension) {
@@ -32,15 +32,7 @@ public class TeleportHelper {
         }
 
         @Override
-        public boolean placeInExistingPortal(Entity entity, double x, double y, double z, float yaw) {
-            return false;
-        }
-
-        @Override
         public void removeStalePortalLocations(long worldTime) {}
-
-        @Override
-        public void placeInPortal(Entity entity, double x, double y, double z, float yaw) {}
     }
 
 }

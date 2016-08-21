@@ -1,6 +1,6 @@
 package com.skcraft.plume.asm.util;
 
-import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import net.minecraft.launchwrapper.Launch;
 
 public final class ObfHelper {

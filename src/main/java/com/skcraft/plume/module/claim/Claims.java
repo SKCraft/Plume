@@ -32,9 +32,6 @@ import com.skcraft.plume.util.Location3i;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.Worlds;
 import com.skcraft.plume.util.profile.Profiles;
-import cpw.mods.fml.common.event.FMLServerStartedEvent;
-import cpw.mods.fml.common.eventhandler.Event.Result;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
@@ -42,12 +39,16 @@ import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent.CheckSpawn;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.skcraft.plume.common.util.SharedLocale.tr;
 
@@ -231,7 +232,7 @@ public class Claims {
     private class BlockUseFilter implements Predicate<Location3i> {
         @Override
         public boolean apply(Location3i input) {
-            Block block = input.getWorld().getBlock(input.getX(), input.getY(), input.getZ());
+            Block block = input.getWorld().getBlockState(new BlockPos(input.getX(), input.getY(), input.getZ())).getBlock();
             if (block != null) {
                 String name = GameRegistryUtils.getBlockId(block);
                 if (name != null) {

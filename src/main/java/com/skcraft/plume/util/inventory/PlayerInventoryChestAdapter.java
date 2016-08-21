@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IChatComponent;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -57,12 +58,8 @@ public class PlayerInventoryChestAdapter implements IInventory {
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int index) {
-        if (index >= getActualSize()) {
-            return null;
-        }
-
-        return delegate.getStackInSlotOnClosing(index);
+    public ItemStack removeStackFromSlot(int index) {
+        return null;
     }
 
     @Override
@@ -73,16 +70,6 @@ public class PlayerInventoryChestAdapter implements IInventory {
 
         delegate.setInventorySlotContents(index, item);
         delegate.markDirty();
-    }
-
-    @Override
-    public String getInventoryName() {
-        return inventoryName;
-    }
-
-    @Override
-    public boolean hasCustomInventoryName() {
-        return true;
     }
 
     @Override
@@ -101,11 +88,13 @@ public class PlayerInventoryChestAdapter implements IInventory {
     }
 
     @Override
-    public void openInventory() {
+    public void openInventory(EntityPlayer player) {
+
     }
 
     @Override
-    public void closeInventory() {
+    public void closeInventory(EntityPlayer player) {
+
     }
 
     @Override
@@ -114,4 +103,38 @@ public class PlayerInventoryChestAdapter implements IInventory {
 
     }
 
+    @Override
+    public int getField(int id) {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value) {
+
+    }
+
+    @Override
+    public int getFieldCount() {
+        return 0;
+    }
+
+    @Override
+    public void clear() {
+
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public boolean hasCustomName() {
+        return false;
+    }
+
+    @Override
+    public IChatComponent getDisplayName() {
+        return null;
+    }
 }

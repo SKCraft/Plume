@@ -1,0 +1,17 @@
+[
+  {
+    "modid": "plume",
+    "name": "Plume",
+    "description": "Core services for a server",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "logoFile": "",
+    "url": "",
+    "updateUrl": "",
+    "authorList": ["sk89q"],
+    "credits": "SKCraft Team",
+    "parent": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

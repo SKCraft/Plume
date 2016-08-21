@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.skcraft.plume.event.world.ChunkLoadRequestEvent;
 import com.skcraft.plume.util.profiling.Profiler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import lombok.Getter;
 import net.minecraftforge.common.MinecraftForge;
 

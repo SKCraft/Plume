@@ -23,8 +23,8 @@ import com.skcraft.plume.util.profile.ProfileLookupException;
 import com.skcraft.plume.util.profile.ProfileNotFoundException;
 import com.skcraft.plume.util.profile.ProfileService;
 import com.skcraft.plume.util.profile.Profiles;
-import cpw.mods.fml.common.eventhandler.EventPriority;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -62,7 +62,7 @@ public class Bans {
                     builder.append("\nExpires: ");
                     builder.append(latest.getExpireTime());
                 }
-                event.getNetHandler().func_147322_a(builder.toString());
+                event.getNetHandler().closeConnection(builder.toString());
             }
         }
     }

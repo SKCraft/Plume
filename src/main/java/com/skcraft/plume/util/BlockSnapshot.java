@@ -4,8 +4,10 @@ import com.skcraft.plume.common.util.WorldVector3i;
 import lombok.Data;
 import lombok.Getter;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ReportedException;
 import net.minecraft.world.World;
 
@@ -60,11 +62,12 @@ public class BlockSnapshot {
                 int x = location.getX();
                 int y = location.getY();
                 int z = location.getZ();
-                world.setBlock(x, y, z, getBlock(), getMeta(), applyPhysics ? 3 : 2);
-                world.setBlockMetadataWithNotify(x, y, z, getMeta(), applyPhysics ? 3 : 2);
-                world.markBlockForUpdate(x, y, z);
+                BlockPos pos = new BlockPos(x, y, z);
+                IBlockState newState = getBlock().getStateFromMeta(getMeta());
+                world.setBlockState(pos, newState, applyPhysics ? 3 : 2);
+                world.markBlockForUpdate(pos);
                 if (getData() != null) {
-                    TileEntity tileEntity = world.getTileEntity(x, y, z);
+                    TileEntity tileEntity = world.getTileEntity(pos);
                     if (tileEntity != null) {
                         NBTTagCompound copy = (NBTTagCompound) getData().copy();
                         copy.setInteger("x", location.getX());
@@ -107,22 +110,23 @@ public class BlockSnapshot {
     }
 
     public static BlockSnapshot toSnapshot(World world, int x, int y, int z) {
-        Block block = world.getBlock(x, y, z);
-        int meta = world.getBlockMetadata(x, y, z);
-        TileEntity tileEntity = world.getTileEntity(x, y, z);
+        BlockPos pos = new BlockPos(x, y, z);
+        IBlockState state = world.getBlockState(pos);
+        int meta = state.getBlock().getMetaFromState(state);
+        TileEntity tileEntity = world.getTileEntity(pos);
         NBTTagCompound data = null;
         if (tileEntity != null) {
             data = new NBTTagCompound();
             tileEntity.writeToNBT(data);
         }
-        return new BlockSnapshot(block, meta, data);
+        return new BlockSnapshot(state.getBlock(), meta, data);
     }
 
     public static BlockSnapshot toSnapshot(net.minecraftforge.common.util.BlockSnapshot snapshot) {
         NBTTagCompound temp = new NBTTagCompound();
         snapshot.writeToNBT(temp);
         NBTTagCompound data = temp.getBoolean("hasTE") ? temp.getCompoundTag("tileEntity") : null;
-        return new BlockSnapshot(snapshot.getReplacedBlock(), snapshot.meta, data);
+        return new BlockSnapshot(snapshot.getReplacedBlock().getBlock(), snapshot.meta, data);
     }
 
 }

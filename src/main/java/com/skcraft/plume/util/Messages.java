@@ -85,13 +85,13 @@ public final class Messages {
     }
 
     public static String toString(TileEntity tileEntity) {
-        return "TileEntity: {dim=" + tileEntity.getWorldObj().provider.dimensionId +
-                " pos=" + tileEntity.xCoord + "," + tileEntity.yCoord + "," + tileEntity.zCoord +
+        return "TileEntity: {dim=" + tileEntity.getWorld().provider.getDimensionId() +
+                " pos=" + tileEntity.getPos().getX() + "," + tileEntity.getPos().getY() + "," + tileEntity.getPos().getZ() +
                 " (" + tileEntity.getClass().getName() + ")}";
     }
 
     public static String toString(Entity entity) {
-        return "Entity: {dim=" + entity.worldObj.provider.dimensionId +
+        return "Entity: {dim=" + entity.worldObj.provider.getDimensionId() +
                 " pos=" + entity.posX + "," + entity.posY + "," + entity.posZ +
                 " (" + entity.getClass().getName() + ")}";
     }

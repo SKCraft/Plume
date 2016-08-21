@@ -2,11 +2,11 @@ package com.skcraft.plume;
 
 import com.skcraft.plume.common.util.SharedLocale;
 import com.skcraft.plume.common.util.logging.Log4jRedirect;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.*;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.*;
 import lombok.extern.java.Log;
 
 import java.util.Locale;

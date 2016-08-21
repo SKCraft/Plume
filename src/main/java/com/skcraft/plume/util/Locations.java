@@ -3,7 +3,7 @@ package com.skcraft.plume.util;
 import com.skcraft.plume.common.util.WorldVector3i;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 public final class Locations {
@@ -20,7 +20,7 @@ public final class Locations {
     }
 
     public static Location3i getLocation3i(TileEntity tileEntity) {
-        return new Location3i(tileEntity.getWorldObj(), tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
+        return new Location3i(tileEntity.getWorld(), tileEntity.getPos().getX(), tileEntity.getPos().getY(), tileEntity.getPos().getZ());
     }
 
     public static WorldVector3i getWorldVector3i(Entity entity) {
@@ -31,12 +31,12 @@ public final class Locations {
         return getLocation3i(tileEntity).toWorldVector();
     }
 
-    public static Location3i getLocation3i(World world, ChunkCoordinates coords) {
-        return new Location3i(world, coords.posX, coords.posY, coords.posZ);
+    public static Location3i getLocation3i(World world, BlockPos coords) {
+        return new Location3i(world, coords.getX(), coords.getY(), coords.getZ());
     }
 
-    public static Location3d getLocation3d(World world, ChunkCoordinates coords) {
-        return new Location3d(world, coords.posX, coords.posY, coords.posZ);
+    public static Location3d getLocation3d(World world, BlockPos coords) {
+        return new Location3d(world, coords.getX(), coords.getY(), coords.getZ());
     }
 
 }

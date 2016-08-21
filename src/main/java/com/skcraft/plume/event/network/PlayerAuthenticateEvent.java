@@ -1,7 +1,7 @@
 package com.skcraft.plume.event.network;
 
 import com.mojang.authlib.GameProfile;
-import cpw.mods.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraft.server.network.NetHandlerLoginServer;
 
 public class PlayerAuthenticateEvent extends Event {

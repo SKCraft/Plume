@@ -29,12 +29,12 @@ public class TileEntityExporter implements CSVExporter {
 
         for (TileEntity tileEntity : tileEntities) {
             writer.writeNext(new String[] {
-                    Worlds.getWorldId(tileEntity.getWorldObj()),
-                    String.valueOf(tileEntity.xCoord),
-                    String.valueOf(tileEntity.yCoord),
-                    String.valueOf(tileEntity.zCoord),
+                    Worlds.getWorldId(tileEntity.getWorld()),
+                    String.valueOf(tileEntity.getPos().getX()),
+                    String.valueOf(tileEntity.getPos().getY()),
+                    String.valueOf(tileEntity.getPos().getZ()),
                     tileEntity.getClass().getName(),
-                    GameRegistryUtils.getBlockId(tileEntity.blockType)
+                    GameRegistryUtils.getBlockId(tileEntity.getBlockType())
             });
         }
     }

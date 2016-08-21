@@ -28,7 +28,7 @@ public final class Server {
     }
 
     public static boolean isOp(GameProfile gameProfile) {
-        return MinecraftServer.getServer().getConfigurationManager().func_152596_g(gameProfile);
+        return MinecraftServer.getServer().getConfigurationManager().getOppedPlayers().func_183026_b(gameProfile);
     }
 
     @SuppressWarnings("unchecked")
@@ -53,7 +53,12 @@ public final class Server {
     @Nullable
     public static EntityPlayerMP findPlayer(String name) {
         checkNotNull(name, "name");
-        return MinecraftServer.getServer().getConfigurationManager().func_152612_a(name);
+        for (EntityPlayerMP player : MinecraftServer.getServer().getConfigurationManager().getPlayerList()) {
+            if (player.getName().equals(name)) {
+                return player;
+            }
+        }
+        return null;
     }
 
     @Nullable

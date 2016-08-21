@@ -7,31 +7,21 @@ import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.module.perf.SensibleNumbersConfig.CountPerRadius;
-import cpw.mods.fml.common.eventhandler.Event.Result;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import lombok.extern.java.Log;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.monster.EntityEnderman;
-import net.minecraft.entity.monster.EntitySkeleton;
-import net.minecraft.entity.monster.EntitySpider;
-import net.minecraft.entity.monster.EntityWitch;
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.entity.passive.EntityChicken;
-import net.minecraft.entity.passive.EntityCow;
-import net.minecraft.entity.passive.EntityPig;
-import net.minecraft.entity.passive.EntitySheep;
-import net.minecraft.entity.passive.EntitySquid;
-import net.minecraft.entity.passive.EntityTameable;
+import net.minecraft.entity.monster.*;
+import net.minecraft.entity.passive.*;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent.CheckSpawn;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 @Module(name = "sensible-numbers", desc = "Limits mob spawning")
@@ -80,15 +70,15 @@ public class SensibleNumbers {
 
     @Subscribe
     public void onLoadConfig(LoadConfigEvent event) {
-        setCreatureTypeQuota(EnumCreatureType.monster, config.get().quotas.monster);
-        setCreatureTypeQuota(EnumCreatureType.creature, config.get().quotas.animal);
-        setCreatureTypeQuota(EnumCreatureType.ambient, config.get().quotas.ambient);
-        setCreatureTypeQuota(EnumCreatureType.waterCreature, config.get().quotas.water);
+        setCreatureTypeQuota(EnumCreatureType.MONSTER, config.get().quotas.monster);
+        setCreatureTypeQuota(EnumCreatureType.CREATURE, config.get().quotas.animal);
+        setCreatureTypeQuota(EnumCreatureType.AMBIENT, config.get().quotas.ambient);
+        setCreatureTypeQuota(EnumCreatureType.WATER_CREATURE, config.get().quotas.water);
     }
 
     private int countEntities(Chunk chunk, Predicate<Entity> counter) {
         int count = 0;
-        for (List<?> entityList : chunk.entityLists) {
+        for (Set<Entity> entityList : chunk.getEntityLists()) {
             for (Object entry : entityList) {
                 if (counter.apply((Entity) entry)) {
                     count++;

@@ -1,7 +1,7 @@
 package com.skcraft.plume.module;
 
 import com.skcraft.plume.common.util.module.Module;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import lombok.extern.java.Log;
 import net.minecraft.world.biome.BiomeGenBase.SpawnListEntry;
 import net.minecraftforge.event.world.WorldEvent;

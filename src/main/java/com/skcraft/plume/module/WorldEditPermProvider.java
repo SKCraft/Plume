@@ -11,8 +11,8 @@ import com.skcraft.plume.common.util.event.Subscribe;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Contexts;
 import com.skcraft.plume.util.profile.Profiles;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.event.FMLServerStoppingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraft.command.ICommand;
 import net.minecraft.entity.player.EntityPlayerMP;
 

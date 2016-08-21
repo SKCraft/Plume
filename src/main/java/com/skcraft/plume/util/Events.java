@@ -2,7 +2,7 @@ package com.skcraft.plume.util;
 
 import com.skcraft.plume.common.util.event.EventBus;
 import com.skcraft.plume.event.DelegateEvent;
-import cpw.mods.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.Event;
 
 /**
  * Some event utility functions.

@@ -13,10 +13,10 @@ import com.skcraft.plume.common.util.config.Config;
 import com.skcraft.plume.common.util.config.InjectConfig;
 import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Messages;
-import cpw.mods.fml.common.eventhandler.EventPriority;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import lombok.extern.java.Log;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
@@ -55,10 +55,10 @@ public class WeatherSuppressor {
 
             for (WorldServer world : MinecraftServer.getServer().worldServers) {
                 WorldInfo worldInfo = world.getWorldInfo();
-                WorldRainState state = rainTimeTracker.getIfPresent(world.provider.dimensionId);
+                WorldRainState state = rainTimeTracker.getIfPresent(world.provider.getDimensionId());
                 if (state != null) {
                     StringBuilder builder = new StringBuilder();
-                    builder.append("#").append(world.provider.dimensionId).append(" ");
+                    builder.append("#").append(world.provider.getDimensionId()).append(" ");
                     builder.append("now=").append(worldInfo.isRaining()).append(" ");
                     builder.append("prev=").append(state.wasRaining).append(" ");
                     builder.append("sinceStart=").append(TimeUnit.NANOSECONDS.toSeconds(now - state.lastRainStartTime)).append("s ");
@@ -86,14 +86,14 @@ public class WeatherSuppressor {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onTick(TickEvent.WorldTickEvent event) {
-        int dimensionId = event.world.provider.dimensionId;
+        int dimensionId = event.world.provider.getDimensionId();
 
         if (!config.get().suppressRain || !config.get().affectedDimensions.contains(dimensionId)) {
             return; // Disable switch
         }
 
         if (event.phase == Phase.START) {
-            WorldRainState state = rainTimeTracker.getUnchecked(event.world.provider.dimensionId);
+            WorldRainState state = rainTimeTracker.getUnchecked(event.world.provider.getDimensionId());
             long now = System.nanoTime();
             WorldInfo worldInfo = event.world.getWorldInfo();
 

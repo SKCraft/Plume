@@ -1,7 +1,7 @@
 package com.skcraft.plume.module.commune;
 
 import com.skcraft.plume.module.chat.FancyName;
-import cpw.mods.fml.common.FMLLog;
+import net.minecraftforge.fml.common.FMLLog;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;

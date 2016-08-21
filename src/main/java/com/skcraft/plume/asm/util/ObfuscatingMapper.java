@@ -2,7 +2,7 @@ package com.skcraft.plume.asm.util;
 
 import com.google.common.collect.Maps;
 import com.skcraft.plume.util.ReflectionUtils;
-import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import lombok.extern.java.Log;
 import org.objectweb.asm.commons.Remapper;
 

@@ -11,7 +11,7 @@ import com.skcraft.plume.common.util.module.Module;
 import com.skcraft.plume.util.Contexts;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.profile.Profiles;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.CommandEvent;

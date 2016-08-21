@@ -1,7 +1,9 @@
 package com.skcraft.plume.util;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraftforge.common.util.BlockSnapshot;
 
 import javax.annotation.Nullable;
@@ -36,6 +38,10 @@ public abstract class BlockState {
         return getBlock().getUnlocalizedName();
     }
 
+    public static BlockState create(IBlockState state) {
+        return new SimpleState(state.getBlock(), state.getBlock().getMetaFromState(state), null);
+    }
+
     public static BlockState create(Block block) {
         return new SimpleState(block, 0, null);
     }
@@ -53,8 +59,10 @@ public abstract class BlockState {
     }
 
     public static BlockState getBlockAndMeta(Location3i location) {
-        Block block = location.getWorld().getBlock(location.getX(), location.getY(), location.getZ());
-        int meta = location.getWorld().getBlockMetadata(location.getX(), location.getY(), location.getZ());
+        BlockPos pos = new BlockPos(location.getX(), location.getY(), location.getZ());
+        IBlockState state = location.getWorld().getBlockState(pos);
+        Block block = state.getBlock();
+        int meta = state.getBlock().getMetaFromState(state);
         return create(block, meta);
     }
 
@@ -101,7 +109,7 @@ public abstract class BlockState {
 
         @Override
         public Block getBlock() {
-            return snapshot.getReplacedBlock();
+            return snapshot.getReplacedBlock().getBlock();
         }
 
         @Override

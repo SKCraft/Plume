@@ -53,7 +53,7 @@ public class ChunkProfiler {
         try {
             delay = config.get().clampDelay(delay);
             ListenableFuture<ChunkLoadProfiler> future = profilerExecutor.submit(new ChunkLoadProfiler(), delay, TimeUnit.SECONDS);
-            broadcaster.broadcast(Messages.info(tr("chunkProfiler.started", delay, sender.getCommandSenderName())), PERMISSION);
+            broadcaster.broadcast(Messages.info(tr("chunkProfiler.started", delay, sender.getName())), PERMISSION);
 
             Deferreds.makeDeferred(future)
                     .tap(() -> {

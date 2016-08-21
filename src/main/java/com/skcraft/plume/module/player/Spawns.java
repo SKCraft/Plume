@@ -12,7 +12,7 @@ import com.skcraft.plume.util.TeleportHelper;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.BlockPos;
 
 import java.util.Set;
 
@@ -24,7 +24,7 @@ public class Spawns {
     @Command(aliases = "setspawn", desc = "Set the spawn of the current world")
     @Require("plume.spawns.setspawn")
     public void setSpawn(@Sender EntityPlayer player) {
-        player.worldObj.setSpawnLocation((int) player.posX, (int) player.posY, (int) player.posZ);
+        player.worldObj.setSpawnPoint(player.getPosition());
         player.addChatMessage(Messages.info(tr("spawns.setSpawn")));
     }
 
@@ -39,9 +39,9 @@ public class Spawns {
             }
 
             for (EntityPlayerMP player : targets) {
-                ChunkCoordinates spawnPoint = player.worldObj.getSpawnPoint();
-                TeleportHelper.teleport(player, new Location3d(player.worldObj, spawnPoint.posX + 0.5, spawnPoint.posY, spawnPoint.posZ + 0.5));
-                player.worldObj.setSpawnLocation((int) player.posX, (int) player.posY, (int) player.posZ);
+                BlockPos spawnPoint = player.worldObj.getSpawnPoint();
+                TeleportHelper.teleport(player, new Location3d(player.worldObj, spawnPoint.getX() + 0.5, spawnPoint.getY(), spawnPoint.getZ() + 0.5));
+                player.worldObj.setSpawnPoint(new BlockPos((int) player.posX, (int) player.posY, (int) player.posZ));
                 player.addChatMessage(Messages.info(tr("spawns.teleportedToSpawn")));
             }
 

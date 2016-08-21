@@ -89,7 +89,7 @@ public class Dictator {
             double chance = claimRules.unclaimedChance;
             if (chance < 1) {
                 TileEntity tileEntity = event.getTileEntity();
-                WorldVector3i chunkPosition = new WorldVector3i(Worlds.getWorldId(tileEntity.getWorldObj()), tileEntity.xCoord >> 4, 0, tileEntity.zCoord >> 4);
+                WorldVector3i chunkPosition = new WorldVector3i(Worlds.getWorldId(tileEntity.getWorld()), tileEntity.getPos().getX() >> 4, 0, tileEntity.getPos().getZ() >> 4);
                 ClaimEntry claimEntry = claimCache.getClaimIfPresent(chunkPosition);
                 if (claimEntry != null && claimEntry.getClaim() == null) {
                     if (chance <= 0) {

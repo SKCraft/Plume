@@ -1,7 +1,7 @@
 package com.skcraft.plume.event.world;
 
-import cpw.mods.fml.common.eventhandler.Cancelable;
-import cpw.mods.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import lombok.Getter;
 import net.minecraft.world.WorldServer;
 

@@ -4,6 +4,7 @@ import com.skcraft.plume.util.Messages;
 import lombok.extern.java.Log;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 
 import java.util.logging.Level;
 
@@ -55,7 +56,8 @@ enum CrashHandler {
         @Override
         public boolean apply(CrashGuard crashGuard, Throwable throwable, TileEntity tileEntity) {
             log.log(Level.WARNING, "Crash intercepted for " + Messages.toString(tileEntity) + " -- NOW REMOVING THE TILE ENTITY", throwable);
-            tileEntity.getWorldObj().setBlockToAir(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
+            BlockPos pos = new BlockPos(tileEntity.getPos().getX(), tileEntity.getPos().getY(), tileEntity.getPos().getZ());
+            tileEntity.getWorld().setBlockToAir(pos);
             return true;
         }
 

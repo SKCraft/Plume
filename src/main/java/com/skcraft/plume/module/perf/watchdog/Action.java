@@ -5,7 +5,7 @@ import com.skcraft.plume.common.event.ReportGenerationEvent;
 import com.skcraft.plume.common.util.event.EventBus;
 import com.skcraft.plume.util.Messages;
 import com.skcraft.plume.util.management.ThreadMonitor;
-import cpw.mods.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import lombok.extern.java.Log;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;

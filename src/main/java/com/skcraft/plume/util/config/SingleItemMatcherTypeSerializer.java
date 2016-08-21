@@ -6,6 +6,7 @@ import com.skcraft.plume.util.inventory.TypeDataMatcher;
 import com.skcraft.plume.util.inventory.TypeMatcher;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
@@ -40,7 +41,7 @@ public class SingleItemMatcherTypeSerializer implements TypeSerializer<SingleIte
             name = node.getString();
         }
 
-        Item item = (Item) Item.itemRegistry.getObject(name);
+        Item item = (Item) Item.itemRegistry.getObject(new ResourceLocation(name));
         if (item != null) {
             if (damage != null) {
                 return new TypeDataMatcher(new ItemStack(item, 1, damage));
@@ -55,7 +56,7 @@ public class SingleItemMatcherTypeSerializer implements TypeSerializer<SingleIte
     @Override
     public void serialize(TypeToken<?> type, SingleItemMatcher obj, ConfigurationNode value) throws ObjectMappingException {
         ItemStack itemStack = obj.getItemStack();
-        String name = Item.itemRegistry.getNameForObject(itemStack.getItem());
+        String name = Item.itemRegistry.getNameForObject(itemStack.getItem()).toString();
         if (obj instanceof TypeDataMatcher) {
             value.getNode("name").setValue(name);
             value.getNode("damage").setValue(itemStack.getItemDamage());

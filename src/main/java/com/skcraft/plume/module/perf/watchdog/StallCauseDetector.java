@@ -23,19 +23,19 @@ public class StallCauseDetector {
                 tr("watchdog.cause.crafting")
         ));
         patterns.add(new CausePattern(
-                new MethodMatcher("cpw.mods.fml.common.FMLCommonHandler", "onPostServerTick", "onPostServerTick", ""),
+                new MethodMatcher("net.minecraftforge.fml.common.FMLCommonHandler", "onPostServerTick", "onPostServerTick", ""),
                 tr("watchdog.cause.postServerTick")
         ));
         patterns.add(new CausePattern(
-                new MethodMatcher("cpw.mods.fml.common.FMLCommonHandler", "onPostWorldTick", "onPostWorldTick", ""),
+                new MethodMatcher("net.minecraftforge.fml.common.FMLCommonHandler", "onPostWorldTick", "onPostWorldTick", ""),
                 tr("watchdog.cause.postWorldTick")
         ));
         patterns.add(new CausePattern(
-                new MethodMatcher("cpw.mods.fml.common.FMLCommonHandler", "onPreServerTick", "onPreServerTick", ""),
+                new MethodMatcher("net.minecraftforge.fml.common.FMLCommonHandler", "onPreServerTick", "onPreServerTick", ""),
                 tr("watchdog.cause.preServerTick")
         ));
         patterns.add(new CausePattern(
-                new MethodMatcher("cpw.mods.fml.common.FMLCommonHandler", "onPreWorldTick", "onPreWorldTick", ""),
+                new MethodMatcher("net.minecraftforge.fml.common.FMLCommonHandler", "onPreWorldTick", "onPreWorldTick", ""),
                 tr("watchdog.cause.preWorldTick")
         ));
     }

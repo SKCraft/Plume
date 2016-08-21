@@ -62,7 +62,7 @@ public class Teleports {
                         if (pos.tagCount() == 3) {
                             WorldServer world = Server.getDimensionOrLoad(dimension);
                             if (world != null) {
-                                TeleportHelper.teleport(sender, new Location3d(world, pos.func_150309_d(0), pos.func_150309_d(1), pos.func_150309_d(2)));
+                                TeleportHelper.teleport(sender, new Location3d(world, pos.getDoubleAt(0), pos.getDoubleAt(1), pos.getDoubleAt(2)));
                                 sender.addChatMessage(Messages.info(tr("teleport.success")));
                                 return null;
                             } else {
@@ -123,7 +123,7 @@ public class Teleports {
                             } else {
                                 try {
                                     NBTTagCompound tag = PlayerDataFiles.readPlayer(userId);
-                                    tag.setInteger("Dimension", sender.worldObj.provider.dimensionId);
+                                    tag.setInteger("Dimension", sender.worldObj.provider.getDimensionId());
                                     NBTTagList pos = new NBTTagList();
                                     pos.appendTag(new NBTTagDouble(sender.posX));
                                     pos.appendTag(new NBTTagDouble(sender.posY));

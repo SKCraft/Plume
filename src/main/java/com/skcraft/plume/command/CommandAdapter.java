@@ -5,7 +5,6 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,16 +38,5 @@ abstract class CommandAdapter extends CommandBase {
     @Override
     public boolean canCommandSenderUseCommand(ICommandSender sender) {
         return true;
-    }
-
-    @Override
-    public int compareTo(@Nullable Object o) {
-        if (o == null) {
-            return 0;
-        } else if (o instanceof ICommand) {
-            return super.compareTo((ICommand) o);
-        } else {
-            return 0;
-        }
     }
 }

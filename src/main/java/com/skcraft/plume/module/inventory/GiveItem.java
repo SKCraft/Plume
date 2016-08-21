@@ -40,8 +40,8 @@ public class GiveItem {
         }
 
         @Override
-        public void closeInventory() {
-            super.closeInventory();
+        public void closeInventory(EntityPlayer p) {
+            super.closeInventory(p);
 
             Set<EntityPlayer> receivedItems = Sets.newHashSet();
 
@@ -60,7 +60,7 @@ public class GiveItem {
 
             sender.addChatMessage(Messages.info(tr("giveItem.itemsGivenOut", receivedItems.size())));
             for (EntityPlayer target : receivedItems) {
-                target.addChatMessage(Messages.info(tr("giveItem.receivedItemsFrom", sender.getCommandSenderName())));
+                target.addChatMessage(Messages.info(tr("giveItem.receivedItemsFrom", sender.getName())));
             }
         }
     }

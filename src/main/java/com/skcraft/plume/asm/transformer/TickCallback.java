@@ -9,6 +9,7 @@ import com.skcraft.plume.event.tick.TileEntityTickExceptionEvent;
 import lombok.extern.java.Log;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ITickable;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -71,7 +72,7 @@ public final class TickCallback {
                             log.log(Level.WARNING, "Failed to start stopwatch " + stopwatches.get(i).getClass().getName(), t);
                         }
                     }
-                    tileEntity.updateEntity();
+                    ((ITickable) tileEntity).update();
                 } finally {
                     for (int i = stopwatches.size() - 1; i >= 0; i--) {
                         try {

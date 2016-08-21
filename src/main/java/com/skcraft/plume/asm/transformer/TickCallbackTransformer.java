@@ -2,7 +2,7 @@ package com.skcraft.plume.asm.transformer;
 
 import com.skcraft.plume.asm.util.MethodMatcher;
 import com.skcraft.plume.asm.util.ObfHelper;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 import lombok.extern.java.Log;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.ClassReader;

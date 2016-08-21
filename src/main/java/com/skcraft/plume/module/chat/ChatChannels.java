@@ -53,7 +53,7 @@ public class ChatChannels {
         List<String> names = players.stream().map(userId -> {
             EntityPlayer player = userId.getEntityPlayer();
             if (player == null) return userId.getName() + "*";
-            else return player.getDisplayName();
+            else return player.getName();
         }).collect(Collectors.toList());
         sender.addChatMessage(Messages.info(tr("chatChannel.who.users", channel, Joiner.on(tr("listSeparator") + " ").join(names))));
     }

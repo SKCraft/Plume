@@ -47,7 +47,7 @@ public class PlayerData {
     public void putAll(EntityPlayerMP player) {
         if(data != null) {
             NBTTagList pos = data.getTagList("Pos", 6);
-            TeleportHelper.teleport(player, pos.func_150309_d(0), pos.func_150309_d(1), pos.func_150309_d(2), data.getInteger("Dimension"));
+            TeleportHelper.teleport(player, pos.getDoubleAt(0), pos.getDoubleAt(1), pos.getDoubleAt(2), data.getInteger("Dimension"));
             player.readEntityFromNBT(data);
         } else {
             for(int slot = 0; slot < player.inventory.mainInventory.length; slot++) {

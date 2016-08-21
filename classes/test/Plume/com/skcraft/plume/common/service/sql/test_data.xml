@@ -1,0 +1,26 @@
+<dataset>
+  <group id="1" name="ADMINS" permissions="*"/>
+  <group id="2" name="USERS" permissions="whitelist&#xA;access"/>
+  <group id="3" name="MEMBERS" permissions="worldedit&#xA;cookie"/>
+  <group_parent parent_id="2" group_id="3"/>
+  <user_id id="1" uuid="0ea8eca3-dbf6-47cc-9d1a-c64551ca975c" name="sk89q"/>
+  <user_id id="2" uuid="a31a3813-4b01-4022-ba46-29415975c4c5" name="vincent"/>
+  <user user_id="1" host_key="access"/>
+  <user user_id="2" referrer="1" host_key="test"/>
+  <user_group user_id="1" group_id="1"/>
+  <user_group user_id="1" group_id="3"/>
+  <user_group user_id="2" group_id="3"/>
+  <ban id="1" user_id="2" server="main" reason="Does not like dogs" expire_time="2005-01-01 00:00:00" pardon_by="1" pardon_reason="Likes dogs now"/>
+  <ban id="2" user_id="2" server="main" reason="Does not like cats" expire_time="2500-01-01 00:00:00"/>
+  <ban id="3" user_id="2" server="main" reason="Does not like rabbits" issue_by="1"/>
+  <party name="fRieNds" create_time="2015-02-04 10:20:30"/>
+  <party name="guEsTs" create_time="2015-03-05 10:20:30"/>
+  <party_member party_name="friends" user_id="1" rank="OWNER" />
+  <party_member party_name="guests" user_id="2" rank="OWNER"/>
+  <party_member party_name="guests" user_id="1" rank="MEMBER"/>
+  <claim server="creative" world="main" x="20" z="-30" owner_id="1" party_name="friends" issue_time="2005-01-02 02:04:06"/>
+  <claim server="creative" world="second" x="20" z="-30" owner_id="1" issue_time="2005-01-03 00:00:00"/>
+  <claim server="creative" world="main" x="21" z="-30" owner_id="2" party_name="guests" issue_time="2005-02-03 00:10:00"/>
+  <claim server="creative" world="second" x="21" z="-30" owner_id="2" party_name="friends" issue_time="2015-04-03 00:00:00"/>
+  <claim server="survival" world="main" x="20" z="-30" owner_id="1" issue_time="2005-01-01 00:00:00"/>
+</dataset>
